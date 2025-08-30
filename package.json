@@ -1,0 +1,56 @@
+{
+  "name": "zenith-browser",
+  "version": "1.0.0",
+  "description": "A minimalistic, clean browser alternative with modern design",
+  "main": "src/main/main.js",
+  "homepage": ".",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir",
+    "test": "jest"
+  },
+  "keywords": [
+    "browser",
+    "minimalistic",
+    "electron",
+    "clean",
+    "alternative"
+  ],
+  "author": "Zenith Browser Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.0",
+    "jest": "^29.0.0"
+  },
+  "build": {
+    "appId": "com.zenith.browser",
+    "productName": "Zenith Browser",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icons/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icons/icon.png"
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
