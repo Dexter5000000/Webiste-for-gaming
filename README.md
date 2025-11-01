@@ -1,15 +1,15 @@
 # Zenith Browser
 
-A minimalistic, clean browser alternative with modern design - completely original and not related to any existing browsers.
+A minimalistic, clean browser alternative with modern design - now refactored as a Progressive Web App (PWA).
 
 ## Features
 
 - 🎨 **Minimalistic Design**: Clean interface with beautiful gradients
-- 🚀 **Fast Performance**: Lightweight and optimized for speed
+- 🚀 **Fast Performance**: Lightweight and optimized for speed with Vite
 - 🔒 **Privacy Focused**: Built-in tracking protection and privacy controls
-- 🎯 **Original**: Completely unique design, not influenced by existing browsers
-- 📱 **Cross-Platform**: Works on Windows, macOS, and Linux
-- ⚡ **Modern**: Built with Electron and modern web technologies
+- 🌐 **PWA Ready**: Installable web app with offline support
+- 📱 **Responsive**: Works on desktop and mobile devices
+- ⚡ **Modern**: Built with React, TypeScript, and Vite
 
 ## Prerequisites
 
@@ -39,30 +39,46 @@ Before running Zenith Browser, you need to install Node.js:
 npm run dev
 ```
 
-### Production Mode
+### Production Build
 ```bash
-npm start
+npm run build
 ```
 
-### Build for Distribution
+### Preview Production Build
 ```bash
-npm run dist
+npm run preview
 ```
 
 ## Project Structure
 
 ```
 ├── src/
-│   ├── main/           # Electron main process
-│   │   ├── main.js     # Main application entry
-│   │   └── preload.js  # Secure preload script
-│   └── renderer/       # Browser UI
-│       ├── index.html  # Main interface
-│       ├── styles/     # CSS stylesheets
-│       └── scripts/    # JavaScript functionality
-├── assets/
-│   └── icons/          # Application icons
-└── package.json        # Project configuration
+│   ├── components/      # React components
+│   │   ├── TitleBar.tsx
+│   │   ├── NavigationBar.tsx
+│   │   ├── TabStrip.tsx
+│   │   ├── ContentArea.tsx
+│   │   ├── StatusBar.tsx
+│   │   ├── SettingsPanel.tsx
+│   │   └── StartPage.tsx
+│   ├── styles/         # CSS stylesheets
+│   │   ├── main.css
+│   │   ├── components.css
+│   │   └── index.css
+│   ├── main.tsx        # React entry point
+│   ├── App.tsx         # Main application component
+│   ├── types.ts        # TypeScript type definitions
+│   ├── sw.js           # Service worker for PWA
+│   └── vite-env.d.ts   # Vite type definitions
+├── public/             # Static assets
+│   ├── favicon.svg
+│   ├── pwa-192x192.svg
+│   └── pwa-512x512.svg
+├── dist/               # Build output
+├── package.json        # Project configuration
+├── vite.config.ts      # Vite configuration
+├── tsconfig.json       # TypeScript configuration
+└── .eslintrc.json      # ESLint configuration
 ```
 
 ## Key Features
@@ -73,49 +89,48 @@ npm run dist
 - **History**: Back/forward navigation
 - **Bookmarks**: Save and organize favorite sites
 
+### PWA Features
+- **Offline Support**: Works without internet connection
+- **Installable**: Can be installed as a desktop app
+- **Service Worker**: Caches assets for fast loading
+- **Responsive**: Adapts to mobile and desktop screens
+
 ### Interface
-- **Custom Title Bar**: Frameless window with custom controls
-- **Responsive Design**: Adapts to different window sizes
-- **Smooth Animations**: Subtle transitions and effects
+- **Modern React UI**: Component-based architecture
+- **TypeScript**: Type-safe development
+- **Responsive Design**: Adapts to different screen sizes
 - **Clean Typography**: Readable and modern fonts
 
 ### Privacy & Security
 - **HTTPS Enforcement**: Prefer secure connections
 - **Tracking Protection**: Block tracking scripts
-- **Secure Context**: Sandboxed content rendering
 - **Privacy Settings**: Granular privacy controls
 
 ### Settings & Customization
 - **Theme Options**: Light, dark, and auto themes
-- **Font Settings**: Adjustable size and family
 - **Homepage**: Customizable start page
-- **Search Engine**: Multiple search engine options
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+T` | New Tab |
-| `Ctrl+W` | Close Tab |
-| `Ctrl+R` | Reload Page |
-| `Ctrl+L` | Focus Address Bar |
-| `Alt+Left` | Go Back |
-| `Alt+Right` | Go Forward |
-| `Alt+Home` | Go Home |
-| `Ctrl+1-9` | Switch to Tab |
+- **Quick Links**: Fast access to favorite sites
 
 ## Development
 
 ### Adding Features
-1. **Main Process**: Add functionality to `src/main/main.js`
-2. **UI Components**: Create in `src/renderer/`
-3. **Styling**: Add CSS to `src/renderer/styles/`
-4. **JavaScript**: Add logic to `src/renderer/scripts/`
+1. **Components**: Create new React components in `src/components/`
+2. **Styling**: Add CSS to `src/styles/`
+3. **Types**: Update TypeScript types in `src/types.ts`
+4. **Service Worker**: Modify PWA behavior in `src/sw.js`
 
-### Building
-- **Development**: Hot reload with `npm run dev`
-- **Testing**: Build without publishing with `npm run pack`
-- **Distribution**: Create installers with `npm run dist`
+### Development Commands
+- **Development**: `npm run dev` - Start dev server with hot reload
+- **Build**: `npm run build` - Create production build
+- **Preview**: `npm run preview` - Preview production build
+- **Lint**: `npm run lint` - Run ESLint
+- **Format**: `npm run format` - Format code with Prettier
+
+### PWA Development
+- Service worker is generated by vite-plugin-pwa
+- Manifest is automatically created
+- Offline caching is configured in `src/sw.js`
+- Build outputs to `dist/` directory
 
 ## Contributing
 
