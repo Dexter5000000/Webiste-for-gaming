@@ -5,17 +5,17 @@ export * from './serialization';
 
 // Re-export commonly used types and functions
 export type { AppStore, AudioEngineEvents } from './store';
-export { 
+export {
   createEmptyProject,
   createInitialTransport,
   createInitialSelection,
-  createInitialGrid
+  createInitialGrid,
 } from './store';
-export { 
-  serializeProject, 
-  rehydrateProject, 
-  serializeAppState, 
+export {
+  serializeProject,
+  rehydrateProject,
+  serializeAppState,
   rehydrateAppState,
   validateSerializedProject,
-  createProjectBackup
+  createProjectBackup,
 } from './serialization';

@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { 
-  AppState, 
-  Project, 
-  Track, 
-  Clip, 
-  Effect, 
-  EffectChain, 
+import {
+  AppState,
+  Project,
+  Track,
+  AudioTrack,
+  MidiTrack,
+  EffectTrack,
+  BusTrack,
+  MasterTrack,
+  Clip,
+  Effect,
+  EffectChain,
   AudioFile,
   TransportState,
   SelectionState,
@@ -14,7 +19,6 @@ import {
   HistoryState,
   TrackType,
   ClipType,
-  EffectType
 } from './models';
 
 // Initial state helpers
@@ -24,7 +28,7 @@ const createEmptyProject = (): Project => ({
   tempo: 120,
   timeSignature: {
     numerator: 4,
-    denominator: 4
+    denominator: 4,
   },
   sampleRate: 44100,
   bitDepth: 24,
@@ -37,8 +41,8 @@ const createEmptyProject = (): Project => ({
     createdAt: new Date(),
     modifiedAt: new Date(),
     version: '1.0.0',
-    tags: []
-  }
+    tags: [],
+  },
 });
 
 const createInitialTransport = (): TransportState => ({
@@ -52,13 +56,13 @@ const createInitialTransport = (): TransportState => ({
   punchIn: 0,
   punchOut: 16,
   countIn: 2,
-  playbackSpeed: 1.0
+  playbackSpeed: 1.0,
 });
 
 const createInitialSelection = (): SelectionState => ({
   selectedTrackIds: [],
   selectedClipIds: [],
-  selectedEffectIds: []
+  selectedEffectIds: [],
 });
 
 const createInitialGrid = (): GridSettings => ({
@@ -72,15 +76,15 @@ const createInitialGrid = (): GridSettings => ({
   zoomVertical: 60, // pixels per track
   scrollPosition: {
     x: 0,
-    y: 0
-  }
+    y: 0,
+  },
 });
 
 const createInitialHistory = (): HistoryState => ({
   past: [],
   present: createEmptyProject(),
   future: [],
-  maxSize: 50
+  maxSize: 50,
 });
 
 // Store interface with all actions
@@ -116,11 +120,15 @@ interface AppStore extends AppState {
   setTrackColor: (trackId: string, color: string) => void;
 
   // Clip CRUD actions
-  addClip: (clip: Omit<Clip, 'id'>) => void;
+  addClip: (clip: Omit<Clip, 'id'> | any) => void;
   removeClip: (clipId: string) => void;
   duplicateClip: (clipId: string) => void;
   moveClip: (clipId: string, newTrackId: string, newStartTime: number) => void;
-  resizeClip: (clipId: string, newStartTime: number, newDuration: number) => void;
+  resizeClip: (
+    clipId: string,
+    newStartTime: number,
+    newDuration: number
+  ) => void;
   setClipGain: (clipId: string, gain: number) => void;
   setClipPan: (clipId: string, pan: number) => void;
   setClipMute: (clipId: string, muted: boolean) => void;
@@ -131,7 +139,11 @@ interface AppStore extends AppState {
   addEffect: (trackId: string, effect: Omit<Effect, 'id'>) => void;
   removeEffect: (effectId: string) => void;
   moveEffect: (effectId: string, newPosition: number) => void;
-  setEffectParameter: (effectId: string, parameter: string, value: number | string | boolean) => void;
+  setEffectParameter: (
+    effectId: string,
+    parameter: string,
+    value: number | string | boolean
+  ) => void;
   setEffectEnabled: (effectId: string, enabled: boolean) => void;
   setEffectBypassed: (effectId: string, bypassed: boolean) => void;
 
@@ -159,7 +171,15 @@ interface AppStore extends AppState {
   toggleBrowser: () => void;
   toggleInspector: () => void;
   toggleAutomation: () => void;
-  setFocusedPanel: (panel: 'timeline' | 'mixer' | 'browser' | 'inspector' | 'automation' | undefined) => void;
+  setFocusedPanel: (
+    panel:
+      | 'timeline'
+      | 'mixer'
+      | 'browser'
+      | 'inspector'
+      | 'automation'
+      | undefined
+  ) => void;
 
   // Project actions
   newProject: () => void;
@@ -182,7 +202,12 @@ interface AppStore extends AppState {
   getEffectById: (effectId: string) => Effect | undefined;
   getEffectChainByTrackId: (trackId: string) => EffectChain | undefined;
   getClipsByTrackId: (trackId: string) => Clip[];
-  getTracksInRange: (startTime: number, endTime: number, startTrackIndex?: number, endTrackIndex?: number) => Track[];
+  getTracksInRange: (
+    startTime: number,
+    endTime: number,
+    startTrackIndex?: number,
+    endTrackIndex?: number
+  ) => Track[];
   canUndo: () => boolean;
   canRedo: () => boolean;
 }
@@ -200,10 +225,18 @@ export interface AudioEngineEvents {
   onTrackSoloChange: (trackId: string, solo: boolean) => void;
   onClipAdd: (clip: Clip) => void;
   onClipRemove: (clipId: string) => void;
-  onClipMove: (clipId: string, newTrackId: string, newStartTime: number) => void;
+  onClipMove: (
+    clipId: string,
+    newTrackId: string,
+    newStartTime: number
+  ) => void;
   onEffectAdd: (effect: Effect) => void;
   onEffectRemove: (effectId: string) => void;
-  onEffectParameterChange: (effectId: string, parameter: string, value: number | string | boolean) => void;
+  onEffectParameterChange: (
+    effectId: string,
+    parameter: string,
+    value: number | string | boolean
+  ) => void;
 }
 
 // Create the store
@@ -220,7 +253,7 @@ export const useAppStore = create<AppStore>()(
       showBrowser: true,
       showInspector: true,
       showAutomation: false,
-      focusedPanel: 'timeline'
+      focusedPanel: 'timeline',
     },
 
     // Transport actions
@@ -284,7 +317,8 @@ export const useAppStore = create<AppStore>()(
 
     toggleMetronome: () => {
       set((state) => {
-        state.transport.isMetronomeEnabled = !state.transport.isMetronomeEnabled;
+        state.transport.isMetronomeEnabled =
+          !state.transport.isMetronomeEnabled;
       });
     },
 
@@ -320,7 +354,9 @@ export const useAppStore = create<AppStore>()(
       set((state) => {
         state.project.timeSignature = {
           numerator: Math.max(1, Math.min(32, numerator)),
-          denominator: [1, 2, 4, 8, 16, 32].includes(denominator) ? denominator : 4
+          denominator: [1, 2, 4, 8, 16, 32].includes(denominator)
+            ? denominator
+            : 4,
         };
       });
       const events = get() as unknown as AudioEngineEvents;
@@ -338,7 +374,7 @@ export const useAppStore = create<AppStore>()(
       set((state) => {
         const trackId = crypto.randomUUID();
         const effectChainId = crypto.randomUUID();
-        
+
         let newTrack: Track;
         const baseTrack = {
           id: trackId,
@@ -353,7 +389,7 @@ export const useAppStore = create<AppStore>()(
           height: 60,
           visible: true,
           locked: false,
-          effectChainId
+          effectChainId,
         };
 
         switch (type) {
@@ -363,7 +399,7 @@ export const useAppStore = create<AppStore>()(
               type: TrackType.AUDIO,
               monitoring: false,
               inputGain: 1,
-              recordEnabled: false
+              recordEnabled: false,
             } as AudioTrack;
             break;
           case TrackType.MIDI:
@@ -372,23 +408,23 @@ export const useAppStore = create<AppStore>()(
               type: TrackType.MIDI,
               instrument: {
                 type: 'vsti',
-                midiChannel: 0
+                midiChannel: 0,
               },
-              midiThru: false
+              midiThru: false,
             } as MidiTrack;
             break;
           case TrackType.EFFECT:
             newTrack = {
               ...baseTrack,
               type: TrackType.EFFECT,
-              receives: []
+              receives: [],
             } as EffectTrack;
             break;
           case TrackType.BUS:
             newTrack = {
               ...baseTrack,
               type: TrackType.BUS,
-              receives: []
+              receives: [],
             } as BusTrack;
             break;
           case TrackType.MASTER:
@@ -398,50 +434,58 @@ export const useAppStore = create<AppStore>()(
               limiter: {
                 enabled: true,
                 ceiling: -0.1,
-                release: 10
-              }
+                release: 10,
+              },
             } as MasterTrack;
             break;
           default:
             return;
         }
 
-        const insertIndex = position !== undefined ? Math.min(Math.max(0, position), state.project.tracks.length) : state.project.tracks.length;
+        const insertIndex =
+          position !== undefined
+            ? Math.min(Math.max(0, position), state.project.tracks.length)
+            : state.project.tracks.length;
         state.project.tracks.splice(insertIndex, 0, newTrack);
 
         // Add effect chain
         state.project.effectChains.push({
           id: effectChainId,
           trackId,
-          effects: []
+          effects: [],
         });
       });
     },
 
     removeTrack: (trackId: string) => {
       set((state) => {
-        const trackIndex = state.project.tracks.findIndex(t => t.id === trackId);
+        const trackIndex = state.project.tracks.findIndex(
+          (t) => t.id === trackId
+        );
         if (trackIndex === -1) return;
 
-        const track = state.project.tracks[trackIndex];
-        
         // Remove track
         state.project.tracks.splice(trackIndex, 1);
-        
+
         // Remove associated clips
-        state.project.clips = state.project.clips.filter(c => c.trackId !== trackId);
-        
+        state.project.clips = state.project.clips.filter(
+          (c) => c.trackId !== trackId
+        );
+
         // Remove effect chain
-        state.project.effectChains = state.project.effectChains.filter(ec => ec.trackId !== trackId);
-        
+        state.project.effectChains = state.project.effectChains.filter(
+          (ec) => ec.trackId !== trackId
+        );
+
         // Remove from selection
-        state.selection.selectedTrackIds = state.selection.selectedTrackIds.filter(id => id !== trackId);
+        state.selection.selectedTrackIds =
+          state.selection.selectedTrackIds.filter((id) => id !== trackId);
       });
     },
 
     renameTrack: (trackId: string, name: string) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.name = name.trim();
         }
@@ -450,44 +494,50 @@ export const useAppStore = create<AppStore>()(
 
     duplicateTrack: (trackId: string) => {
       const state = get();
-      const track = state.project.tracks.find(t => t.id === trackId);
+      const track = state.project.tracks.find((t) => t.id === trackId);
       if (!track) return;
 
       const newTrackId = crypto.randomUUID();
       const newEffectChainId = crypto.randomUUID();
-      
+
       set((draftState) => {
-        const trackIndex = draftState.project.tracks.findIndex(t => t.id === trackId);
-        
+        const trackIndex = draftState.project.tracks.findIndex(
+          (t) => t.id === trackId
+        );
+
         // Deep clone the track
         const newTrack = JSON.parse(JSON.stringify(track));
         newTrack.id = newTrackId;
         newTrack.name = `${track.name} Copy`;
         newTrack.effectChainId = newEffectChainId;
         newTrack.armed = false; // Don't arm duplicated tracks
-        
+
         // Insert after original
         draftState.project.tracks.splice(trackIndex + 1, 0, newTrack);
-        
+
         // Clone effect chain
-        const originalEffectChain = draftState.project.effectChains.find(ec => ec.trackId === trackId);
+        const originalEffectChain = draftState.project.effectChains.find(
+          (ec) => ec.trackId === trackId
+        );
         if (originalEffectChain) {
           draftState.project.effectChains.push({
             id: newEffectChainId,
             trackId: newTrackId,
-            effects: originalEffectChain.effects.map(effect => ({
+            effects: originalEffectChain.effects.map((effect) => ({
               ...effect,
-              id: crypto.randomUUID()
-            }))
+              id: crypto.randomUUID(),
+            })),
           });
         }
-        
+
         // Clone clips
-        const originalClips = draftState.project.clips.filter(c => c.trackId === trackId);
-        const newClips = originalClips.map(clip => ({
+        const originalClips = draftState.project.clips.filter(
+          (c) => c.trackId === trackId
+        );
+        const newClips = originalClips.map((clip) => ({
           ...clip,
           id: crypto.randomUUID(),
-          trackId: newTrackId
+          trackId: newTrackId,
         }));
         draftState.project.clips.push(...newClips);
       });
@@ -495,18 +545,23 @@ export const useAppStore = create<AppStore>()(
 
     moveTrack: (trackId: string, newPosition: number) => {
       set((state) => {
-        const trackIndex = state.project.tracks.findIndex(t => t.id === trackId);
+        const trackIndex = state.project.tracks.findIndex(
+          (t) => t.id === trackId
+        );
         if (trackIndex === -1) return;
 
         const [track] = state.project.tracks.splice(trackIndex, 1);
-        const clampedPosition = Math.min(Math.max(0, newPosition), state.project.tracks.length);
+        const clampedPosition = Math.min(
+          Math.max(0, newPosition),
+          state.project.tracks.length
+        );
         state.project.tracks.splice(clampedPosition, 0, track);
       });
     },
 
     setTrackVolume: (trackId: string, volume: number) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.volume = Math.max(0, Math.min(2, volume));
         }
@@ -517,7 +572,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackPan: (trackId: string, pan: number) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.pan = Math.max(-1, Math.min(1, pan));
         }
@@ -528,7 +583,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackMute: (trackId: string, muted: boolean) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.muted = muted;
         }
@@ -539,7 +594,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackSolo: (trackId: string, solo: boolean) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.solo = solo;
         }
@@ -550,7 +605,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackArm: (trackId: string, armed: boolean) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.armed = armed;
         }
@@ -559,7 +614,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackHeight: (trackId: string, height: number) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.height = Math.max(20, Math.min(200, height));
         }
@@ -568,7 +623,7 @@ export const useAppStore = create<AppStore>()(
 
     setTrackColor: (trackId: string, color: string) => {
       set((state) => {
-        const track = state.project.tracks.find(t => t.id === trackId);
+        const track = state.project.tracks.find((t) => t.id === trackId);
         if (track) {
           track.color = color;
         }
@@ -576,12 +631,12 @@ export const useAppStore = create<AppStore>()(
     },
 
     // Clip CRUD actions
-    addClip: (clip: Omit<Clip, 'id'>) => {
+    addClip: (clip: Omit<Clip, 'id'> | any) => {
       set((state) => {
-        const newClip: Clip = {
+        const newClip = {
           ...clip,
-          id: crypto.randomUUID()
-        };
+          id: crypto.randomUUID(),
+        } as Clip;
         state.project.clips.push(newClip);
       });
       const events = get() as unknown as AudioEngineEvents;
@@ -590,8 +645,11 @@ export const useAppStore = create<AppStore>()(
 
     removeClip: (clipId: string) => {
       set((state) => {
-        state.project.clips = state.project.clips.filter(c => c.id !== clipId);
-        state.selection.selectedClipIds = state.selection.selectedClipIds.filter(id => id !== clipId);
+        state.project.clips = state.project.clips.filter(
+          (c) => c.id !== clipId
+        );
+        state.selection.selectedClipIds =
+          state.selection.selectedClipIds.filter((id) => id !== clipId);
       });
       const events = get() as unknown as AudioEngineEvents;
       events.onClipRemove?.(clipId);
@@ -599,14 +657,14 @@ export const useAppStore = create<AppStore>()(
 
     duplicateClip: (clipId: string) => {
       const state = get();
-      const clip = state.project.clips.find(c => c.id === clipId);
+      const clip = state.project.clips.find((c) => c.id === clipId);
       if (!clip) return;
 
       set((draftState) => {
         const newClip: Clip = {
           ...clip,
           id: crypto.randomUUID(),
-          startTime: clip.startTime + clip.duration // Place right after original
+          startTime: clip.startTime + clip.duration, // Place right after original
         };
         draftState.project.clips.push(newClip);
       });
@@ -614,7 +672,7 @@ export const useAppStore = create<AppStore>()(
 
     moveClip: (clipId: string, newTrackId: string, newStartTime: number) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.trackId = newTrackId;
           clip.startTime = Math.max(0, newStartTime);
@@ -626,7 +684,7 @@ export const useAppStore = create<AppStore>()(
 
     resizeClip: (clipId: string, newStartTime: number, newDuration: number) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.startTime = Math.max(0, newStartTime);
           clip.duration = Math.max(0.1, newDuration);
@@ -636,7 +694,7 @@ export const useAppStore = create<AppStore>()(
 
     setClipGain: (clipId: string, gain: number) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.gain = Math.max(0, Math.min(2, gain));
         }
@@ -645,7 +703,7 @@ export const useAppStore = create<AppStore>()(
 
     setClipPan: (clipId: string, pan: number) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.pan = Math.max(-1, Math.min(1, pan));
         }
@@ -654,7 +712,7 @@ export const useAppStore = create<AppStore>()(
 
     setClipMute: (clipId: string, muted: boolean) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.muted = muted;
         }
@@ -663,7 +721,7 @@ export const useAppStore = create<AppStore>()(
 
     setClipSolo: (clipId: string, solo: boolean) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.solo = solo;
         }
@@ -672,7 +730,7 @@ export const useAppStore = create<AppStore>()(
 
     setClipColor: (clipId: string, color: string) => {
       set((state) => {
-        const clip = state.project.clips.find(c => c.id === clipId);
+        const clip = state.project.clips.find((c) => c.id === clipId);
         if (clip) {
           clip.color = color;
         }
@@ -682,12 +740,14 @@ export const useAppStore = create<AppStore>()(
     // Effect actions
     addEffect: (trackId: string, effect: Omit<Effect, 'id'>) => {
       set((state) => {
-        const effectChain = state.project.effectChains.find(ec => ec.trackId === trackId);
+        const effectChain = state.project.effectChains.find(
+          (ec) => ec.trackId === trackId
+        );
         if (effectChain) {
           const newEffect: Effect = {
             ...effect,
             id: crypto.randomUUID(),
-            position: effectChain.effects.length
+            position: effectChain.effects.length,
           };
           effectChain.effects.push(newEffect);
         }
@@ -698,8 +758,10 @@ export const useAppStore = create<AppStore>()(
 
     removeEffect: (effectId: string) => {
       set((state) => {
-        state.project.effectChains.forEach(effectChain => {
-          const effectIndex = effectChain.effects.findIndex(e => e.id === effectId);
+        state.project.effectChains.forEach((effectChain) => {
+          const effectIndex = effectChain.effects.findIndex(
+            (e) => e.id === effectId
+          );
           if (effectIndex !== -1) {
             effectChain.effects.splice(effectIndex, 1);
             // Update positions of remaining effects
@@ -708,7 +770,8 @@ export const useAppStore = create<AppStore>()(
             });
           }
         });
-        state.selection.selectedEffectIds = state.selection.selectedEffectIds.filter(id => id !== effectId);
+        state.selection.selectedEffectIds =
+          state.selection.selectedEffectIds.filter((id) => id !== effectId);
       });
       const events = get() as unknown as AudioEngineEvents;
       events.onEffectRemove?.(effectId);
@@ -716,11 +779,16 @@ export const useAppStore = create<AppStore>()(
 
     moveEffect: (effectId: string, newPosition: number) => {
       set((state) => {
-        state.project.effectChains.forEach(effectChain => {
-          const effectIndex = effectChain.effects.findIndex(e => e.id === effectId);
+        state.project.effectChains.forEach((effectChain) => {
+          const effectIndex = effectChain.effects.findIndex(
+            (e) => e.id === effectId
+          );
           if (effectIndex !== -1) {
             const [effect] = effectChain.effects.splice(effectIndex, 1);
-            const clampedPosition = Math.min(Math.max(0, newPosition), effectChain.effects.length);
+            const clampedPosition = Math.min(
+              Math.max(0, newPosition),
+              effectChain.effects.length
+            );
             effectChain.effects.splice(clampedPosition, 0, effect);
             // Update positions
             effectChain.effects.forEach((effect, index) => {
@@ -731,10 +799,14 @@ export const useAppStore = create<AppStore>()(
       });
     },
 
-    setEffectParameter: (effectId: string, parameter: string, value: number | string | boolean) => {
+    setEffectParameter: (
+      effectId: string,
+      parameter: string,
+      value: number | string | boolean
+    ) => {
       set((state) => {
-        state.project.effectChains.forEach(effectChain => {
-          const effect = effectChain.effects.find(e => e.id === effectId);
+        state.project.effectChains.forEach((effectChain) => {
+          const effect = effectChain.effects.find((e) => e.id === effectId);
           if (effect) {
             effect.parameters[parameter] = value;
           }
@@ -746,8 +818,8 @@ export const useAppStore = create<AppStore>()(
 
     setEffectEnabled: (effectId: string, enabled: boolean) => {
       set((state) => {
-        state.project.effectChains.forEach(effectChain => {
-          const effect = effectChain.effects.find(e => e.id === effectId);
+        state.project.effectChains.forEach((effectChain) => {
+          const effect = effectChain.effects.find((e) => e.id === effectId);
           if (effect) {
             effect.enabled = enabled;
           }
@@ -757,8 +829,8 @@ export const useAppStore = create<AppStore>()(
 
     setEffectBypassed: (effectId: string, bypassed: boolean) => {
       set((state) => {
-        state.project.effectChains.forEach(effectChain => {
-          const effect = effectChain.effects.find(e => e.id === effectId);
+        state.project.effectChains.forEach((effectChain) => {
+          const effect = effectChain.effects.find((e) => e.id === effectId);
           if (effect) {
             effect.bypassed = bypassed;
           }
@@ -771,7 +843,8 @@ export const useAppStore = create<AppStore>()(
       set((state) => {
         if (multi) {
           if (state.selection.selectedTrackIds.includes(trackId)) {
-            state.selection.selectedTrackIds = state.selection.selectedTrackIds.filter(id => id !== trackId);
+            state.selection.selectedTrackIds =
+              state.selection.selectedTrackIds.filter((id) => id !== trackId);
           } else {
             state.selection.selectedTrackIds.push(trackId);
           }
@@ -787,7 +860,8 @@ export const useAppStore = create<AppStore>()(
       set((state) => {
         if (multi) {
           if (state.selection.selectedClipIds.includes(clipId)) {
-            state.selection.selectedClipIds = state.selection.selectedClipIds.filter(id => id !== clipId);
+            state.selection.selectedClipIds =
+              state.selection.selectedClipIds.filter((id) => id !== clipId);
           } else {
             state.selection.selectedClipIds.push(clipId);
           }
@@ -803,7 +877,8 @@ export const useAppStore = create<AppStore>()(
       set((state) => {
         if (multi) {
           if (state.selection.selectedEffectIds.includes(effectId)) {
-            state.selection.selectedEffectIds = state.selection.selectedEffectIds.filter(id => id !== effectId);
+            state.selection.selectedEffectIds =
+              state.selection.selectedEffectIds.filter((id) => id !== effectId);
           } else {
             state.selection.selectedEffectIds.push(effectId);
           }
@@ -829,8 +904,10 @@ export const useAppStore = create<AppStore>()(
 
     selectAll: () => {
       set((state) => {
-        state.selection.selectedTrackIds = state.project.tracks.map(t => t.id);
-        state.selection.selectedClipIds = state.project.clips.map(c => c.id);
+        state.selection.selectedTrackIds = state.project.tracks.map(
+          (t) => t.id
+        );
+        state.selection.selectedClipIds = state.project.clips.map((c) => c.id);
       });
     },
 
@@ -947,7 +1024,7 @@ export const useAppStore = create<AppStore>()(
           past: [],
           present: { ...project },
           future: [],
-          maxSize: 50
+          maxSize: 50,
         };
       });
     },
@@ -968,10 +1045,13 @@ export const useAppStore = create<AppStore>()(
 
     removeAudioFile: (fileId: string) => {
       set((state) => {
-        state.project.audioFiles = state.project.audioFiles.filter(f => f.id !== fileId);
+        state.project.audioFiles = state.project.audioFiles.filter(
+          (f) => f.id !== fileId
+        );
         // Remove clips that use this audio file
-        state.project.clips = state.project.clips.filter(c => 
-          !(c.type === ClipType.AUDIO && (c as any).audioFileId === fileId)
+        state.project.clips = state.project.clips.filter(
+          (c) =>
+            !(c.type === ClipType.AUDIO && (c as any).audioFileId === fileId)
         );
         state.project.metadata.modifiedAt = new Date();
       });
@@ -981,17 +1061,20 @@ export const useAppStore = create<AppStore>()(
     undo: () => {
       set((state) => {
         if (state.history.past.length === 0) return;
-        
+
         const previous = state.history.past[state.history.past.length - 1];
-        const newPast = state.history.past.slice(0, state.history.past.length - 1);
-        
+        const newPast = state.history.past.slice(
+          0,
+          state.history.past.length - 1
+        );
+
         state.history = {
           past: newPast,
           present: previous,
           future: [state.history.present, ...state.history.future],
-          maxSize: state.history.maxSize
+          maxSize: state.history.maxSize,
         };
-        
+
         state.project = { ...previous };
       });
     },
@@ -999,17 +1082,17 @@ export const useAppStore = create<AppStore>()(
     redo: () => {
       set((state) => {
         if (state.history.future.length === 0) return;
-        
+
         const next = state.history.future[0];
         const newFuture = state.history.future.slice(1);
-        
+
         state.history = {
           past: [...state.history.past, state.history.present],
           present: next,
           future: newFuture,
-          maxSize: state.history.maxSize
+          maxSize: state.history.maxSize,
         };
-        
+
         state.project = { ...next };
       });
     },
@@ -1017,16 +1100,16 @@ export const useAppStore = create<AppStore>()(
     saveToHistory: () => {
       set((state) => {
         const newPast = [...state.history.past, state.project];
-        
+
         if (newPast.length > state.history.maxSize) {
           newPast.shift();
         }
-        
+
         state.history = {
           past: newPast,
           present: { ...state.project },
           future: [],
-          maxSize: state.history.maxSize
+          maxSize: state.history.maxSize,
         };
       });
     },
@@ -1037,7 +1120,7 @@ export const useAppStore = create<AppStore>()(
           past: [],
           present: { ...state.project },
           future: [],
-          maxSize: state.history.maxSize
+          maxSize: state.history.maxSize,
         };
       });
     },
@@ -1045,47 +1128,62 @@ export const useAppStore = create<AppStore>()(
     // Derived selectors
     getSelectedTracks: () => {
       const { project, selection } = get();
-      return project.tracks.filter(t => selection.selectedTrackIds.includes(t.id));
+      return project.tracks.filter((t) =>
+        selection.selectedTrackIds.includes(t.id)
+      );
     },
 
     getSelectedClips: () => {
       const { project, selection } = get();
-      return project.clips.filter(c => selection.selectedClipIds.includes(c.id));
+      return project.clips.filter((c) =>
+        selection.selectedClipIds.includes(c.id)
+      );
     },
 
     getTrackById: (trackId: string) => {
-      return get().project.tracks.find(t => t.id === trackId);
+      return get().project.tracks.find((t) => t.id === trackId);
     },
 
     getClipById: (clipId: string) => {
-      return get().project.clips.find(c => c.id === clipId);
+      return get().project.clips.find((c) => c.id === clipId);
     },
 
     getEffectById: (effectId: string) => {
       const { project } = get();
       for (const effectChain of project.effectChains) {
-        const effect = effectChain.effects.find(e => e.id === effectId);
+        const effect = effectChain.effects.find((e) => e.id === effectId);
         if (effect) return effect;
       }
       return undefined;
     },
 
     getEffectChainByTrackId: (trackId: string) => {
-      return get().project.effectChains.find(ec => ec.trackId === trackId);
+      return get().project.effectChains.find((ec) => ec.trackId === trackId);
     },
 
     getClipsByTrackId: (trackId: string) => {
-      return get().project.clips.filter(c => c.trackId === trackId);
+      return get().project.clips.filter((c) => c.trackId === trackId);
     },
 
-    getTracksInRange: (startTime: number, endTime: number, startTrackIndex = 0, endTrackIndex = Infinity) => {
+    getTracksInRange: (
+      startTime: number,
+      endTime: number,
+      startTrackIndex = 0,
+      endTrackIndex = Infinity
+    ) => {
       const { project } = get();
-      return project.tracks.slice(startTrackIndex, endTrackIndex).filter(track => {
-        const trackClips = project.clips.filter(c => c.trackId === track.id);
-        return trackClips.some(clip => 
-          (clip.startTime < endTime && clip.startTime + clip.duration > startTime)
-        );
-      });
+      return project.tracks
+        .slice(startTrackIndex, endTrackIndex)
+        .filter((track) => {
+          const trackClips = project.clips.filter(
+            (c) => c.trackId === track.id
+          );
+          return trackClips.some(
+            (clip) =>
+              clip.startTime < endTime &&
+              clip.startTime + clip.duration > startTime
+          );
+        });
     },
 
     canUndo: () => {
@@ -1094,10 +1192,15 @@ export const useAppStore = create<AppStore>()(
 
     canRedo: () => {
       return get().history.future.length > 0;
-    }
+    },
   }))
 );
 
 // Export types and helper functions for external use
 export type { AppStore };
-export { createEmptyProject, createInitialTransport, createInitialSelection, createInitialGrid };
+export {
+  createEmptyProject,
+  createInitialTransport,
+  createInitialSelection,
+  createInitialGrid,
+};

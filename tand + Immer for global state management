@@ -1,0 +1,3115 @@
+[1mdiff --git a/src/state/index.ts b/src/state/index.ts[m
+[1mindex 05be349..1467cdb 100644[m
+[1m--- a/src/state/index.ts[m
+[1m+++ b/src/state/index.ts[m
+[36m@@ -5,17 +5,17 @@[m [mexport * from './serialization';[m
+ [m
+ // Re-export commonly used types and functions[m
+ export type { AppStore, AudioEngineEvents } from './store';[m
+[31m-export { [m
+[32m+[m[32mexport {[m
+   createEmptyProject,[m
+   createInitialTransport,[m
+   createInitialSelection,[m
+[31m-  createInitialGrid[m
+[32m+[m[32m  createInitialGrid,[m
+ } from './store';[m
+[31m-export { [m
+[31m-  serializeProject, [m
+[31m-  rehydrateProject, [m
+[31m-  serializeAppState, [m
+[32m+[m[32mexport {[m
+[32m+[m[32m  serializeProject,[m
+[32m+[m[32m  rehydrateProject,[m
+[32m+[m[32m  serializeAppState,[m
+   rehydrateAppState,[m
+   validateSerializedProject,[m
+[31m-  createProjectBackup[m
+[31m-} from './serialization';[m
+\ No newline at end of file[m
+[32m+[m[32m  createProjectBackup,[m
+[32m+[m[32m} from './serialization';[m
+[1mdiff --git a/src/state/models.ts b/src/state/models.ts[m
+[1mindex 984e09c..97f979b 100644[m
+[1m--- a/src/state/models.ts[m
+[1m+++ b/src/state/models.ts[m
+[36m@@ -6,7 +6,7 @@[m [mexport enum TrackType {[m
+   MIDI = 'midi',[m
+   EFFECT = 'effect',[m
+   BUS = 'bus',[m
+[31m-  MASTER = 'master'[m
+[32m+[m[32m  MASTER = 'master',[m
+ }[m
+ [m
+ export enum EffectType {[m
+[36m@@ -18,12 +18,12 @@[m [mexport enum EffectType {[m
+   CHORUS = 'chorus',[m
+   FILTER = 'filter',[m
+   GATE = 'gate',[m
+[31m-  LIMITER = 'limiter'[m
+[32m+[m[32m  LIMITER = 'limiter',[m
+ }[m
+ [m
+ export enum ClipType {[m
+   AUDIO = 'audio',[m
+[31m-  MIDI = 'midi'[m
+[32m+[m[32m  MIDI = 'midi',[m
+ }[m
+ [m
+ // Base interfaces[m
+[36m@@ -155,7 +155,12 @@[m [mexport interface TrackReceive {[m
+ }[m
+ [m
+ // Union type for all track types[m
+[31m-export type Track = AudioTrack | MidiTrack | EffectTrack | BusTrack | MasterTrack;[m
+[32m+[m[32mexport type Track =[m
+[32m+[m[32m  | AudioTrack[m
+[32m+[m[32m  | MidiTrack[m
+[32m+[m[32m  | EffectTrack[m
+[32m+[m[32m  | BusTrack[m
+[32m+[m[32m  | MasterTrack;[m
+ [m
+ // Union type for all clip types[m
+ export type Clip = AudioClip | MidiClip;[m
+[36m@@ -267,6 +272,11 @@[m [mexport interface AppState {[m
+     showBrowser: boolean;[m
+     showInspector: boolean;[m
+     showAutomation: boolean;[m
+[31m-    focusedPanel?: 'timeline' | 'mixer' | 'browser' | 'inspector' | 'automation';[m
+[32m+[m[32m    focusedPanel?:[m
+[32m+[m[32m      | 'timeline'[m
+[32m+[m[32m      | 'mixer'[m
+[32m+[m[32m      | 'browser'[m
+[32m+[m[32m      | 'inspector'[m
+[32m+[m[32m      | 'automation';[m
+   };[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/state/serialization.ts b/src/state/serialization.ts[m
+[1mindex 267b112..22a9d12 100644[m
+[1m--- a/src/state/serialization.ts[m
+[1m+++ b/src/state/serialization.ts[m
+[36m@@ -1,17 +1,14 @@[m
+[31m-import { [m
+[31m-  Project, [m
+[31m-  Track, [m
+[31m-  Clip, [m
+[31m-  Effect, [m
+[31m-  EffectChain, [m
+[32m+[m[32mimport {[m
+[32m+[m[32m  Project,[m
+[32m+[m[32m  Track,[m
+[32m+[m[32m  Clip,[m
+[32m+[m[32m  Effect,[m
+[32m+[m[32m  EffectChain,[m
+   AudioFile,[m
+[31m-  TransportState,[m
+[31m-  SelectionState,[m
+[31m-  GridSettings,[m
+   AppState,[m
+   TrackType,[m
+   ClipType,[m
+[31m-  EffectType[m
+[32m+[m[32m  EffectType,[m
+ } from './models';[m
+ [m
+ // Serialization version for future compatibility[m
+[36m@@ -96,8 +93,8 @@[m [mexport const serializeProject = (project: Project): string => {[m
+         metadata: {[m
+           ...project.metadata,[m
+           createdAt: project.metadata.createdAt.toISOString(),[m
+[31m-          modifiedAt: project.metadata.modifiedAt.toISOString()[m
+[31m-        }[m
+[32m+[m[32m          modifiedAt: project.metadata.modifiedAt.toISOString(),[m
+[32m+[m[32m        },[m
+       },[m
+       transport: {[m
+         isPlaying: false, // Don't save playback state[m
+[36m@@ -110,12 +107,12 @@[m [mexport const serializeProject = (project: Project): string => {[m
+         punchIn: 0,[m
+         punchOut: 16,[m
+         countIn: 2,[m
+[31m-        playbackSpeed: 1.0[m
+[32m+[m[32m        playbackSpeed: 1.0,[m
+       },[m
+       selection: {[m
+         selectedTrackIds: [],[m
+         selectedClipIds: [],[m
+[31m-        selectedEffectIds: [][m
+[32m+[m[32m        selectedEffectIds: [],[m
+       },[m
+       grid: {[m
+         snapEnabled: true,[m
+[36m@@ -126,8 +123,8 @@[m [mexport const serializeProject = (project: Project): string => {[m
+         showTrackNumbers: true,[m
+         zoomHorizontal: 20,[m
+         zoomVertical: 60,[m
+[31m-        scrollPosition: { x: 0, y: 0 }[m
+[31m-      }[m
+[32m+[m[32m        scrollPosition: { x: 0, y: 0 },[m
+[32m+[m[32m      },[m
+     };[m
+ [m
+     return JSON.stringify(serialized, null, 2);[m
+[36m@@ -151,12 +148,12 @@[m [mexport const serializeAppState = (appState: AppState): string => {[m
+         metadata: {[m
+           ...appState.project.metadata,[m
+           createdAt: appState.project.metadata.createdAt.toISOString(),[m
+[31m-          modifiedAt: appState.project.metadata.modifiedAt.toISOString()[m
+[31m-        }[m
+[32m+[m[32m          modifiedAt: appState.project.metadata.modifiedAt.toISOString(),[m
+[32m+[m[32m        },[m
+       },[m
+       transport: appState.transport,[m
+       selection: appState.selection,[m
+[31m-      grid: appState.grid[m
+[32m+[m[32m      grid: appState.grid,[m
+     };[m
+ [m
+     return JSON.stringify(serialized, null, 2);[m
+[36m@@ -174,20 +171,22 @@[m [mexport const serializeAppState = (appState: AppState): string => {[m
+ export const rehydrateProject = (jsonString: string): Project => {[m
+   try {[m
+     const data: SerializedProject = JSON.parse(jsonString);[m
+[31m-    [m
+[32m+[m
+     // Check version compatibility[m
+     if (data.version !== SERIALIZATION_VERSION) {[m
+[31m-      console.warn(`Project version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`);[m
+[32m+[m[32m      console.warn([m
+[32m+[m[32m        `Project version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`[m
+[32m+[m[32m      );[m
+       // In a real app, you might want to handle migration here[m
+     }[m
+ [m
+     const projectData = data.project;[m
+[31m-    [m
+[32m+[m
+     // Convert date strings back to Date objects[m
+     const metadata = {[m
+       ...projectData.metadata,[m
+       createdAt: new Date(projectData.metadata.createdAt),[m
+[31m-      modifiedAt: new Date(projectData.metadata.modifiedAt)[m
+[32m+[m[32m      modifiedAt: new Date(projectData.metadata.modifiedAt),[m
+     };[m
+ [m
+     // Recreate the project with proper typing[m
+[36m@@ -195,10 +194,16 @@[m [mexport const rehydrateProject = (jsonString: string): Project => {[m
+       ...projectData,[m
+       metadata,[m
+       // Ensure arrays are properly typed[m
+[31m-      tracks: projectData.tracks.map((track: any) => validateAndFixTrack(track)),[m
+[32m+[m[32m      tracks: projectData.tracks.map((track: any) =>[m
+[32m+[m[32m        validateAndFixTrack(track)[m
+[32m+[m[32m      ),[m
+       clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),[m
+[31m-      effectChains: projectData.effectChains.map((chain: any) => validateAndFixEffectChain(chain)),[m
+[31m-      audioFiles: projectData.audioFiles.map((file: any) => validateAndFixAudioFile(file))[m
+[32m+[m[32m      effectChains: projectData.effectChains.map((chain: any) =>[m
+[32m+[m[32m        validateAndFixEffectChain(chain)[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      audioFiles: projectData.audioFiles.map((file: any) =>[m
+[32m+[m[32m        validateAndFixAudioFile(file)[m
+[32m+[m[32m      ),[m
+     };[m
+ [m
+     return project;[m
+[36m@@ -216,28 +221,36 @@[m [mexport const rehydrateProject = (jsonString: string): Project => {[m
+ export const rehydrateAppState = (jsonString: string): AppState => {[m
+   try {[m
+     const data: SerializedProject = JSON.parse(jsonString);[m
+[31m-    [m
+[32m+[m
+     // Check version compatibility[m
+     if (data.version !== SERIALIZATION_VERSION) {[m
+[31m-      console.warn(`App state version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`);[m
+[32m+[m[32m      console.warn([m
+[32m+[m[32m        `App state version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`[m
+[32m+[m[32m      );[m
+     }[m
+ [m
+     const projectData = data.project;[m
+[31m-    [m
+[32m+[m
+     // Convert date strings back to Date objects[m
+     const metadata = {[m
+       ...projectData.metadata,[m
+       createdAt: new Date(projectData.metadata.createdAt),[m
+[31m-      modifiedAt: new Date(projectData.metadata.modifiedAt)[m
+[32m+[m[32m      modifiedAt: new Date(projectData.metadata.modifiedAt),[m
+     };[m
+ [m
+     const project: Project = {[m
+       ...projectData,[m
+       metadata,[m
+[31m-      tracks: projectData.tracks.map((track: any) => validateAndFixTrack(track)),[m
+[32m+[m[32m      tracks: projectData.tracks.map((track: any) =>[m
+[32m+[m[32m        validateAndFixTrack(track)[m
+[32m+[m[32m      ),[m
+       clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),[m
+[31m-      effectChains: projectData.effectChains.map((chain: any) => validateAndFixEffectChain(chain)),[m
+[31m-      audioFiles: projectData.audioFiles.map((file: any) => validateAndFixAudioFile(file))[m
+[32m+[m[32m      effectChains: projectData.effectChains.map((chain: any) =>[m
+[32m+[m[32m        validateAndFixEffectChain(chain)[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      audioFiles: projectData.audioFiles.map((file: any) =>[m
+[32m+[m[32m        validateAndFixAudioFile(file)[m
+[32m+[m[32m      ),[m
+     };[m
+ [m
+     const appState: AppState = {[m
+[36m@@ -250,14 +263,14 @@[m [mexport const rehydrateAppState = (jsonString: string): AppState => {[m
+         showBrowser: true,[m
+         showInspector: true,[m
+         showAutomation: false,[m
+[31m-        focusedPanel: 'timeline'[m
+[32m+[m[32m        focusedPanel: 'timeline',[m
+       },[m
+       history: {[m
+         past: [],[m
+         present: project,[m
+         future: [],[m
+[31m-        maxSize: 50[m
+[31m-      }[m
+[32m+[m[32m        maxSize: 50,[m
+[32m+[m[32m      },[m
+     };[m
+ [m
+     return appState;[m
+[36m@@ -274,7 +287,9 @@[m [mconst validateAndFixTrack = (track: any): Track => {[m
+   const baseTrack = {[m
+     id: track.id || crypto.randomUUID(),[m
+     name: track.name || 'Unknown Track',[m
+[31m-    type: Object.values(TrackType).includes(track.type) ? track.type : TrackType.AUDIO,[m
+[32m+[m[32m    type: Object.values(TrackType).includes(track.type)[m
+[32m+[m[32m      ? track.type[m
+[32m+[m[32m      : TrackType.AUDIO,[m
+     color: track.color || `hsl(${Math.random() * 360}, 70%, 50%)`,[m
+     muted: Boolean(track.muted),[m
+     solo: Boolean(track.solo),[m
+[36m@@ -284,7 +299,7 @@[m [mconst validateAndFixTrack = (track: any): Track => {[m
+     height: Math.max(20, Math.min(200, Number(track.height) || 60)),[m
+     visible: track.visible !== false,[m
+     locked: Boolean(track.locked),[m
+[31m-    effectChainId: track.effectChainId || crypto.randomUUID()[m
+[32m+[m[32m    effectChainId: track.effectChainId || crypto.randomUUID(),[m
+   };[m
+ [m
+   switch (track.type) {[m
+[36m@@ -296,7 +311,7 @@[m [mconst validateAndFixTrack = (track: any): Track => {[m
+         outputDevice: track.outputDevice,[m
+         monitoring: Boolean(track.monitoring),[m
+         inputGain: Math.max(0, Math.min(2, Number(track.inputGain) || 1)),[m
+[31m-        recordEnabled: Boolean(track.recordEnabled)[m
+[32m+[m[32m        recordEnabled: Boolean(track.recordEnabled),[m
+       } as Track;[m
+ [m
+     case TrackType.MIDI:[m
+[36m@@ -308,23 +323,26 @@[m [mconst validateAndFixTrack = (track: any): Track => {[m
+         instrument: {[m
+           type: track.instrument?.type || 'vsti',[m
+           pluginId: track.instrument?.pluginId,[m
+[31m-          midiChannel: Math.max(0, Math.min(15, Number(track.instrument?.midiChannel) || 0))[m
+[32m+[m[32m          midiChannel: Math.max([m
+[32m+[m[32m            0,[m
+[32m+[m[32m            Math.min(15, Number(track.instrument?.midiChannel) || 0)[m
+[32m+[m[32m          ),[m
+         },[m
+[31m-        midiThru: Boolean(track.midiThru)[m
+[32m+[m[32m        midiThru: Boolean(track.midiThru),[m
+       } as Track;[m
+ [m
+     case TrackType.EFFECT:[m
+       return {[m
+         ...baseTrack,[m
+         type: TrackType.EFFECT,[m
+[31m-        receives: Array.isArray(track.receives) ? track.receives : [][m
+[32m+[m[32m        receives: Array.isArray(track.receives) ? track.receives : [],[m
+       } as Track;[m
+ [m
+     case TrackType.BUS:[m
+       return {[m
+         ...baseTrack,[m
+         type: TrackType.BUS,[m
+[31m-        receives: Array.isArray(track.receives) ? track.receives : [][m
+[32m+[m[32m        receives: Array.isArray(track.receives) ? track.receives : [],[m
+       } as Track;[m
+ [m
+     case TrackType.MASTER:[m
+[36m@@ -333,9 +351,15 @@[m [mconst validateAndFixTrack = (track: any): Track => {[m
+         type: TrackType.MASTER,[m
+         limiter: {[m
+           enabled: track.limiter?.enabled !== false,[m
+[31m-          ceiling: Math.max(-20, Math.min(0, Number(track.limiter?.ceiling) || -0.1)),[m
+[31m-          release: Math.max(1, Math.min(1000, Number(track.limiter?.release) || 10))[m
+[31m-        }[m
+[32m+[m[32m          ceiling: Math.max([m
+[32m+[m[32m            -20,[m
+[32m+[m[32m            Math.min(0, Number(track.limiter?.ceiling) || -0.1)[m
+[32m+[m[32m          ),[m
+[32m+[m[32m          release: Math.max([m
+[32m+[m[32m            1,[m
+[32m+[m[32m            Math.min(1000, Number(track.limiter?.release) || 10)[m
+[32m+[m[32m          ),[m
+[32m+[m[32m        },[m
+       } as Track;[m
+ [m
+     default:[m
+[36m@@ -350,15 +374,20 @@[m [mconst validateAndFixClip = (clip: any): Clip => {[m
+   const baseClip = {[m
+     id: clip.id || crypto.randomUUID(),[m
+     name: clip.name || 'Unknown Clip',[m
+[31m-    type: Object.values(ClipType).includes(clip.type) ? clip.type : ClipType.AUDIO,[m
+[32m+[m[32m    type: Object.values(ClipType).includes(clip.type)[m
+[32m+[m[32m      ? clip.type[m
+[32m+[m[32m      : ClipType.AUDIO,[m
+     trackId: clip.trackId || '',[m
+     startTime: Math.max(0, Number(clip.startTime) || 0),[m
+[31m-    duration: Math.max(0.01, Number(clip.duration) >= 0 ? Number(clip.duration) : 1),[m
+[32m+[m[32m    duration: Math.max([m
+[32m+[m[32m      0.01,[m
+[32m+[m[32m      Number(clip.duration) >= 0 ? Number(clip.duration) : 1[m
+[32m+[m[32m    ),[m
+     color: clip.color || `hsl(${Math.random() * 360}, 70%, 50%)`,[m
+     muted: Boolean(clip.muted),[m
+     solo: Boolean(clip.solo),[m
+     gain: Math.max(0, Math.min(2, Number(clip.gain) || 1)),[m
+[31m-    pan: Math.max(-1, Math.min(1, Number(clip.pan) || 0))[m
+[32m+[m[32m    pan: Math.max(-1, Math.min(1, Number(clip.pan) || 0)),[m
+   };[m
+ [m
+   if (clip.type === ClipType.AUDIO) {[m
+[36m@@ -366,7 +395,10 @@[m [mconst validateAndFixClip = (clip: any): Clip => {[m
+       ...baseClip,[m
+       type: ClipType.AUDIO,[m
+       audioFileId: clip.audioFileId || '',[m
+[31m-      sampleRate: Math.max(8000, Math.min(192000, Number(clip.sampleRate) || 44100)),[m
+[32m+[m[32m      sampleRate: Math.max([m
+[32m+[m[32m        8000,[m
+[32m+[m[32m        Math.min(192000, Number(clip.sampleRate) || 44100)[m
+[32m+[m[32m      ),[m
+       bitDepth: [16, 24, 32].includes(clip.bitDepth) ? clip.bitDepth : 24,[m
+       channels: Math.max(1, Math.min(32, Number(clip.channels) || 2)),[m
+       offset: Math.max(0, Number(clip.offset) || 0),[m
+[36m@@ -374,19 +406,27 @@[m [mconst validateAndFixClip = (clip: any): Clip => {[m
+       fadeOut: Math.max(0, Number(clip.fadeOut) || 0),[m
+       warping: {[m
+         enabled: Boolean(clip.warping?.enabled),[m
+[31m-        algorithm: ['beats', 'tones', 'complex', 'complexpro', 're-pitch'].includes(clip.warping?.algorithm) [m
+[31m-          ? clip.warping.algorithm [m
+[31m-          : 'beats'[m
+[31m-      }[m
+[32m+[m[32m        algorithm: [[m
+[32m+[m[32m          'beats',[m
+[32m+[m[32m          'tones',[m
+[32m+[m[32m          'complex',[m
+[32m+[m[32m          'complexpro',[m
+[32m+[m[32m          're-pitch',[m
+[32m+[m[32m        ].includes(clip.warping?.algorithm)[m
+[32m+[m[32m          ? clip.warping.algorithm[m
+[32m+[m[32m          : 'beats',[m
+[32m+[m[32m      },[m
+     } as Clip;[m
+   } else if (clip.type === ClipType.MIDI) {[m
+     return {[m
+       ...baseClip,[m
+       type: ClipType.MIDI,[m
+[31m-      notes: Array.isArray(clip.notes) ? clip.notes.map(validateAndFixMidiNote) : [],[m
+[32m+[m[32m      notes: Array.isArray(clip.notes)[m
+[32m+[m[32m        ? clip.notes.map(validateAndFixMidiNote)[m
+[32m+[m[32m        : [],[m
+       velocity: Math.max(0, Math.min(127, Number(clip.velocity) || 100)),[m
+       quantize: Math.max(1, Number(clip.quantize) || 4),[m
+[31m-      length: Math.max(0.1, Number(clip.length) || 1)[m
+[32m+[m[32m      length: Math.max(0.1, Number(clip.length) || 1),[m
+     } as Clip;[m
+   }[m
+ [m
+[36m@@ -401,7 +441,7 @@[m [mconst validateAndFixMidiNote = (note: any) => ({[m
+   pitch: Math.max(0, Math.min(127, Number(note.pitch) || 60)),[m
+   velocity: Math.max(0, Math.min(127, Number(note.velocity) || 100)),[m
+   startTime: Math.max(0, Number(note.startTime) || 0),[m
+[31m-  duration: Math.max(0.01, Number(note.duration) || 0.25)[m
+[32m+[m[32m  duration: Math.max(0.01, Number(note.duration) || 0.25),[m
+ });[m
+ [m
+ /**[m
+[36m@@ -410,9 +450,9 @@[m [mconst validateAndFixMidiNote = (note: any) => ({[m
+ const validateAndFixEffectChain = (chain: any): EffectChain => ({[m
+   id: chain.id || crypto.randomUUID(),[m
+   trackId: chain.trackId || '',[m
+[31m-  effects: Array.isArray(chain.effects) [m
+[32m+[m[32m  effects: Array.isArray(chain.effects)[m
+     ? chain.effects.map((effect: any) => validateAndFixEffect(effect))[m
+[31m-    : [][m
+[32m+[m[32m    : [],[m
+ });[m
+ [m
+ /**[m
+[36m@@ -421,13 +461,16 @@[m [mconst validateAndFixEffectChain = (chain: any): EffectChain => ({[m
+ const validateAndFixEffect = (effect: any): Effect => ({[m
+   id: effect.id || crypto.randomUUID(),[m
+   name: effect.name || 'Unknown Effect',[m
+[31m-  type: Object.values(EffectType).includes(effect.type) ? effect.type : EffectType.REVERB,[m
+[32m+[m[32m  type: Object.values(EffectType).includes(effect.type)[m
+[32m+[m[32m    ? effect.type[m
+[32m+[m[32m    : EffectType.REVERB,[m
+   enabled: effect.enabled !== false,[m
+   bypassed: Boolean(effect.bypassed),[m
+[31m-  parameters: typeof effect.parameters === 'object' && effect.parameters !== null [m
+[31m-    ? effect.parameters [m
+[31m-    : {},[m
+[31m-  position: Math.max(0, Number(effect.position) || 0)[m
+[32m+[m[32m  parameters:[m
+[32m+[m[32m    typeof effect.parameters === 'object' && effect.parameters !== null[m
+[32m+[m[32m      ? effect.parameters[m
+[32m+[m[32m      : {},[m
+[32m+[m[32m  position: Math.max(0, Number(effect.position) || 0),[m
+ });[m
+ [m
+ /**[m
+[36m@@ -439,7 +482,10 @@[m [mconst validateAndFixAudioFile = (file: any): AudioFile => ({[m
+   path: file.path || '',[m
+   size: Math.max(0, Number(file.size) || 0),[m
+   duration: Math.max(0, Number(file.duration) || 0),[m
+[31m-  sampleRate: Math.max(8000, Math.min(192000, Number(file.sampleRate) || 44100)),[m
+[32m+[m[32m  sampleRate: Math.max([m
+[32m+[m[32m    8000,[m
+[32m+[m[32m    Math.min(192000, Number(file.sampleRate) || 44100)[m
+[32m+[m[32m  ),[m
+   bitDepth: [16, 24, 32].includes(file.bitDepth) ? file.bitDepth : 24,[m
+   channels: Math.max(1, Math.min(32, Number(file.channels) || 2)),[m
+   format: file.format || 'wav',[m
+[36m@@ -448,8 +494,10 @@[m [mconst validateAndFixAudioFile = (file: any): AudioFile => ({[m
+     title: file.metadata?.title,[m
+     album: file.metadata?.album,[m
+     genre: file.metadata?.genre,[m
+[31m-    year: file.metadata?.year ? Math.max(0, Number(file.metadata.year)) : undefined[m
+[31m-  }[m
+[32m+[m[32m    year: file.metadata?.year[m
+[32m+[m[32m      ? Math.max(0, Number(file.metadata.year))[m
+[32m+[m[32m      : undefined,[m
+[32m+[m[32m  },[m
+ });[m
+ [m
+ /**[m
+[36m@@ -457,12 +505,13 @@[m [mconst validateAndFixAudioFile = (file: any): AudioFile => ({[m
+  * @param project - The project to backup[m
+  * @returns Promise that resolves to the backup file path[m
+  */[m
+[31m-export const createProjectBackup = async (project: Project): Promise<string> => {[m
+[32m+[m[32mexport const createProjectBackup = async ([m
+[32m+[m[32m  project: Project[m
+[32m+[m[32m): Promise<string> => {[m
+   try {[m
+[31m-    const serialized = serializeProject(project);[m
+[31m-    const blob = new Blob([serialized], { type: 'application/json' });[m
+[32m+[m[32m    serializeProject(project);[m
+     const fileName = `${project.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`;[m
+[31m-    [m
+[32m+[m
+     // In a browser environment, we'd trigger a download[m
+     // In Node.js, we'd write to filesystem[m
+     // For now, return the serialized data[m
+[36m@@ -481,14 +530,19 @@[m [mexport const createProjectBackup = async (project: Project): Promise<string> =>[m
+ export const validateSerializedProject = (jsonString: string): boolean => {[m
+   try {[m
+     const data: SerializedProject = JSON.parse(jsonString);[m
+[31m-    [m
+[32m+[m
+     // Check required fields[m
+     if (!data.version || !data.project) {[m
+       return false;[m
+     }[m
+ [m
+     const project = data.project;[m
+[31m-    if (!project.id || !project.name || !project.tempo || !project.timeSignature) {[m
+[32m+[m[32m    if ([m
+[32m+[m[32m      !project.id ||[m
+[32m+[m[32m      !project.name ||[m
+[32m+[m[32m      !project.tempo ||[m
+[32m+[m[32m      !project.timeSignature[m
+[32m+[m[32m    ) {[m
+       return false;[m
+     }[m
+ [m
+[36m@@ -509,9 +563,13 @@[m [mexport const validateSerializedProject = (jsonString: string): boolean => {[m
+  * @param toVersion - The target version[m
+  * @returns Migrated data[m
+  */[m
+[31m-export const migrateProjectData = (data: any, fromVersion: string, toVersion: string): any => {[m
+[32m+[m[32mexport const migrateProjectData = ([m
+[32m+[m[32m  data: any,[m
+[32m+[m[32m  fromVersion: string,[m
+[32m+[m[32m  toVersion: string[m
+[32m+[m[32m): any => {[m
+   // This is a placeholder for future migration logic[m
+   // For now, just return the data as-is[m
+   console.log(`Migrating project from version ${fromVersion} to ${toVersion}`);[m
+   return data;[m
+[31m-};[m
+\ No newline at end of file[m
+[32m+[m[32m};[m
+[1mdiff --git a/src/state/store.ts b/src/state/store.ts[m
+[1mindex 09dc06f..f0850ba 100644[m
+[1m--- a/src/state/store.ts[m
+[1m+++ b/src/state/store.ts[m
+[36m@@ -1,12 +1,17 @@[m
+ import { create } from 'zustand';[m
+ import { immer } from 'zustand/middleware/immer';[m
+[31m-import { [m
+[31m-  AppState, [m
+[31m-  Project, [m
+[31m-  Track, [m
+[31m-  Clip, [m
+[31m-  Effect, [m
+[31m-  EffectChain, [m
+[32m+[m[32mimport {[m
+[32m+[m[32m  AppState,[m
+[32m+[m[32m  Project,[m
+[32m+[m[32m  Track,[m
+[32m+[m[32m  AudioTrack,[m
+[32m+[m[32m  MidiTrack,[m
+[32m+[m[32m  EffectTrack,[m
+[32m+[m[32m  BusTrack,[m
+[32m+[m[32m  MasterTrack,[m
+[32m+[m[32m  Clip,[m
+[32m+[m[32m  Effect,[m
+[32m+[m[32m  EffectChain,[m
+   AudioFile,[m
+   TransportState,[m
+   SelectionState,[m
+[36m@@ -14,7 +19,6 @@[m [mimport {[m
+   HistoryState,[m
+   TrackType,[m
+   ClipType,[m
+[31m-  EffectType[m
+ } from './models';[m
+ [m
+ // Initial state helpers[m
+[36m@@ -24,7 +28,7 @@[m [mconst createEmptyProject = (): Project => ({[m
+   tempo: 120,[m
+   timeSignature: {[m
+     numerator: 4,[m
+[31m-    denominator: 4[m
+[32m+[m[32m    denominator: 4,[m
+   },[m
+   sampleRate: 44100,[m
+   bitDepth: 24,[m
+[36m@@ -37,8 +41,8 @@[m [mconst createEmptyProject = (): Project => ({[m
+     createdAt: new Date(),[m
+     modifiedAt: new Date(),[m
+     version: '1.0.0',[m
+[31m-    tags: [][m
+[31m-  }[m
+[32m+[m[32m    tags: [],[m
+[32m+[m[32m  },[m
+ });[m
+ [m
+ const createInitialTransport = (): TransportState => ({[m
+[36m@@ -52,13 +56,13 @@[m [mconst createInitialTransport = (): TransportState => ({[m
+   punchIn: 0,[m
+   punchOut: 16,[m
+   countIn: 2,[m
+[31m-  playbackSpeed: 1.0[m
+[32m+[m[32m  playbackSpeed: 1.0,[m
+ });[m
+ [m
+ const createInitialSelection = (): SelectionState => ({[m
+   selectedTrackIds: [],[m
+   selectedClipIds: [],[m
+[31m-  selectedEffectIds: [][m
+[32m+[m[32m  selectedEffectIds: [],[m
+ });[m
+ [m
+ const createInitialGrid = (): GridSettings => ({[m
+[36m@@ -72,15 +76,15 @@[m [mconst createInitialGrid = (): GridSettings => ({[m
+   zoomVertical: 60, // pixels per track[m
+   scrollPosition: {[m
+     x: 0,[m
+[31m-    y: 0[m
+[31m-  }[m
+[32m+[m[32m    y: 0,[m
+[32m+[m[32m  },[m
+ });[m
+ [m
+ const createInitialHistory = (): HistoryState => ({[m
+   past: [],[m
+   present: createEmptyProject(),[m
+   future: [],[m
+[31m-  maxSize: 50[m
+[32m+[m[32m  maxSize: 50,[m
+ });[m
+ [m
+ // Store interface with all actions[m
+[36m@@ -116,11 +120,15 @@[m [minterface AppStore extends AppState {[m
+   setTrackColor: (trackId: string, color: string) => void;[m
+ [m
+   // Clip CRUD actions[m
+[31m-  addClip: (clip: Omit<Clip, 'id'>) => void;[m
+[32m+[m[32m  addClip: (clip: Omit<Clip, 'id'> | any) => void;[m
+   removeClip: (clipId: string) => void;[m
+   duplicateClip: (clipId: string) => void;[m
+   moveClip: (clipId: string, newTrackId: string, newStartTime: number) => void;[m
+[31m-  resizeClip: (clipId: string, newStartTime: number, newDuration: number) => void;[m
+[32m+[m[32m  resizeClip: ([m
+[32m+[m[32m    clipId: string,[m
+[32m+[m[32m    newStartTime: number,[m
+[32m+[m[32m    newDuration: number[m
+[32m+[m[32m  ) => void;[m
+   setClipGain: (clipId: string, gain: number) => void;[m
+   setClipPan: (clipId: string, pan: number) => void;[m
+   setClipMute: (clipId: string, muted: boolean) => void;[m
+[36m@@ -131,7 +139,11 @@[m [minterface AppStore extends AppState {[m
+   addEffect: (trackId: string, effect: Omit<Effect, 'id'>) => void;[m
+   removeEffect: (effectId: string) => void;[m
+   moveEffect: (effectId: string, newPosition: number) => void;[m
+[31m-  setEffectParameter: (effectId: string, parameter: string, value: number | string | boolean) => void;[m
+[32m+[m[32m  setEffectParameter: ([m
+[32m+[m[32m    effectId: string,[m
+[32m+[m[32m    parameter: string,[m
+[32m+[m[32m    value: number | string | boolean[m
+[32m+[m[32m  ) => void;[m
+   setEffectEnabled: (effectId: string, enabled: boolean) => void;[m
+   setEffectBypassed: (effectId: string, bypassed: boolean) => void;[m
+ [m
+[36m@@ -159,7 +171,15 @@[m [minterface AppStore extends AppState {[m
+   toggleBrowser: () => void;[m
+   toggleInspector: () => void;[m
+   toggleAutomation: () => void;[m
+[31m-  setFocusedPanel: (panel: 'timeline' | 'mixer' | 'browser' | 'inspector' | 'automation' | undefined) => void;[m
+[32m+[m[32m  setFocusedPanel: ([m
+[32m+[m[32m    panel:[m
+[32m+[m[32m      | 'timeline'[m
+[32m+[m[32m      | 'mixer'[m
+[32m+[m[32m      | 'browser'[m
+[32m+[m[32m      | 'inspector'[m
+[32m+[m[32m      | 'automation'[m
+[32m+[m[32m      | undefined[m
+[32m+[m[32m  ) => void;[m
+ [m
+   // Project actions[m
+   newProject: () => void;[m
+[36m@@ -182,7 +202,12 @@[m [minterface AppStore extends AppState {[m
+   getEffectById: (effectId: string) => Effect | undefined;[m
+   getEffectChainByTrackId: (trackId: string) => EffectChain | undefined;[m
+   getClipsByTrackId: (trackId: string) => Clip[];[m
+[31m-  getTracksInRange: (startTime: number, endTime: number, startTrackIndex?: number, endTrackIndex?: number) => Track[];[m
+[32m+[m[32m  getTracksInRange: ([m
+[32m+[m[32m    startTime: number,[m
+[32m+[m[32m    endTime: number,[m
+[32m+[m[32m    startTrackIndex?: number,[m
+[32m+[m[32m    endTrackIndex?: number[m
+[32m+[m[32m  ) => Track[];[m
+   canUndo: () => boolean;[m
+   canRedo: () => boolean;[m
+ }[m
+[36m@@ -200,10 +225,18 @@[m [mexport interface AudioEngineEvents {[m
+   onTrackSoloChange: (trackId: string, solo: boolean) => void;[m
+   onClipAdd: (clip: Clip) => void;[m
+   onClipRemove: (clipId: string) => void;[m
+[31m-  onClipMove: (clipId: string, newTrackId: string, newStartTime: number) => void;[m
+[32m+[m[32m  onClipMove: ([m
+[32m+[m[32m    clipId: string,[m
+[32m+[m[32m    newTrackId: string,[m
+[32m+[m[32m    newStartTime: number[m
+[32m+[m[32m  ) => void;[m
+   onEffectAdd: (effect: Effect) => void;[m
+   onEffectRemove: (effectId: string) => void;[m
+[31m-  onEffectParameterChange: (effectId: string, parameter: string, value: number | string | boolean) => void;[m
+[32m+[m[32m  onEffectParameterChange: ([m
+[32m+[m[32m    effectId: string,[m
+[32m+[m[32m    parameter: string,[m
+[32m+[m[32m    value: number | string | boolean[m
+[32m+[m[32m  ) => void;[m
+ }[m
+ [m
+ // Create the store[m
+[36m@@ -220,7 +253,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+       showBrowser: true,[m
+       showInspector: true,[m
+       showAutomation: false,[m
+[31m-      focusedPanel: 'timeline'[m
+[32m+[m[32m      focusedPanel: 'timeline',[m
+     },[m
+ [m
+     // Transport actions[m
+[36m@@ -284,7 +317,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     toggleMetronome: () => {[m
+       set((state) => {[m
+[31m-        state.transport.isMetronomeEnabled = !state.transport.isMetronomeEnabled;[m
+[32m+[m[32m        state.transport.isMetronomeEnabled =[m
+[32m+[m[32m          !state.transport.isMetronomeEnabled;[m
+       });[m
+     },[m
+ [m
+[36m@@ -320,7 +354,9 @@[m [mexport const useAppStore = create<AppStore>()([m
+       set((state) => {[m
+         state.project.timeSignature = {[m
+           numerator: Math.max(1, Math.min(32, numerator)),[m
+[31m-          denominator: [1, 2, 4, 8, 16, 32].includes(denominator) ? denominator : 4[m
+[32m+[m[32m          denominator: [1, 2, 4, 8, 16, 32].includes(denominator)[m
+[32m+[m[32m            ? denominator[m
+[32m+[m[32m            : 4,[m
+         };[m
+       });[m
+       const events = get() as unknown as AudioEngineEvents;[m
+[36m@@ -338,7 +374,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+       set((state) => {[m
+         const trackId = crypto.randomUUID();[m
+         const effectChainId = crypto.randomUUID();[m
+[31m-        [m
+[32m+[m
+         let newTrack: Track;[m
+         const baseTrack = {[m
+           id: trackId,[m
+[36m@@ -353,7 +389,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+           height: 60,[m
+           visible: true,[m
+           locked: false,[m
+[31m-          effectChainId[m
+[32m+[m[32m          effectChainId,[m
+         };[m
+ [m
+         switch (type) {[m
+[36m@@ -363,7 +399,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+               type: TrackType.AUDIO,[m
+               monitoring: false,[m
+               inputGain: 1,[m
+[31m-              recordEnabled: false[m
+[32m+[m[32m              recordEnabled: false,[m
+             } as AudioTrack;[m
+             break;[m
+           case TrackType.MIDI:[m
+[36m@@ -372,23 +408,23 @@[m [mexport const useAppStore = create<AppStore>()([m
+               type: TrackType.MIDI,[m
+               instrument: {[m
+                 type: 'vsti',[m
+[31m-                midiChannel: 0[m
+[32m+[m[32m                midiChannel: 0,[m
+               },[m
+[31m-              midiThru: false[m
+[32m+[m[32m              midiThru: false,[m
+             } as MidiTrack;[m
+             break;[m
+           case TrackType.EFFECT:[m
+             newTrack = {[m
+               ...baseTrack,[m
+               type: TrackType.EFFECT,[m
+[31m-              receives: [][m
+[32m+[m[32m              receives: [],[m
+             } as EffectTrack;[m
+             break;[m
+           case TrackType.BUS:[m
+             newTrack = {[m
+               ...baseTrack,[m
+               type: TrackType.BUS,[m
+[31m-              receives: [][m
+[32m+[m[32m              receives: [],[m
+             } as BusTrack;[m
+             break;[m
+           case TrackType.MASTER:[m
+[36m@@ -398,50 +434,58 @@[m [mexport const useAppStore = create<AppStore>()([m
+               limiter: {[m
+                 enabled: true,[m
+                 ceiling: -0.1,[m
+[31m-                release: 10[m
+[31m-              }[m
+[32m+[m[32m                release: 10,[m
+[32m+[m[32m              },[m
+             } as MasterTrack;[m
+             break;[m
+           default:[m
+             return;[m
+         }[m
+ [m
+[31m-        const insertIndex = position !== undefined ? Math.min(Math.max(0, position), state.project.tracks.length) : state.project.tracks.length;[m
+[32m+[m[32m        const insertIndex =[m
+[32m+[m[32m          position !== undefined[m
+[32m+[m[32m            ? Math.min(Math.max(0, position), state.project.tracks.length)[m
+[32m+[m[32m            : state.project.tracks.length;[m
+         state.project.tracks.splice(insertIndex, 0, newTrack);[m
+ [m
+         // Add effect chain[m
+         state.project.effectChains.push({[m
+           id: effectChainId,[m
+           trackId,[m
+[31m-          effects: [][m
+[32m+[m[32m          effects: [],[m
+         });[m
+       });[m
+     },[m
+ [m
+     removeTrack: (trackId: string) => {[m
+       set((state) => {[m
+[31m-        const trackIndex = state.project.tracks.findIndex(t => t.id === trackId);[m
+[32m+[m[32m        const trackIndex = state.project.tracks.findIndex([m
+[32m+[m[32m          (t) => t.id === trackId[m
+[32m+[m[32m        );[m
+         if (trackIndex === -1) return;[m
+ [m
+[31m-        const track = state.project.tracks[trackIndex];[m
+[31m-        [m
+         // Remove track[m
+         state.project.tracks.splice(trackIndex, 1);[m
+[31m-        [m
+[32m+[m
+         // Remove associated clips[m
+[31m-        state.project.clips = state.project.clips.filter(c => c.trackId !== trackId);[m
+[31m-        [m
+[32m+[m[32m        state.project.clips = state.project.clips.filter([m
+[32m+[m[32m          (c) => c.trackId !== trackId[m
+[32m+[m[32m        );[m
+[32m+[m
+         // Remove effect chain[m
+[31m-        state.project.effectChains = state.project.effectChains.filter(ec => ec.trackId !== trackId);[m
+[31m-        [m
+[32m+[m[32m        state.project.effectChains = state.project.effectChains.filter([m
+[32m+[m[32m          (ec) => ec.trackId !== trackId[m
+[32m+[m[32m        );[m
+[32m+[m
+         // Remove from selection[m
+[31m-        state.selection.selectedTrackIds = state.selection.selectedTrackIds.filter(id => id !== trackId);[m
+[32m+[m[32m        state.selection.selectedTrackIds =[m
+[32m+[m[32m          state.selection.selectedTrackIds.filter((id) => id !== trackId);[m
+       });[m
+     },[m
+ [m
+     renameTrack: (trackId: string, name: string) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.name = name.trim();[m
+         }[m
+[36m@@ -450,44 +494,50 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     duplicateTrack: (trackId: string) => {[m
+       const state = get();[m
+[31m-      const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m      const track = state.project.tracks.find((t) => t.id === trackId);[m
+       if (!track) return;[m
+ [m
+       const newTrackId = crypto.randomUUID();[m
+       const newEffectChainId = crypto.randomUUID();[m
+[31m-      [m
+[32m+[m
+       set((draftState) => {[m
+[31m-        const trackIndex = draftState.project.tracks.findIndex(t => t.id === trackId);[m
+[31m-        [m
+[32m+[m[32m        const trackIndex = draftState.project.tracks.findIndex([m
+[32m+[m[32m          (t) => t.id === trackId[m
+[32m+[m[32m        );[m
+[32m+[m
+         // Deep clone the track[m
+         const newTrack = JSON.parse(JSON.stringify(track));[m
+         newTrack.id = newTrackId;[m
+         newTrack.name = `${track.name} Copy`;[m
+         newTrack.effectChainId = newEffectChainId;[m
+         newTrack.armed = false; // Don't arm duplicated tracks[m
+[31m-        [m
+[32m+[m
+         // Insert after original[m
+         draftState.project.tracks.splice(trackIndex + 1, 0, newTrack);[m
+[31m-        [m
+[32m+[m
+         // Clone effect chain[m
+[31m-        const originalEffectChain = draftState.project.effectChains.find(ec => ec.trackId === trackId);[m
+[32m+[m[32m        const originalEffectChain = draftState.project.effectChains.find([m
+[32m+[m[32m          (ec) => ec.trackId === trackId[m
+[32m+[m[32m        );[m
+         if (originalEffectChain) {[m
+           draftState.project.effectChains.push({[m
+             id: newEffectChainId,[m
+             trackId: newTrackId,[m
+[31m-            effects: originalEffectChain.effects.map(effect => ({[m
+[32m+[m[32m            effects: originalEffectChain.effects.map((effect) => ({[m
+               ...effect,[m
+[31m-              id: crypto.randomUUID()[m
+[31m-            }))[m
+[32m+[m[32m              id: crypto.randomUUID(),[m
+[32m+[m[32m            })),[m
+           });[m
+         }[m
+[31m-        [m
+[32m+[m
+         // Clone clips[m
+[31m-        const originalClips = draftState.project.clips.filter(c => c.trackId === trackId);[m
+[31m-        const newClips = originalClips.map(clip => ({[m
+[32m+[m[32m        const originalClips = draftState.project.clips.filter([m
+[32m+[m[32m          (c) => c.trackId === trackId[m
+[32m+[m[32m        );[m
+[32m+[m[32m        const newClips = originalClips.map((clip) => ({[m
+           ...clip,[m
+           id: crypto.randomUUID(),[m
+[31m-          trackId: newTrackId[m
+[32m+[m[32m          trackId: newTrackId,[m
+         }));[m
+         draftState.project.clips.push(...newClips);[m
+       });[m
+[36m@@ -495,18 +545,23 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     moveTrack: (trackId: string, newPosition: number) => {[m
+       set((state) => {[m
+[31m-        const trackIndex = state.project.tracks.findIndex(t => t.id === trackId);[m
+[32m+[m[32m        const trackIndex = state.project.tracks.findIndex([m
+[32m+[m[32m          (t) => t.id === trackId[m
+[32m+[m[32m        );[m
+         if (trackIndex === -1) return;[m
+ [m
+         const [track] = state.project.tracks.splice(trackIndex, 1);[m
+[31m-        const clampedPosition = Math.min(Math.max(0, newPosition), state.project.tracks.length);[m
+[32m+[m[32m        const clampedPosition = Math.min([m
+[32m+[m[32m          Math.max(0, newPosition),[m
+[32m+[m[32m          state.project.tracks.length[m
+[32m+[m[32m        );[m
+         state.project.tracks.splice(clampedPosition, 0, track);[m
+       });[m
+     },[m
+ [m
+     setTrackVolume: (trackId: string, volume: number) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.volume = Math.max(0, Math.min(2, volume));[m
+         }[m
+[36m@@ -517,7 +572,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackPan: (trackId: string, pan: number) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.pan = Math.max(-1, Math.min(1, pan));[m
+         }[m
+[36m@@ -528,7 +583,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackMute: (trackId: string, muted: boolean) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.muted = muted;[m
+         }[m
+[36m@@ -539,7 +594,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackSolo: (trackId: string, solo: boolean) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.solo = solo;[m
+         }[m
+[36m@@ -550,7 +605,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackArm: (trackId: string, armed: boolean) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.armed = armed;[m
+         }[m
+[36m@@ -559,7 +614,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackHeight: (trackId: string, height: number) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.height = Math.max(20, Math.min(200, height));[m
+         }[m
+[36m@@ -568,7 +623,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setTrackColor: (trackId: string, color: string) => {[m
+       set((state) => {[m
+[31m-        const track = state.project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m        const track = state.project.tracks.find((t) => t.id === trackId);[m
+         if (track) {[m
+           track.color = color;[m
+         }[m
+[36m@@ -576,12 +631,12 @@[m [mexport const useAppStore = create<AppStore>()([m
+     },[m
+ [m
+     // Clip CRUD actions[m
+[31m-    addClip: (clip: Omit<Clip, 'id'>) => {[m
+[32m+[m[32m    addClip: (clip: Omit<Clip, 'id'> | any) => {[m
+       set((state) => {[m
+[31m-        const newClip: Clip = {[m
+[32m+[m[32m        const newClip = {[m
+           ...clip,[m
+[31m-          id: crypto.randomUUID()[m
+[31m-        };[m
+[32m+[m[32m          id: crypto.randomUUID(),[m
+[32m+[m[32m        } as Clip;[m
+         state.project.clips.push(newClip);[m
+       });[m
+       const events = get() as unknown as AudioEngineEvents;[m
+[36m@@ -590,8 +645,11 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     removeClip: (clipId: string) => {[m
+       set((state) => {[m
+[31m-        state.project.clips = state.project.clips.filter(c => c.id !== clipId);[m
+[31m-        state.selection.selectedClipIds = state.selection.selectedClipIds.filter(id => id !== clipId);[m
+[32m+[m[32m        state.project.clips = state.project.clips.filter([m
+[32m+[m[32m          (c) => c.id !== clipId[m
+[32m+[m[32m        );[m
+[32m+[m[32m        state.selection.selectedClipIds =[m
+[32m+[m[32m          state.selection.selectedClipIds.filter((id) => id !== clipId);[m
+       });[m
+       const events = get() as unknown as AudioEngineEvents;[m
+       events.onClipRemove?.(clipId);[m
+[36m@@ -599,14 +657,14 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     duplicateClip: (clipId: string) => {[m
+       const state = get();[m
+[31m-      const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m      const clip = state.project.clips.find((c) => c.id === clipId);[m
+       if (!clip) return;[m
+ [m
+       set((draftState) => {[m
+         const newClip: Clip = {[m
+           ...clip,[m
+           id: crypto.randomUUID(),[m
+[31m-          startTime: clip.startTime + clip.duration // Place right after original[m
+[32m+[m[32m          startTime: clip.startTime + clip.duration, // Place right after original[m
+         };[m
+         draftState.project.clips.push(newClip);[m
+       });[m
+[36m@@ -614,7 +672,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     moveClip: (clipId: string, newTrackId: string, newStartTime: number) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.trackId = newTrackId;[m
+           clip.startTime = Math.max(0, newStartTime);[m
+[36m@@ -626,7 +684,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     resizeClip: (clipId: string, newStartTime: number, newDuration: number) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.startTime = Math.max(0, newStartTime);[m
+           clip.duration = Math.max(0.1, newDuration);[m
+[36m@@ -636,7 +694,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setClipGain: (clipId: string, gain: number) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.gain = Math.max(0, Math.min(2, gain));[m
+         }[m
+[36m@@ -645,7 +703,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setClipPan: (clipId: string, pan: number) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.pan = Math.max(-1, Math.min(1, pan));[m
+         }[m
+[36m@@ -654,7 +712,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setClipMute: (clipId: string, muted: boolean) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.muted = muted;[m
+         }[m
+[36m@@ -663,7 +721,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setClipSolo: (clipId: string, solo: boolean) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.solo = solo;[m
+         }[m
+[36m@@ -672,7 +730,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setClipColor: (clipId: string, color: string) => {[m
+       set((state) => {[m
+[31m-        const clip = state.project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m        const clip = state.project.clips.find((c) => c.id === clipId);[m
+         if (clip) {[m
+           clip.color = color;[m
+         }[m
+[36m@@ -682,12 +740,14 @@[m [mexport const useAppStore = create<AppStore>()([m
+     // Effect actions[m
+     addEffect: (trackId: string, effect: Omit<Effect, 'id'>) => {[m
+       set((state) => {[m
+[31m-        const effectChain = state.project.effectChains.find(ec => ec.trackId === trackId);[m
+[32m+[m[32m        const effectChain = state.project.effectChains.find([m
+[32m+[m[32m          (ec) => ec.trackId === trackId[m
+[32m+[m[32m        );[m
+         if (effectChain) {[m
+           const newEffect: Effect = {[m
+             ...effect,[m
+             id: crypto.randomUUID(),[m
+[31m-            position: effectChain.effects.length[m
+[32m+[m[32m            position: effectChain.effects.length,[m
+           };[m
+           effectChain.effects.push(newEffect);[m
+         }[m
+[36m@@ -698,8 +758,10 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     removeEffect: (effectId: string) => {[m
+       set((state) => {[m
+[31m-        state.project.effectChains.forEach(effectChain => {[m
+[31m-          const effectIndex = effectChain.effects.findIndex(e => e.id === effectId);[m
+[32m+[m[32m        state.project.effectChains.forEach((effectChain) => {[m
+[32m+[m[32m          const effectIndex = effectChain.effects.findIndex([m
+[32m+[m[32m            (e) => e.id === effectId[m
+[32m+[m[32m          );[m
+           if (effectIndex !== -1) {[m
+             effectChain.effects.splice(effectIndex, 1);[m
+             // Update positions of remaining effects[m
+[36m@@ -708,7 +770,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+             });[m
+           }[m
+         });[m
+[31m-        state.selection.selectedEffectIds = state.selection.selectedEffectIds.filter(id => id !== effectId);[m
+[32m+[m[32m        state.selection.selectedEffectIds =[m
+[32m+[m[32m          state.selection.selectedEffectIds.filter((id) => id !== effectId);[m
+       });[m
+       const events = get() as unknown as AudioEngineEvents;[m
+       events.onEffectRemove?.(effectId);[m
+[36m@@ -716,11 +779,16 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     moveEffect: (effectId: string, newPosition: number) => {[m
+       set((state) => {[m
+[31m-        state.project.effectChains.forEach(effectChain => {[m
+[31m-          const effectIndex = effectChain.effects.findIndex(e => e.id === effectId);[m
+[32m+[m[32m        state.project.effectChains.forEach((effectChain) => {[m
+[32m+[m[32m          const effectIndex = effectChain.effects.findIndex([m
+[32m+[m[32m            (e) => e.id === effectId[m
+[32m+[m[32m          );[m
+           if (effectIndex !== -1) {[m
+             const [effect] = effectChain.effects.splice(effectIndex, 1);[m
+[31m-            const clampedPosition = Math.min(Math.max(0, newPosition), effectChain.effects.length);[m
+[32m+[m[32m            const clampedPosition = Math.min([m
+[32m+[m[32m              Math.max(0, newPosition),[m
+[32m+[m[32m              effectChain.effects.length[m
+[32m+[m[32m            );[m
+             effectChain.effects.splice(clampedPosition, 0, effect);[m
+             // Update positions[m
+             effectChain.effects.forEach((effect, index) => {[m
+[36m@@ -731,10 +799,14 @@[m [mexport const useAppStore = create<AppStore>()([m
+       });[m
+     },[m
+ [m
+[31m-    setEffectParameter: (effectId: string, parameter: string, value: number | string | boolean) => {[m
+[32m+[m[32m    setEffectParameter: ([m
+[32m+[m[32m      effectId: string,[m
+[32m+[m[32m      parameter: string,[m
+[32m+[m[32m      value: number | string | boolean[m
+[32m+[m[32m    ) => {[m
+       set((state) => {[m
+[31m-        state.project.effectChains.forEach(effectChain => {[m
+[31m-          const effect = effectChain.effects.find(e => e.id === effectId);[m
+[32m+[m[32m        state.project.effectChains.forEach((effectChain) => {[m
+[32m+[m[32m          const effect = effectChain.effects.find((e) => e.id === effectId);[m
+           if (effect) {[m
+             effect.parameters[parameter] = value;[m
+           }[m
+[36m@@ -746,8 +818,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setEffectEnabled: (effectId: string, enabled: boolean) => {[m
+       set((state) => {[m
+[31m-        state.project.effectChains.forEach(effectChain => {[m
+[31m-          const effect = effectChain.effects.find(e => e.id === effectId);[m
+[32m+[m[32m        state.project.effectChains.forEach((effectChain) => {[m
+[32m+[m[32m          const effect = effectChain.effects.find((e) => e.id === effectId);[m
+           if (effect) {[m
+             effect.enabled = enabled;[m
+           }[m
+[36m@@ -757,8 +829,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     setEffectBypassed: (effectId: string, bypassed: boolean) => {[m
+       set((state) => {[m
+[31m-        state.project.effectChains.forEach(effectChain => {[m
+[31m-          const effect = effectChain.effects.find(e => e.id === effectId);[m
+[32m+[m[32m        state.project.effectChains.forEach((effectChain) => {[m
+[32m+[m[32m          const effect = effectChain.effects.find((e) => e.id === effectId);[m
+           if (effect) {[m
+             effect.bypassed = bypassed;[m
+           }[m
+[36m@@ -771,7 +843,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+       set((state) => {[m
+         if (multi) {[m
+           if (state.selection.selectedTrackIds.includes(trackId)) {[m
+[31m-            state.selection.selectedTrackIds = state.selection.selectedTrackIds.filter(id => id !== trackId);[m
+[32m+[m[32m            state.selection.selectedTrackIds =[m
+[32m+[m[32m              state.selection.selectedTrackIds.filter((id) => id !== trackId);[m
+           } else {[m
+             state.selection.selectedTrackIds.push(trackId);[m
+           }[m
+[36m@@ -787,7 +860,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+       set((state) => {[m
+         if (multi) {[m
+           if (state.selection.selectedClipIds.includes(clipId)) {[m
+[31m-            state.selection.selectedClipIds = state.selection.selectedClipIds.filter(id => id !== clipId);[m
+[32m+[m[32m            state.selection.selectedClipIds =[m
+[32m+[m[32m              state.selection.selectedClipIds.filter((id) => id !== clipId);[m
+           } else {[m
+             state.selection.selectedClipIds.push(clipId);[m
+           }[m
+[36m@@ -803,7 +877,8 @@[m [mexport const useAppStore = create<AppStore>()([m
+       set((state) => {[m
+         if (multi) {[m
+           if (state.selection.selectedEffectIds.includes(effectId)) {[m
+[31m-            state.selection.selectedEffectIds = state.selection.selectedEffectIds.filter(id => id !== effectId);[m
+[32m+[m[32m            state.selection.selectedEffectIds =[m
+[32m+[m[32m              state.selection.selectedEffectIds.filter((id) => id !== effectId);[m
+           } else {[m
+             state.selection.selectedEffectIds.push(effectId);[m
+           }[m
+[36m@@ -829,8 +904,10 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     selectAll: () => {[m
+       set((state) => {[m
+[31m-        state.selection.selectedTrackIds = state.project.tracks.map(t => t.id);[m
+[31m-        state.selection.selectedClipIds = state.project.clips.map(c => c.id);[m
+[32m+[m[32m        state.selection.selectedTrackIds = state.project.tracks.map([m
+[32m+[m[32m          (t) => t.id[m
+[32m+[m[32m        );[m
+[32m+[m[32m        state.selection.selectedClipIds = state.project.clips.map((c) => c.id);[m
+       });[m
+     },[m
+ [m
+[36m@@ -947,7 +1024,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+           past: [],[m
+           present: { ...project },[m
+           future: [],[m
+[31m-          maxSize: 50[m
+[32m+[m[32m          maxSize: 50,[m
+         };[m
+       });[m
+     },[m
+[36m@@ -968,10 +1045,13 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     removeAudioFile: (fileId: string) => {[m
+       set((state) => {[m
+[31m-        state.project.audioFiles = state.project.audioFiles.filter(f => f.id !== fileId);[m
+[32m+[m[32m        state.project.audioFiles = state.project.audioFiles.filter([m
+[32m+[m[32m          (f) => f.id !== fileId[m
+[32m+[m[32m        );[m
+         // Remove clips that use this audio file[m
+[31m-        state.project.clips = state.project.clips.filter(c => [m
+[31m-          !(c.type === ClipType.AUDIO && (c as any).audioFileId === fileId)[m
+[32m+[m[32m        state.project.clips = state.project.clips.filter([m
+[32m+[m[32m          (c) =>[m
+[32m+[m[32m            !(c.type === ClipType.AUDIO && (c as any).audioFileId === fileId)[m
+         );[m
+         state.project.metadata.modifiedAt = new Date();[m
+       });[m
+[36m@@ -981,17 +1061,20 @@[m [mexport const useAppStore = create<AppStore>()([m
+     undo: () => {[m
+       set((state) => {[m
+         if (state.history.past.length === 0) return;[m
+[31m-        [m
+[32m+[m
+         const previous = state.history.past[state.history.past.length - 1];[m
+[31m-        const newPast = state.history.past.slice(0, state.history.past.length - 1);[m
+[31m-        [m
+[32m+[m[32m        const newPast = state.history.past.slice([m
+[32m+[m[32m          0,[m
+[32m+[m[32m          state.history.past.length - 1[m
+[32m+[m[32m        );[m
+[32m+[m
+         state.history = {[m
+           past: newPast,[m
+           present: previous,[m
+           future: [state.history.present, ...state.history.future],[m
+[31m-          maxSize: state.history.maxSize[m
+[32m+[m[32m          maxSize: state.history.maxSize,[m
+         };[m
+[31m-        [m
+[32m+[m
+         state.project = { ...previous };[m
+       });[m
+     },[m
+[36m@@ -999,17 +1082,17 @@[m [mexport const useAppStore = create<AppStore>()([m
+     redo: () => {[m
+       set((state) => {[m
+         if (state.history.future.length === 0) return;[m
+[31m-        [m
+[32m+[m
+         const next = state.history.future[0];[m
+         const newFuture = state.history.future.slice(1);[m
+[31m-        [m
+[32m+[m
+         state.history = {[m
+           past: [...state.history.past, state.history.present],[m
+           present: next,[m
+           future: newFuture,[m
+[31m-          maxSize: state.history.maxSize[m
+[32m+[m[32m          maxSize: state.history.maxSize,[m
+         };[m
+[31m-        [m
+[32m+[m
+         state.project = { ...next };[m
+       });[m
+     },[m
+[36m@@ -1017,16 +1100,16 @@[m [mexport const useAppStore = create<AppStore>()([m
+     saveToHistory: () => {[m
+       set((state) => {[m
+         const newPast = [...state.history.past, state.project];[m
+[31m-        [m
+[32m+[m
+         if (newPast.length > state.history.maxSize) {[m
+           newPast.shift();[m
+         }[m
+[31m-        [m
+[32m+[m
+         state.history = {[m
+           past: newPast,[m
+           present: { ...state.project },[m
+           future: [],[m
+[31m-          maxSize: state.history.maxSize[m
+[32m+[m[32m          maxSize: state.history.maxSize,[m
+         };[m
+       });[m
+     },[m
+[36m@@ -1037,7 +1120,7 @@[m [mexport const useAppStore = create<AppStore>()([m
+           past: [],[m
+           present: { ...state.project },[m
+           future: [],[m
+[31m-          maxSize: state.history.maxSize[m
+[32m+[m[32m          maxSize: state.history.maxSize,[m
+         };[m
+       });[m
+     },[m
+[36m@@ -1045,47 +1128,62 @@[m [mexport const useAppStore = create<AppStore>()([m
+     // Derived selectors[m
+     getSelectedTracks: () => {[m
+       const { project, selection } = get();[m
+[31m-      return project.tracks.filter(t => selection.selectedTrackIds.includes(t.id));[m
+[32m+[m[32m      return project.tracks.filter((t) =>[m
+[32m+[m[32m        selection.selectedTrackIds.includes(t.id)[m
+[32m+[m[32m      );[m
+     },[m
+ [m
+     getSelectedClips: () => {[m
+       const { project, selection } = get();[m
+[31m-      return project.clips.filter(c => selection.selectedClipIds.includes(c.id));[m
+[32m+[m[32m      return project.clips.filter((c) =>[m
+[32m+[m[32m        selection.selectedClipIds.includes(c.id)[m
+[32m+[m[32m      );[m
+     },[m
+ [m
+     getTrackById: (trackId: string) => {[m
+[31m-      return get().project.tracks.find(t => t.id === trackId);[m
+[32m+[m[32m      return get().project.tracks.find((t) => t.id === trackId);[m
+     },[m
+ [m
+     getClipById: (clipId: string) => {[m
+[31m-      return get().project.clips.find(c => c.id === clipId);[m
+[32m+[m[32m      return get().project.clips.find((c) => c.id === clipId);[m
+     },[m
+ [m
+     getEffectById: (effectId: string) => {[m
+       const { project } = get();[m
+       for (const effectChain of project.effectChains) {[m
+[31m-        const effect = effectChain.effects.find(e => e.id === effectId);[m
+[32m+[m[32m        const effect = effectChain.effects.find((e) => e.id === effectId);[m
+         if (effect) return effect;[m
+       }[m
+       return undefined;[m
+     },[m
+ [m
+     getEffectChainByTrackId: (trackId: string) => {[m
+[31m-      return get().project.effectChains.find(ec => ec.trackId === trackId);[m
+[32m+[m[32m      return get().project.effectChains.find((ec) => ec.trackId === trackId);[m
+     },[m
+ [m
+     getClipsByTrackId: (trackId: string) => {[m
+[31m-      return get().project.clips.filter(c => c.trackId === trackId);[m
+[32m+[m[32m      return get().project.clips.filter((c) => c.trackId === trackId);[m
+     },[m
+ [m
+[31m-    getTracksInRange: (startTime: number, endTime: number, startTrackIndex = 0, endTrackIndex = Infinity) => {[m
+[32m+[m[32m    getTracksInRange: ([m
+[32m+[m[32m      startTime: number,[m
+[32m+[m[32m      endTime: number,[m
+[32m+[m[32m      startTrackIndex = 0,[m
+[32m+[m[32m      endTrackIndex = Infinity[m
+[32m+[m[32m    ) => {[m
+       const { project } = get();[m
+[31m-      return project.tracks.slice(startTrackIndex, endTrackIndex).filter(track => {[m
+[31m-        const trackClips = project.clips.filter(c => c.trackId === track.id);[m
+[31m-        return trackClips.some(clip => [m
+[31m-          (clip.startTime < endTime && clip.startTime + clip.duration > startTime)[m
+[31m-        );[m
+[31m-      });[m
+[32m+[m[32m      return project.tracks[m
+[32m+[m[32m        .slice(startTrackIndex, endTrackIndex)[m
+[32m+[m[32m        .filter((track) => {[m
+[32m+[m[32m          const trackClips = project.clips.filter([m
+[32m+[m[32m            (c) => c.trackId === track.id[m
+[32m+[m[32m          );[m
+[32m+[m[32m          return trackClips.some([m
+[32m+[m[32m            (clip) =>[m
+[32m+[m[32m              clip.startTime < endTime &&[m
+[32m+[m[32m              clip.startTime + clip.duration > startTime[m
+[32m+[m[32m          );[m
+[32m+[m[32m        });[m
+     },[m
+ [m
+     canUndo: () => {[m
+[36m@@ -1094,10 +1192,15 @@[m [mexport const useAppStore = create<AppStore>()([m
+ [m
+     canRedo: () => {[m
+       return get().history.future.length > 0;[m
+[31m-    }[m
+[32m+[m[32m    },[m
+   }))[m
+ );[m
+ [m
+ // Export types and helper functions for external use[m
+ export type { AppStore };[m
+[31m-export { createEmptyProject, createInitialTransport, createInitialSelection, createInitialGrid };[m
+\ No newline at end of file[m
+[32m+[m[32mexport {[m
+[32m+[m[32m  createEmptyProject,[m
+[32m+[m[32m  createInitialTransport,[m
+[32m+[m[32m  createInitialSelection,[m
+[32m+[m[32m  createInitialGrid,[m
+[32m+[m[32m};[m
+[1mdiff --git a/src/test/serialization.test.ts b/src/test/serialization.test.ts[m
+[1mindex 8ca61e4..797add7 100644[m
+[1m--- a/src/test/serialization.test.ts[m
+[1m+++ b/src/test/serialization.test.ts[m
+[36m@@ -1,15 +1,15 @@[m
+ import { describe, it, expect, beforeEach } from 'vitest';[m
+[31m-import { [m
+[31m-  serializeProject, [m
+[31m-  rehydrateProject, [m
+[31m-  serializeAppState, [m
+[32m+[m[32mimport {[m
+[32m+[m[32m  serializeProject,[m
+[32m+[m[32m  rehydrateProject,[m
+[32m+[m[32m  serializeAppState,[m
+   rehydrateAppState,[m
+   validateSerializedProject,[m
+   createProjectBackup,[m
+   SERIALIZATION_VERSION,[m
+[31m-  createEmptyProject[m
+[32m+[m[32m  createEmptyProject,[m
+ } from '../state';[m
+[31m-import { TrackType, ClipType, EffectType } from '../state/models';[m
+[32m+[m[32mimport { TrackType, ClipType, EffectType, AppState } from '../state/models';[m
+ [m
+ describe('Serialization', () => {[m
+   let testProject: any;[m
+[36m@@ -22,7 +22,7 @@[m [mdescribe('Serialization', () => {[m
+       tempo: 140,[m
+       timeSignature: {[m
+         numerator: 6,[m
+[31m-        denominator: 8[m
+[32m+[m[32m        denominator: 8,[m
+       },[m
+       sampleRate: 48000,[m
+       bitDepth: 32,[m
+[36m@@ -46,7 +46,7 @@[m [mdescribe('Serialization', () => {[m
+           outputDevice: 'audio-output-1',[m
+           monitoring: true,[m
+           inputGain: 1.2,[m
+[31m-          recordEnabled: true[m
+[32m+[m[32m          recordEnabled: true,[m
+         },[m
+         {[m
+           id: 'track-2',[m
+[36m@@ -65,10 +65,10 @@[m [mdescribe('Serialization', () => {[m
+           instrument: {[m
+             type: 'vsti',[m
+             pluginId: 'synth-plugin-1',[m
+[31m-            midiChannel: 2[m
+[32m+[m[32m            midiChannel: 2,[m
+           },[m
+[31m-          midiThru: false[m
+[31m-        }[m
+[32m+[m[32m          midiThru: false,[m
+[32m+[m[32m        },[m
+       ],[m
+       clips: [[m
+         {[m
+[36m@@ -92,8 +92,8 @@[m [mdescribe('Serialization', () => {[m
+           fadeOut: 0.25,[m
+           warping: {[m
+             enabled: true,[m
+[31m-            algorithm: 'complexpro'[m
+[31m-          }[m
+[32m+[m[32m            algorithm: 'complexpro',[m
+[32m+[m[32m          },[m
+         },[m
+         {[m
+           id: 'clip-2',[m
+[36m@@ -113,20 +113,20 @@[m [mdescribe('Serialization', () => {[m
+               pitch: 60,[m
+               velocity: 100,[m
+               startTime: 0,[m
+[31m-              duration: 0.5[m
+[32m+[m[32m              duration: 0.5,[m
+             },[m
+             {[m
+               id: 'note-2',[m
+               pitch: 64,[m
+               velocity: 80,[m
+               startTime: 0.5,[m
+[31m-              duration: 0.25[m
+[31m-            }[m
+[32m+[m[32m              duration: 0.25,[m
+[32m+[m[32m            },[m
+           ],[m
+           velocity: 100,[m
+           quantize: 8,[m
+[31m-          length: 2[m
+[31m-        }[m
+[32m+[m[32m          length: 2,[m
+[32m+[m[32m        },[m
+       ],[m
+       effectChains: [[m
+         {[m
+[36m@@ -143,9 +143,9 @@[m [mdescribe('Serialization', () => {[m
+                 roomSize: 0.7,[m
+                 damping: 0.3,[m
+                 wetLevel: 0.5,[m
+[31m-                dryLevel: 0.3[m
+[32m+[m[32m                dryLevel: 0.3,[m
+               },[m
+[31m-              position: 0[m
+[32m+[m[32m              position: 0,[m
+             },[m
+             {[m
+               id: 'effect-2',[m
+[36m@@ -158,17 +158,17 @@[m [mdescribe('Serialization', () => {[m
+                 ratio: 4,[m
+                 attack: 0.003,[m
+                 release: 0.1,[m
+[31m-                makeupGain: 2[m
+[32m+[m[32m                makeupGain: 2,[m
+               },[m
+[31m-              position: 1[m
+[31m-            }[m
+[31m-          ][m
+[32m+[m[32m              position: 1,[m
+[32m+[m[32m            },[m
+[32m+[m[32m          ],[m
+         },[m
+         {[m
+           id: 'effect-chain-2',[m
+           trackId: 'track-2',[m
+[31m-          effects: [][m
+[31m-        }[m
+[32m+[m[32m          effects: [],[m
+[32m+[m[32m        },[m
+       ],[m
+       audioFiles: [[m
+         {[m
+[36m@@ -186,9 +186,9 @@[m [mdescribe('Serialization', () => {[m
+             title: 'Drum Loop',[m
+             album: 'Test Album',[m
+             genre: 'Electronic',[m
+[31m-            year: 2023[m
+[31m-          }[m
+[31m-        }[m
+[32m+[m[32m            year: 2023,[m
+[32m+[m[32m          },[m
+[32m+[m[32m        },[m
+       ],[m
+       metadata: {[m
+         createdAt: new Date('2023-01-01T00:00:00Z'),[m
+[36m@@ -196,17 +196,17 @@[m [mdescribe('Serialization', () => {[m
+         version: '1.0.0',[m
+         author: 'Test Author',[m
+         description: 'A test project for serialization',[m
+[31m-        tags: ['test', 'demo', 'electronic'][m
+[31m-      }[m
+[32m+[m[32m        tags: ['test', 'demo', 'electronic'],[m
+[32m+[m[32m      },[m
+     };[m
+   });[m
+ [m
+   describe('Project Serialization', () => {[m
+     it('should serialize a project to JSON', () => {[m
+       const serialized = serializeProject(testProject);[m
+[31m-      [m
+[32m+[m
+       expect(() => JSON.parse(serialized)).not.toThrow();[m
+[31m-      [m
+[32m+[m
+       const parsed = JSON.parse(serialized);[m
+       expect(parsed.version).toBe(SERIALIZATION_VERSION);[m
+       expect(parsed.project.name).toBe(testProject.name);[m
+[36m@@ -220,7 +220,7 @@[m [mdescribe('Serialization', () => {[m
+     it('should not save transport state in project serialization', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const parsed = JSON.parse(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(parsed.transport.isPlaying).toBe(false);[m
+       expect(parsed.transport.isRecording).toBe(false);[m
+       expect(parsed.transport.currentTime).toBe(0);[m
+[36m@@ -229,7 +229,7 @@[m [mdescribe('Serialization', () => {[m
+     it('should not save selection state in project serialization', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const parsed = JSON.parse(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(parsed.selection.selectedTrackIds).toHaveLength(0);[m
+       expect(parsed.selection.selectedClipIds).toHaveLength(0);[m
+     });[m
+[36m@@ -237,7 +237,7 @@[m [mdescribe('Serialization', () => {[m
+     it('should reset grid settings in project serialization', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const parsed = JSON.parse(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(parsed.grid.snapEnabled).toBe(true);[m
+       expect(parsed.grid.zoomHorizontal).toBe(20);[m
+       expect(parsed.grid.zoomVertical).toBe(60);[m
+[36m@@ -250,12 +250,16 @@[m [mdescribe('Serialization', () => {[m
+     it('should rehydrate a project from JSON', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.id).toBe(testProject.id);[m
+       expect(rehydrated.name).toBe(testProject.name);[m
+       expect(rehydrated.tempo).toBe(testProject.tempo);[m
+[31m-      expect(rehydrated.timeSignature.numerator).toBe(testProject.timeSignature.numerator);[m
+[31m-      expect(rehydrated.timeSignature.denominator).toBe(testProject.timeSignature.denominator);[m
+[32m+[m[32m      expect(rehydrated.timeSignature.numerator).toBe([m
+[32m+[m[32m        testProject.timeSignature.numerator[m
+[32m+[m[32m      );[m
+[32m+[m[32m      expect(rehydrated.timeSignature.denominator).toBe([m
+[32m+[m[32m        testProject.timeSignature.denominator[m
+[32m+[m[32m      );[m
+       expect(rehydrated.tracks).toHaveLength(2);[m
+       expect(rehydrated.clips).toHaveLength(2);[m
+       expect(rehydrated.effectChains).toHaveLength(2);[m
+[36m@@ -265,23 +269,31 @@[m [mdescribe('Serialization', () => {[m
+     it('should properly convert date strings to Date objects', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.metadata.createdAt).toBeInstanceOf(Date);[m
+       expect(rehydrated.metadata.modifiedAt).toBeInstanceOf(Date);[m
+[31m-      expect(rehydrated.metadata.createdAt.getTime()).toBe(testProject.metadata.createdAt.getTime());[m
+[31m-      expect(rehydrated.metadata.modifiedAt.getTime()).toBe(testProject.metadata.modifiedAt.getTime());[m
+[32m+[m[32m      expect(rehydrated.metadata.createdAt.getTime()).toBe([m
+[32m+[m[32m        testProject.metadata.createdAt.getTime()[m
+[32m+[m[32m      );[m
+[32m+[m[32m      expect(rehydrated.metadata.modifiedAt.getTime()).toBe([m
+[32m+[m[32m        testProject.metadata.modifiedAt.getTime()[m
+[32m+[m[32m      );[m
+     });[m
+ [m
+     it('should preserve track types and properties', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[31m-      const audioTrack = rehydrated.tracks.find(t => t.type === TrackType.AUDIO);[m
+[32m+[m
+[32m+[m[32m      const audioTrack = rehydrated.tracks.find([m
+[32m+[m[32m        (t) => t.type === TrackType.AUDIO[m
+[32m+[m[32m      );[m
+       expect(audioTrack).toBeDefined();[m
+       expect((audioTrack as any).monitoring).toBe(true);[m
+       expect((audioTrack as any).inputGain).toBe(1.2);[m
+[31m-      [m
+[31m-      const midiTrack = rehydrated.tracks.find(t => t.type === TrackType.MIDI);[m
+[32m+[m
+[32m+[m[32m      const midiTrack = rehydrated.tracks.find([m
+[32m+[m[32m        (t) => t.type === TrackType.MIDI[m
+[32m+[m[32m      );[m
+       expect(midiTrack).toBeDefined();[m
+       expect((midiTrack as any).instrument.pluginId).toBe('synth-plugin-1');[m
+       expect((midiTrack as any).instrument.midiChannel).toBe(2);[m
+[36m@@ -290,13 +302,13 @@[m [mdescribe('Serialization', () => {[m
+     it('should preserve clip types and properties', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[31m-      const audioClip = rehydrated.clips.find(c => c.type === ClipType.AUDIO);[m
+[32m+[m
+[32m+[m[32m      const audioClip = rehydrated.clips.find((c) => c.type === ClipType.AUDIO);[m
+       expect(audioClip).toBeDefined();[m
+       expect((audioClip as any).audioFileId).toBe('audio-file-1');[m
+       expect((audioClip as any).warping.enabled).toBe(true);[m
+[31m-      [m
+[31m-      const midiClip = rehydrated.clips.find(c => c.type === ClipType.MIDI);[m
+[32m+[m
+[32m+[m[32m      const midiClip = rehydrated.clips.find((c) => c.type === ClipType.MIDI);[m
+       expect(midiClip).toBeDefined();[m
+       expect((midiClip as any).notes).toHaveLength(2);[m
+       expect((midiClip as any).quantize).toBe(8);[m
+[36m@@ -305,12 +317,16 @@[m [mdescribe('Serialization', () => {[m
+     it('should preserve effect chains and effects', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[31m-      const effectChain = rehydrated.effectChains.find(ec => ec.trackId === 'track-1');[m
+[32m+[m
+[32m+[m[32m      const effectChain = rehydrated.effectChains.find([m
+[32m+[m[32m        (ec) => ec.trackId === 'track-1'[m
+[32m+[m[32m      );[m
+       expect(effectChain).toBeDefined();[m
+       expect(effectChain!.effects).toHaveLength(2);[m
+[31m-      [m
+[31m-      const reverb = effectChain!.effects.find(e => e.type === EffectType.REVERB);[m
+[32m+[m
+[32m+[m[32m      const reverb = effectChain!.effects.find([m
+[32m+[m[32m        (e) => e.type === EffectType.REVERB[m
+[32m+[m[32m      );[m
+       expect(reverb).toBeDefined();[m
+       expect(reverb!.parameters.roomSize).toBe(0.7);[m
+       expect(reverb!.parameters.wetLevel).toBe(0.5);[m
+[36m@@ -319,17 +335,19 @@[m [mdescribe('Serialization', () => {[m
+     it('should preserve audio file metadata', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       const audioFile = rehydrated.audioFiles[0];[m
+       expect(audioFile.name).toBe('drums.wav');[m
+[31m-      expect(audioFile.metadata.artist).toBe('Test Artist');[m
+[31m-      expect(audioFile.metadata.year).toBe(2023);[m
+[32m+[m[32m      expect(audioFile.metadata?.artist).toBe('Test Artist');[m
+[32m+[m[32m      expect(audioFile.metadata?.year).toBe(2023);[m
+     });[m
+ [m
+     it('should handle corrupted or invalid data gracefully', () => {[m
+       const invalidJson = '{ invalid json }';[m
+[31m-      [m
+[31m-      expect(() => rehydrateProject(invalidJson)).toThrow('Project rehydration failed');[m
+[32m+[m
+[32m+[m[32m      expect(() => rehydrateProject(invalidJson)).toThrow([m
+[32m+[m[32m        'Project rehydration failed'[m
+[32m+[m[32m      );[m
+     });[m
+ [m
+     it('should fix invalid track data during rehydration', () => {[m
+[36m@@ -341,14 +359,14 @@[m [mdescribe('Serialization', () => {[m
+             type: 'invalid-type',[m
+             volume: 5, // Above max[m
+             pan: 2, // Above max[m
+[31m-            height: 300 // Above max[m
+[31m-          }[m
+[31m-        ][m
+[32m+[m[32m            height: 300, // Above max[m
+[32m+[m[32m          },[m
+[32m+[m[32m        ],[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeProject(projectWithInvalidData);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       const track = rehydrated.tracks[0];[m
+       expect(track.type).toBe(TrackType.AUDIO); // Should default to AUDIO[m
+       expect(track.volume).toBe(2); // Should be clamped to max[m
+[36m@@ -366,14 +384,14 @@[m [mdescribe('Serialization', () => {[m
+             startTime: -5, // Negative[m
+             duration: 0, // Zero duration[m
+             gain: 5, // Above max[m
+[31m-            pan: -3 // Below min[m
+[31m-          }[m
+[31m-        ][m
+[32m+[m[32m            pan: -3, // Below min[m
+[32m+[m[32m          },[m
+[32m+[m[32m        ],[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeProject(projectWithInvalidClip);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       const clip = rehydrated.clips[0];[m
+       expect(clip.type).toBe(ClipType.AUDIO); // Should default to AUDIO[m
+       expect(clip.startTime).toBe(0); // Should be clamped to min[m
+[36m@@ -385,7 +403,7 @@[m [mdescribe('Serialization', () => {[m
+ [m
+   describe('App State Serialization', () => {[m
+     it('should serialize complete app state', () => {[m
+[31m-      const appState = {[m
+[32m+[m[32m      const appState: AppState = {[m
+         project: testProject,[m
+         transport: {[m
+           isPlaying: true,[m
+[36m@@ -398,7 +416,7 @@[m [mdescribe('Serialization', () => {[m
+           punchIn: 6,[m
+           punchOut: 18,[m
+           countIn: 4,[m
+[31m-          playbackSpeed: 1.25[m
+[32m+[m[32m          playbackSpeed: 1.25,[m
+         },[m
+         selection: {[m
+           selectedTrackIds: ['track-1'],[m
+[36m@@ -407,7 +425,7 @@[m [mdescribe('Serialization', () => {[m
+           selectionStartTime: 2,[m
+           selectionEndTime: 8,[m
+           selectionTrackStart: 0,[m
+[31m-          selectionTrackEnd: 2[m
+[32m+[m[32m          selectionTrackEnd: 2,[m
+         },[m
+         grid: {[m
+           snapEnabled: false,[m
+[36m@@ -418,13 +436,26 @@[m [mdescribe('Serialization', () => {[m
+           showTrackNumbers: false,[m
+           zoomHorizontal: 40,[m
+           zoomVertical: 120,[m
+[31m-          scrollPosition: { x: 500, y: 200 }[m
+[31m-        }[m
+[32m+[m[32m          scrollPosition: { x: 500, y: 200 },[m
+[32m+[m[32m        },[m
+[32m+[m[32m        history: {[m
+[32m+[m[32m          past: [],[m
+[32m+[m[32m          present: testProject,[m
+[32m+[m[32m          future: [],[m
+[32m+[m[32m          maxSize: 50,[m
+[32m+[m[32m        },[m
+[32m+[m[32m        ui: {[m
+[32m+[m[32m          showMixer: false,[m
+[32m+[m[32m          showBrowser: false,[m
+[32m+[m[32m          showInspector: true,[m
+[32m+[m[32m          showAutomation: false,[m
+[32m+[m[32m          focusedPanel: 'timeline',[m
+[32m+[m[32m        },[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeAppState(appState);[m
+       const parsed = JSON.parse(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(parsed.transport.isPlaying).toBe(true);[m
+       expect(parsed.transport.currentTime).toBe(12.5);[m
+       expect(parsed.selection.selectedTrackIds).toHaveLength(1);[m
+[36m@@ -433,7 +464,7 @@[m [mdescribe('Serialization', () => {[m
+     });[m
+ [m
+     it('should rehydrate complete app state', () => {[m
+[31m-      const appState = {[m
+[32m+[m[32m      const appState: AppState = {[m
+         project: testProject,[m
+         transport: {[m
+           isPlaying: true,[m
+[36m@@ -446,14 +477,14 @@[m [mdescribe('Serialization', () => {[m
+           punchIn: 6,[m
+           punchOut: 18,[m
+           countIn: 4,[m
+[31m-          playbackSpeed: 1.25[m
+[32m+[m[32m          playbackSpeed: 1.25,[m
+         },[m
+         selection: {[m
+           selectedTrackIds: ['track-1'],[m
+           selectedClipIds: ['clip-1'],[m
+           selectedEffectIds: ['effect-1'],[m
+           selectionStartTime: 2,[m
+[31m-          selectionEndTime: 8[m
+[32m+[m[32m          selectionEndTime: 8,[m
+         },[m
+         grid: {[m
+           snapEnabled: false,[m
+[36m@@ -464,13 +495,26 @@[m [mdescribe('Serialization', () => {[m
+           showTrackNumbers: false,[m
+           zoomHorizontal: 40,[m
+           zoomVertical: 120,[m
+[31m-          scrollPosition: { x: 500, y: 200 }[m
+[31m-        }[m
+[32m+[m[32m          scrollPosition: { x: 500, y: 200 },[m
+[32m+[m[32m        },[m
+[32m+[m[32m        history: {[m
+[32m+[m[32m          past: [],[m
+[32m+[m[32m          present: testProject,[m
+[32m+[m[32m          future: [],[m
+[32m+[m[32m          maxSize: 50,[m
+[32m+[m[32m        },[m
+[32m+[m[32m        ui: {[m
+[32m+[m[32m          showMixer: false,[m
+[32m+[m[32m          showBrowser: false,[m
+[32m+[m[32m          showInspector: true,[m
+[32m+[m[32m          showAutomation: false,[m
+[32m+[m[32m          focusedPanel: 'timeline',[m
+[32m+[m[32m        },[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeAppState(appState);[m
+       const rehydrated = rehydrateAppState(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.project.name).toBe(testProject.name);[m
+       expect(rehydrated.transport.isPlaying).toBe(true);[m
+       expect(rehydrated.transport.currentTime).toBe(12.5);[m
+[36m@@ -496,7 +540,9 @@[m [mdescribe('Serialization', () => {[m
+         version: SERIALIZATION_VERSION,[m
+         // missing project field[m
+       };[m
+[31m-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);[m
+[32m+[m[32m      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe([m
+[32m+[m[32m        false[m
+[32m+[m[32m      );[m
+     });[m
+ [m
+     it('should reject missing project properties', () => {[m
+[36m@@ -504,9 +550,11 @@[m [mdescribe('Serialization', () => {[m
+         version: SERIALIZATION_VERSION,[m
+         project: {[m
+           // missing required properties like id, name, tempo[m
+[31m-        }[m
+[32m+[m[32m        },[m
+       };[m
+[31m-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);[m
+[32m+[m[32m      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe([m
+[32m+[m[32m        false[m
+[32m+[m[32m      );[m
+     });[m
+ [m
+     it('should reject invalid arrays', () => {[m
+[36m@@ -515,10 +563,12 @@[m [mdescribe('Serialization', () => {[m
+         project: {[m
+           ...testProject,[m
+           tracks: 'not an array',[m
+[31m-          clips: null[m
+[31m-        }[m
+[32m+[m[32m          clips: null,[m
+[32m+[m[32m        },[m
+       };[m
+[31m-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);[m
+[32m+[m[32m      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe([m
+[32m+[m[32m        false[m
+[32m+[m[32m      );[m
+     });[m
+   });[m
+ [m
+[36m@@ -531,7 +581,9 @@[m [mdescribe('Serialization', () => {[m
+ [m
+     it('should handle backup creation errors', async () => {[m
+       const invalidProject = null as any;[m
+[31m-      await expect(createProjectBackup(invalidProject)).rejects.toThrow('Project backup failed');[m
+[32m+[m[32m      await expect(createProjectBackup(invalidProject)).rejects.toThrow([m
+[32m+[m[32m        'Project backup failed'[m
+[32m+[m[32m      );[m
+     });[m
+   });[m
+ [m
+[36m@@ -539,16 +591,20 @@[m [mdescribe('Serialization', () => {[m
+     it('should maintain data integrity through serialize/rehydrate cycle', () => {[m
+       const serialized = serializeProject(testProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       // Compare core properties[m
+       expect(rehydrated.id).toBe(testProject.id);[m
+       expect(rehydrated.name).toBe(testProject.name);[m
+       expect(rehydrated.tempo).toBe(testProject.tempo);[m
+[31m-      expect(rehydrated.timeSignature.numerator).toBe(testProject.timeSignature.numerator);[m
+[31m-      expect(rehydrated.timeSignature.denominator).toBe(testProject.timeSignature.denominator);[m
+[32m+[m[32m      expect(rehydrated.timeSignature.numerator).toBe([m
+[32m+[m[32m        testProject.timeSignature.numerator[m
+[32m+[m[32m      );[m
+[32m+[m[32m      expect(rehydrated.timeSignature.denominator).toBe([m
+[32m+[m[32m        testProject.timeSignature.denominator[m
+[32m+[m[32m      );[m
+       expect(rehydrated.sampleRate).toBe(testProject.sampleRate);[m
+       expect(rehydrated.bitDepth).toBe(testProject.bitDepth);[m
+[31m-      [m
+[32m+[m
+       // Compare tracks[m
+       expect(rehydrated.tracks).toHaveLength(testProject.tracks.length);[m
+       testProject.tracks.forEach((originalTrack: any, index: number) => {[m
+[36m@@ -559,7 +615,7 @@[m [mdescribe('Serialization', () => {[m
+         expect(rehydratedTrack.volume).toBe(originalTrack.volume);[m
+         expect(rehydratedTrack.pan).toBe(originalTrack.pan);[m
+       });[m
+[31m-      [m
+[32m+[m
+       // Compare clips[m
+       expect(rehydrated.clips).toHaveLength(testProject.clips.length);[m
+       testProject.clips.forEach((originalClip: any, index: number) => {[m
+[36m@@ -570,16 +626,20 @@[m [mdescribe('Serialization', () => {[m
+         expect(rehydratedClip.startTime).toBe(originalClip.startTime);[m
+         expect(rehydratedClip.duration).toBe(originalClip.duration);[m
+       });[m
+[31m-      [m
+[32m+[m
+       // Compare effect chains[m
+[31m-      expect(rehydrated.effectChains).toHaveLength(testProject.effectChains.length);[m
+[32m+[m[32m      expect(rehydrated.effectChains).toHaveLength([m
+[32m+[m[32m        testProject.effectChains.length[m
+[32m+[m[32m      );[m
+       testProject.effectChains.forEach((originalChain: any, index: number) => {[m
+         const rehydratedChain = rehydrated.effectChains[index];[m
+         expect(rehydratedChain.id).toBe(originalChain.id);[m
+         expect(rehydratedChain.trackId).toBe(originalChain.trackId);[m
+[31m-        expect(rehydratedChain.effects).toHaveLength(originalChain.effects.length);[m
+[32m+[m[32m        expect(rehydratedChain.effects).toHaveLength([m
+[32m+[m[32m          originalChain.effects.length[m
+[32m+[m[32m        );[m
+       });[m
+[31m-      [m
+[32m+[m
+       // Compare audio files[m
+       expect(rehydrated.audioFiles).toHaveLength(testProject.audioFiles.length);[m
+       testProject.audioFiles.forEach((originalFile: any, index: number) => {[m
+[36m@@ -593,13 +653,13 @@[m [mdescribe('Serialization', () => {[m
+ [m
+     it('should handle multiple serialize/rehydrate cycles', () => {[m
+       let currentProject = testProject;[m
+[31m-      [m
+[32m+[m
+       // Perform multiple cycles[m
+       for (let i = 0; i < 5; i++) {[m
+         const serialized = serializeProject(currentProject);[m
+         currentProject = rehydrateProject(serialized);[m
+       }[m
+[31m-      [m
+[32m+[m
+       // Should still have all data[m
+       expect(currentProject.name).toBe(testProject.name);[m
+       expect(currentProject.tracks).toHaveLength(2);[m
+[36m@@ -612,10 +672,10 @@[m [mdescribe('Serialization', () => {[m
+   describe('Edge Cases', () => {[m
+     it('should handle empty project', () => {[m
+       const emptyProject = createEmptyProject();[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeProject(emptyProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.name).toBe('Untitled Project');[m
+       expect(rehydrated.tracks).toHaveLength(0);[m
+       expect(rehydrated.clips).toHaveLength(0);[m
+[36m@@ -643,13 +703,13 @@[m [mdescribe('Serialization', () => {[m
+           effectChainId: `chain-${i}`,[m
+           monitoring: false,[m
+           inputGain: 2,[m
+[31m-          recordEnabled: false[m
+[31m-        }))[m
+[32m+[m[32m          recordEnabled: false,[m
+[32m+[m[32m        })),[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeProject(maxProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.tempo).toBe(300);[m
+       expect(rehydrated.tracks).toHaveLength(100);[m
+     });[m
+[36m@@ -661,16 +721,16 @@[m [mdescribe('Serialization', () => {[m
+         tracks: [[m
+           {[m
+             ...testProject.tracks[0],[m
+[31m-            name: 'Track with émojis 🎵 and unicode ñáí'[m
+[31m-          }[m
+[31m-        ][m
+[32m+[m[32m            name: 'Track with émojis 🎵 and unicode ñáí',[m
+[32m+[m[32m          },[m
+[32m+[m[32m        ],[m
+       };[m
+[31m-      [m
+[32m+[m
+       const serialized = serializeProject(specialProject);[m
+       const rehydrated = rehydrateProject(serialized);[m
+[31m-      [m
+[32m+[m
+       expect(rehydrated.name).toContain('quotes');[m
+       expect(rehydrated.tracks[0].name).toContain('🎵');[m
+     });[m
+   });[m
+[31m-});[m
+\ No newline at end of file[m
+[32m+[m[32m});[m
+[1mdiff --git a/src/test/setup.ts b/src/test/setup.ts[m
+[1mindex c44807e..bc9a7c2 100644[m
+[1m--- a/src/test/setup.ts[m
+[1m+++ b/src/test/setup.ts[m
+[36m@@ -2,16 +2,16 @@[m
+ import { vi } from 'vitest';[m
+ [m
+ // Mock crypto.randomUUID for Node.js environment[m
+[31m-if (!global.crypto) {[m
+[31m-  global.crypto = {[m
+[31m-    randomUUID: () => 'test-' + Math.random().toString(36).substr(2, 9),[m
+[31m-  } as any;[m
+[32m+[m[32mif (!globalThis.crypto) {[m
+[32m+[m[32m  globalThis.crypto = {[m
+[32m+[m[32m    randomUUID: () => 'test-' + Math.random().toString(36).slice(2, 11),[m
+[32m+[m[32m  } as Crypto;[m
+ }[m
+ [m
+ // Mock any browser-specific APIs if needed[m
+[31m-Object.defineProperty(window, 'matchMedia', {[m
+[32m+[m[32mObject.defineProperty(globalThis, 'matchMedia', {[m
+   writable: true,[m
+[31m-  value: vi.fn().mockImplementation(query => ({[m
+[32m+[m[32m  value: vi.fn().mockImplementation((query: string) => ({[m
+     matches: false,[m
+     media: query,[m
+     onchange: null,[m
+[36m@@ -21,4 +21,4 @@[m [mObject.defineProperty(window, 'matchMedia', {[m
+     removeEventListener: vi.fn(),[m
+     dispatchEvent: vi.fn(),[m
+   })),[m
+[31m-});[m
+\ No newline at end of file[m
+[32m+[m[32m});[m
+[1mdiff --git a/src/test/store.test.ts b/src/test/store.test.ts[m
+[1mindex 5fe467f..6d7078e 100644[m
+[1m--- a/src/test/store.test.ts[m
+[1m+++ b/src/test/store.test.ts[m
+[36m@@ -1,6 +1,17 @@[m
+[31m-import { describe, it, expect, beforeEach, vi } from 'vitest';[m
+[31m-import { useAppStore, createEmptyProject, createInitialTransport, createInitialSelection, createInitialGrid } from '../state/store';[m
+[31m-import { TrackType, ClipType, EffectType } from '../state/models';[m
+[32m+[m[32mimport { describe, it, expect, beforeEach } from 'vitest';[m
+[32m+[m[32mimport {[m
+[32m+[m[32m  useAppStore,[m
+[32m+[m[32m  createEmptyProject,[m
+[32m+[m[32m  createInitialTransport,[m
+[32m+[m[32m  createInitialSelection,[m
+[32m+[m[32m  createInitialGrid,[m
+[32m+[m[32m} from '../state/store';[m
+[32m+[m[32mimport {[m
+[32m+[m[32m  TrackType,[m
+[32m+[m[32m  ClipType,[m
+[32m+[m[32m  EffectType,[m
+[32m+[m[32m  AudioClip,[m
+[32m+[m[32m} from '../state/models';[m
+ [m
+ // Mock store instance[m
+ let store: ReturnType<typeof useAppStore.getState>;[m
+[36m@@ -17,22 +28,47 @@[m [mbeforeEach(() => {[m
+       showBrowser: true,[m
+       showInspector: true,[m
+       showAutomation: false,[m
+[31m-      focusedPanel: 'timeline'[m
+[32m+[m[32m      focusedPanel: 'timeline',[m
+     },[m
+     history: {[m
+       past: [],[m
+       present: createEmptyProject(),[m
+       future: [],[m
+[31m-      maxSize: 50[m
+[31m-    }[m
+[32m+[m[32m      maxSize: 50,[m
+[32m+[m[32m    },[m
+   });[m
+   store = useAppStore.getState();[m
+ });[m
+ [m
+[32m+[m[32mconst createAudioClipData = ([m
+[32m+[m[32m  trackId: string,[m
+[32m+[m[32m  overrides: Partial<Omit<AudioClip, 'id'>> = {}[m
+[32m+[m[32m): Omit<AudioClip, 'id'> => ({[m
+[32m+[m[32m  name: 'Test Audio Clip',[m
+[32m+[m[32m  type: ClipType.AUDIO,[m
+[32m+[m[32m  trackId,[m
+[32m+[m[32m  startTime: 0,[m
+[32m+[m[32m  duration: 4,[m
+[32m+[m[32m  color: 'red',[m
+[32m+[m[32m  muted: false,[m
+[32m+[m[32m  solo: false,[m
+[32m+[m[32m  gain: 1,[m
+[32m+[m[32m  pan: 0,[m
+[32m+[m[32m  audioFileId: 'audio-file-id',[m
+[32m+[m[32m  sampleRate: 44100,[m
+[32m+[m[32m  bitDepth: 24,[m
+[32m+[m[32m  channels: 2,[m
+[32m+[m[32m  offset: 0,[m
+[32m+[m[32m  fadeIn: 0,[m
+[32m+[m[32m  fadeOut: 0,[m
+[32m+[m[32m  warping: { enabled: false, algorithm: 'beats' },[m
+[32m+[m[32m  ...overrides,[m
+[32m+[m[32m});[m
+[32m+[m
+ describe('Store Initialization', () => {[m
+   it('should initialize with default values', () => {[m
+     const state = useAppStore.getState();[m
+[31m-    [m
+[32m+[m
+     expect(state.project.name).toBe('Untitled Project');[m
+     expect(state.project.tempo).toBe(120);[m
+     expect(state.project.timeSignature.numerator).toBe(4);[m
+[36m@@ -49,7 +85,7 @@[m [mdescribe('Transport Actions', () => {[m
+   it('should start and stop playback', () => {[m
+     store.play();[m
+     expect(useAppStore.getState().transport.isPlaying).toBe(true);[m
+[31m-    [m
+[32m+[m
+     store.stop();[m
+     expect(useAppStore.getState().transport.isPlaying).toBe(false);[m
+     expect(useAppStore.getState().transport.currentTime).toBe(0);[m
+[36m@@ -59,7 +95,7 @@[m [mdescribe('Transport Actions', () => {[m
+     const initialState = useAppStore.getState().transport.isPlaying;[m
+     store.togglePlayback();[m
+     expect(useAppStore.getState().transport.isPlaying).toBe(!initialState);[m
+[31m-    [m
+[32m+[m
+     store.togglePlayback();[m
+     expect(useAppStore.getState().transport.isPlaying).toBe(initialState);[m
+   });[m
+[36m@@ -69,7 +105,7 @@[m [mdescribe('Transport Actions', () => {[m
+     const state = useAppStore.getState();[m
+     expect(state.transport.isRecording).toBe(true);[m
+     expect(state.transport.isPlaying).toBe(true);[m
+[31m-    [m
+[32m+[m
+     store.stopRecording();[m
+     const finalState = useAppStore.getState();[m
+     expect(finalState.transport.isRecording).toBe(false);[m
+[36m@@ -79,11 +115,11 @@[m [mdescribe('Transport Actions', () => {[m
+   it('should set tempo within valid range', () => {[m
+     store.setTempo(140);[m
+     expect(useAppStore.getState().project.tempo).toBe(140);[m
+[31m-    [m
+[32m+[m
+     // Test boundaries[m
+     store.setTempo(10); // Below minimum[m
+     expect(useAppStore.getState().project.tempo).toBe(20);[m
+[31m-    [m
+[32m+[m
+     store.setTempo(400); // Above maximum[m
+     expect(useAppStore.getState().project.tempo).toBe(300);[m
+   });[m
+[36m@@ -93,7 +129,7 @@[m [mdescribe('Transport Actions', () => {[m
+     const state = useAppStore.getState();[m
+     expect(state.project.timeSignature.numerator).toBe(3);[m
+     expect(state.project.timeSignature.denominator).toBe(8);[m
+[31m-    [m
+[32m+[m
+     // Test invalid denominator[m
+     store.setTimeSignature(4, 7);[m
+     expect(useAppStore.getState().project.timeSignature.denominator).toBe(4);[m
+[36m@@ -102,7 +138,7 @@[m [mdescribe('Transport Actions', () => {[m
+   it('should set current time', () => {[m
+     store.setCurrentTime(10.5);[m
+     expect(useAppStore.getState().transport.currentTime).toBe(10.5);[m
+[31m-    [m
+[32m+[m
+     // Should not allow negative time[m
+     store.setCurrentTime(-5);[m
+     expect(useAppStore.getState().transport.currentTime).toBe(0);[m
+[36m@@ -112,24 +148,31 @@[m [mdescribe('Transport Actions', () => {[m
+ describe('Track CRUD Operations', () => {[m
+   it('should add different types of tracks', () => {[m
+     const initialTrackCount = useAppStore.getState().project.tracks.length;[m
+[31m-    [m
+[32m+[m
+     // Add audio track[m
+     store.addTrack(TrackType.AUDIO);[m
+[31m-    expect(useAppStore.getState().project.tracks).toHaveLength(initialTrackCount + 1);[m
+[32m+[m[32m    expect(useAppStore.getState().project.tracks).toHaveLength([m
+[32m+[m[32m      initialTrackCount + 1[m
+[32m+[m[32m    );[m
+     const audioTrack = useAppStore.getState().project.tracks[initialTrackCount];[m
+     expect(audioTrack.type).toBe(TrackType.AUDIO);[m
+     expect(audioTrack.name).toBe('Audio 1');[m
+[31m-    [m
+[32m+[m
+     // Add MIDI track[m
+     store.addTrack(TrackType.MIDI);[m
+[31m-    expect(useAppStore.getState().project.tracks).toHaveLength(initialTrackCount + 2);[m
+[31m-    const midiTrack = useAppStore.getState().project.tracks[initialTrackCount + 1];[m
+[32m+[m[32m    expect(useAppStore.getState().project.tracks).toHaveLength([m
+[32m+[m[32m      initialTrackCount + 2[m
+[32m+[m[32m    );[m
+[32m+[m[32m    const midiTrack =[m
+[32m+[m[32m      useAppStore.getState().project.tracks[initialTrackCount + 1];[m
+     expect(midiTrack.type).toBe(TrackType.MIDI);[m
+     expect(midiTrack.name).toBe('Midi 2'); // Updated to match actual naming[m
+[31m-    [m
+[32m+[m
+     // Add master track[m
+     store.addTrack(TrackType.MASTER);[m
+[31m-    const masterTrack = useAppStore.getState().project.tracks.find(t => t.type === TrackType.MASTER);[m
+[32m+[m[32m    const masterTrack = useAppStore[m
+[32m+[m[32m      .getState()[m
+[32m+[m[32m      .project.tracks.find((t) => t.type === TrackType.MASTER);[m
+     expect(masterTrack).toBeDefined();[m
+     expect((masterTrack as any).limiter.enabled).toBe(true);[m
+   });[m
+[36m@@ -137,34 +180,15 @@[m [mdescribe('Track CRUD Operations', () => {[m
+   it('should remove tracks and associated clips', () => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     // Add a clip to the track[m
+[31m-    store.addClip({[m
+[31m-      name: 'Test Clip',[m
+[31m-      type: ClipType.AUDIO,[m
+[31m-      trackId: track.id,[m
+[31m-      startTime: 0,[m
+[31m-      duration: 4,[m
+[31m-      color: 'red',[m
+[31m-      muted: false,[m
+[31m-      solo: false,[m
+[31m-      gain: 1,[m
+[31m-      pan: 0,[m
+[31m-      audioFileId: 'test-audio-file',[m
+[31m-      sampleRate: 44100,[m
+[31m-      bitDepth: 24,[m
+[31m-      channels: 2,[m
+[31m-      offset: 0,[m
+[31m-      fadeIn: 0,[m
+[31m-      fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[31m-    });[m
+[31m-    [m
+[32m+[m[32m    store.addClip(createAudioClipData(track.id));[m
+[32m+[m
+     expect(useAppStore.getState().project.clips).toHaveLength(1);[m
+[31m-    [m
+[32m+[m
+     // Remove track[m
+     store.removeTrack(track.id);[m
+[31m-    [m
+[32m+[m
+     expect(useAppStore.getState().project.tracks).toHaveLength(0);[m
+     expect(useAppStore.getState().project.clips).toHaveLength(0);[m
+   });[m
+[36m@@ -172,15 +196,17 @@[m [mdescribe('Track CRUD Operations', () => {[m
+   it('should rename tracks', () => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.renameTrack(track.id, 'New Track Name');[m
+[31m-    expect(useAppStore.getState().project.tracks[0].name).toBe('New Track Name');[m
+[32m+[m[32m    expect(useAppStore.getState().project.tracks[0].name).toBe([m
+[32m+[m[32m      'New Track Name'[m
+[32m+[m[32m    );[m
+   });[m
+ [m
+   it('should duplicate tracks with clips and effects', () => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     const originalTrack = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     // Add a clip[m
+     store.addClip({[m
+       name: 'Test Clip',[m
+[36m@@ -200,9 +226,9 @@[m [mdescribe('Track CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     // Add an effect[m
+     store.addEffect(originalTrack.id, {[m
+       name: 'Reverb',[m
+[36m@@ -210,31 +236,34 @@[m [mdescribe('Track CRUD Operations', () => {[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { roomSize: 0.5, damping: 0.3 },[m
+[31m-      position: 0[m
+[32m+[m[32m      position: 0,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const originalClipCount = useAppStore.getState().project.clips.length;[m
+[31m-    const originalEffectCount = useAppStore.getState().project.effectChains[0].effects.length;[m
+[31m-    [m
+[32m+[m[32m    const originalEffectCount =[m
+[32m+[m[32m      useAppStore.getState().project.effectChains[0].effects.length;[m
+[32m+[m
+     store.duplicateTrack(originalTrack.id);[m
+[31m-    [m
+[32m+[m
+     const state = useAppStore.getState();[m
+     expect(state.project.tracks).toHaveLength(2);[m
+     expect(state.project.clips).toHaveLength(originalClipCount * 2);[m
+[31m-    expect(state.project.effectChains[1].effects).toHaveLength(originalEffectCount);[m
+[32m+[m[32m    expect(state.project.effectChains[1].effects).toHaveLength([m
+[32m+[m[32m      originalEffectCount[m
+[32m+[m[32m    );[m
+   });[m
+ [m
+   it('should move tracks to different positions', () => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     store.addTrack(TrackType.MIDI);[m
+     store.addTrack(TrackType.BUS);[m
+[31m-    [m
+[32m+[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const midiTrackId = tracks[1].id;[m
+[31m-    [m
+[32m+[m
+     // Move MIDI track to top[m
+     store.moveTrack(midiTrackId, 0);[m
+[31m-    [m
+[32m+[m
+     const newTracks = useAppStore.getState().project.tracks;[m
+     expect(newTracks[0].id).toBe(midiTrackId);[m
+     expect(newTracks[0].type).toBe(TrackType.MIDI);[m
+[36m@@ -243,25 +272,25 @@[m [mdescribe('Track CRUD Operations', () => {[m
+   it('should set track properties within valid ranges', () => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     // Test volume[m
+     store.setTrackVolume(track.id, 1.5);[m
+     expect(useAppStore.getState().project.tracks[0].volume).toBe(1.5);[m
+[31m-    [m
+[32m+[m
+     store.setTrackVolume(track.id, 5); // Above max[m
+     expect(useAppStore.getState().project.tracks[0].volume).toBe(2);[m
+[31m-    [m
+[32m+[m
+     // Test pan[m
+     store.setTrackPan(track.id, 0.5);[m
+     expect(useAppStore.getState().project.tracks[0].pan).toBe(0.5);[m
+[31m-    [m
+[32m+[m
+     store.setTrackPan(track.id, 2); // Above max[m
+     expect(useAppStore.getState().project.tracks[0].pan).toBe(1);[m
+[31m-    [m
+[32m+[m
+     // Test height[m
+     store.setTrackHeight(track.id, 80);[m
+     expect(useAppStore.getState().project.tracks[0].height).toBe(80);[m
+[31m-    [m
+[32m+[m
+     store.setTrackHeight(track.id, 300); // Above max[m
+     expect(useAppStore.getState().project.tracks[0].height).toBe(200);[m
+   });[m
+[36m@@ -274,7 +303,7 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+ [m
+   it('should add audio clips', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test Audio Clip',[m
+       type: ClipType.AUDIO,[m
+[36m@@ -293,19 +322,19 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0.5,[m
+       fadeOut: 0.25,[m
+[31m-      warping: { enabled: true, algorithm: 'complex' }[m
+[32m+[m[32m      warping: { enabled: true, algorithm: 'complex' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clips = useAppStore.getState().project.clips;[m
+     expect(clips).toHaveLength(1);[m
+     expect(clips[0].name).toBe('Test Audio Clip');[m
+     expect(clips[0].type).toBe(ClipType.AUDIO);[m
+[31m-    expect(clips[0].warping.enabled).toBe(true);[m
+[32m+[m[32m    expect((clips[0] as AudioClip).warping.enabled).toBe(true);[m
+   });[m
+ [m
+   it('should add MIDI clips', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test MIDI Clip',[m
+       type: ClipType.MIDI,[m
+[36m@@ -319,13 +348,13 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       pan: 0,[m
+       notes: [[m
+         { id: 'note1', pitch: 60, velocity: 100, startTime: 0, duration: 0.5 },[m
+[31m-        { id: 'note2', pitch: 64, velocity: 80, startTime: 0.5, duration: 0.5 }[m
+[32m+[m[32m        { id: 'note2', pitch: 64, velocity: 80, startTime: 0.5, duration: 0.5 },[m
+       ],[m
+       velocity: 100,[m
+       quantize: 4,[m
+[31m-      length: 2[m
+[32m+[m[32m      length: 2,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clips = useAppStore.getState().project.clips;[m
+     expect(clips).toHaveLength(1);[m
+     expect(clips[0].type).toBe(ClipType.MIDI);[m
+[36m@@ -334,7 +363,7 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+ [m
+   it('should remove clips', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test Clip',[m
+       type: ClipType.AUDIO,[m
+[36m@@ -353,13 +382,13 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clip = useAppStore.getState().project.clips[0];[m
+[31m-    [m
+[32m+[m
+     store.removeClip(clip.id);[m
+[31m-    [m
+[32m+[m
+     expect(useAppStore.getState().project.clips).toHaveLength(0);[m
+   });[m
+ [m
+[36m@@ -368,7 +397,7 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const audioTrack = tracks[0];[m
+     const midiTrack = tracks[1];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test Clip',[m
+       type: ClipType.AUDIO,[m
+[36m@@ -387,13 +416,13 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clip = useAppStore.getState().project.clips[0];[m
+[31m-    [m
+[32m+[m
+     store.moveClip(clip.id, midiTrack.id, 2);[m
+[31m-    [m
+[32m+[m
+     const updatedClip = useAppStore.getState().project.clips[0];[m
+     expect(updatedClip.trackId).toBe(midiTrack.id);[m
+     expect(updatedClip.startTime).toBe(2);[m
+[36m@@ -401,7 +430,7 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+ [m
+   it('should resize clips', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test Clip',[m
+       type: ClipType.AUDIO,[m
+[36m@@ -420,13 +449,13 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clip = useAppStore.getState().project.clips[0];[m
+[31m-    [m
+[32m+[m
+     store.resizeClip(clip.id, 1, 6);[m
+[31m-    [m
+[32m+[m
+     const updatedClip = useAppStore.getState().project.clips[0];[m
+     expect(updatedClip.startTime).toBe(1);[m
+     expect(updatedClip.duration).toBe(6);[m
+[36m@@ -434,7 +463,7 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+ [m
+   it('should set clip properties within valid ranges', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Test Clip',[m
+       type: ClipType.AUDIO,[m
+[36m@@ -453,22 +482,22 @@[m [mdescribe('Clip CRUD Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     const clip = useAppStore.getState().project.clips[0];[m
+[31m-    [m
+[32m+[m
+     // Test gain[m
+     store.setClipGain(clip.id, 1.5);[m
+     expect(useAppStore.getState().project.clips[0].gain).toBe(1.5);[m
+[31m-    [m
+[32m+[m
+     store.setClipGain(clip.id, 5); // Above max[m
+     expect(useAppStore.getState().project.clips[0].gain).toBe(2);[m
+[31m-    [m
+[32m+[m
+     // Test pan[m
+     store.setClipPan(clip.id, -0.5);[m
+     expect(useAppStore.getState().project.clips[0].pan).toBe(-0.5);[m
+[31m-    [m
+[32m+[m
+     store.setClipPan(clip.id, -2); // Below min[m
+     expect(useAppStore.getState().project.clips[0].pan).toBe(-1);[m
+   });[m
+[36m@@ -481,16 +510,16 @@[m [mdescribe('Effect Operations', () => {[m
+ [m
+   it('should add effects to tracks', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addEffect(track.id, {[m
+       name: 'Reverb',[m
+       type: EffectType.REVERB,[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { roomSize: 0.7, damping: 0.3, wetLevel: 0.5 },[m
+[31m-      position: 0[m
+[32m+[m[32m      position: 0,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const effectChain = useAppStore.getState().project.effectChains[0];[m
+     expect(effectChain.effects).toHaveLength(1);[m
+     expect(effectChain.effects[0].name).toBe('Reverb');[m
+[36m@@ -499,26 +528,28 @@[m [mdescribe('Effect Operations', () => {[m
+ [m
+   it('should remove effects', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addEffect(track.id, {[m
+       name: 'Delay',[m
+       type: EffectType.DELAY,[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { time: 0.25, feedback: 0.3, wetLevel: 0.4 },[m
+[31m-      position: 0[m
+[32m+[m[32m      position: 0,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const effect = useAppStore.getState().project.effectChains[0].effects[0];[m
+[31m-    [m
+[32m+[m
+     store.removeEffect(effect.id);[m
+[31m-    [m
+[31m-    expect(useAppStore.getState().project.effectChains[0].effects).toHaveLength(0);[m
+[32m+[m
+[32m+[m[32m    expect(useAppStore.getState().project.effectChains[0].effects).toHaveLength([m
+[32m+[m[32m      0[m
+[32m+[m[32m    );[m
+   });[m
+ [m
+   it('should move effects within chain', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     // Add multiple effects[m
+     store.addEffect(track.id, {[m
+       name: 'Compressor',[m
+[36m@@ -526,24 +557,24 @@[m [mdescribe('Effect Operations', () => {[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { threshold: -10, ratio: 4, attack: 0.003, release: 0.1 },[m
+[31m-      position: 0[m
+[32m+[m[32m      position: 0,[m
+     });[m
+[31m-    [m
+[32m+[m
+     store.addEffect(track.id, {[m
+       name: 'EQ',[m
+       type: EffectType.EQ,[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { low: 0, mid: 0, high: 0 },[m
+[31m-      position: 1[m
+[32m+[m[32m      position: 1,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const effects = useAppStore.getState().project.effectChains[0].effects;[m
+     const eqId = effects[1].id;[m
+[31m-    [m
+[32m+[m
+     // Move EQ to first position[m
+     store.moveEffect(eqId, 0);[m
+[31m-    [m
+[32m+[m
+     const newEffects = useAppStore.getState().project.effectChains[0].effects;[m
+     expect(newEffects[0].name).toBe('EQ');[m
+     expect(newEffects[1].name).toBe('Compressor');[m
+[36m@@ -551,22 +582,23 @@[m [mdescribe('Effect Operations', () => {[m
+ [m
+   it('should set effect parameters', () => {[m
+     const track = useAppStore.getState().project.tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.addEffect(track.id, {[m
+       name: 'Filter',[m
+       type: EffectType.FILTER,[m
+       enabled: true,[m
+       bypassed: false,[m
+       parameters: { cutoff: 1000, resonance: 0.5, type: 'lowpass' },[m
+[31m-      position: 0[m
+[32m+[m[32m      position: 0,[m
+     });[m
+[31m-    [m
+[32m+[m
+     const effect = useAppStore.getState().project.effectChains[0].effects[0];[m
+[31m-    [m
+[32m+[m
+     store.setEffectParameter(effect.id, 'cutoff', 2000);[m
+     store.setEffectParameter(effect.id, 'type', 'highpass');[m
+[31m-    [m
+[31m-    const updatedEffect = useAppStore.getState().project.effectChains[0].effects[0];[m
+[32m+[m
+[32m+[m[32m    const updatedEffect =[m
+[32m+[m[32m      useAppStore.getState().project.effectChains[0].effects[0];[m
+     expect(updatedEffect.parameters.cutoff).toBe(2000);[m
+     expect(updatedEffect.parameters.type).toBe('highpass');[m
+   });[m
+[36m@@ -581,9 +613,9 @@[m [mdescribe('Selection Operations', () => {[m
+   it('should select tracks individually', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const firstTrack = tracks[0];[m
+[31m-    [m
+[32m+[m
+     store.selectTrack(firstTrack.id);[m
+[31m-    [m
+[32m+[m
+     const selection = useAppStore.getState().selection;[m
+     expect(selection.selectedTrackIds).toHaveLength(1);[m
+     expect(selection.selectedTrackIds[0]).toBe(firstTrack.id);[m
+[36m@@ -593,10 +625,10 @@[m [mdescribe('Selection Operations', () => {[m
+ [m
+   it('should select multiple tracks with multi-select', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+[31m-    [m
+[32m+[m
+     store.selectTrack(tracks[0].id);[m
+     store.selectTrack(tracks[1].id, true); // multi-select[m
+[31m-    [m
+[32m+[m
+     const selection = useAppStore.getState().selection;[m
+     expect(selection.selectedTrackIds).toHaveLength(2);[m
+     expect(selection.selectedTrackIds).toContain(tracks[0].id);[m
+[36m@@ -606,11 +638,11 @@[m [mdescribe('Selection Operations', () => {[m
+   it('should toggle track selection', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const firstTrack = tracks[0];[m
+[31m-    [m
+[32m+[m
+     // Select[m
+     store.selectTrack(firstTrack.id);[m
+     expect(useAppStore.getState().selection.selectedTrackIds).toHaveLength(1);[m
+[31m-    [m
+[32m+[m
+     // Deselect with multi-select[m
+     store.selectTrack(firstTrack.id, true);[m
+     expect(useAppStore.getState().selection.selectedTrackIds).toHaveLength(0);[m
+[36m@@ -618,16 +650,16 @@[m [mdescribe('Selection Operations', () => {[m
+ [m
+   it('should clear all selections', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+[31m-    [m
+[32m+[m
+     // Select some tracks[m
+     store.selectTrack(tracks[0].id);[m
+     store.selectTrack(tracks[1].id, true);[m
+[31m-    [m
+[32m+[m
+     expect(useAppStore.getState().selection.selectedTrackIds).toHaveLength(2);[m
+[31m-    [m
+[32m+[m
+     // Clear selection[m
+     store.clearSelection();[m
+[31m-    [m
+[32m+[m
+     const selection = useAppStore.getState().selection;[m
+     expect(selection.selectedTrackIds).toHaveLength(0);[m
+     expect(selection.selectedClipIds).toHaveLength(0);[m
+[36m@@ -655,9 +687,9 @@[m [mdescribe('Selection Operations', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+[31m-    [m
+[32m+[m
+     store.addClip({[m
+       name: 'Clip 2',[m
+       type: ClipType.MIDI,[m
+[36m@@ -672,11 +704,11 @@[m [mdescribe('Selection Operations', () => {[m
+       notes: [],[m
+       velocity: 100,[m
+       quantize: 4,[m
+[31m-      length: 2[m
+[32m+[m[32m      length: 2,[m
+     });[m
+[31m-    [m
+[32m+[m
+     store.selectAll();[m
+[31m-    [m
+[32m+[m
+     const selection = useAppStore.getState().selection;[m
+     expect(selection.selectedTrackIds).toHaveLength(2);[m
+     expect(selection.selectedClipIds).toHaveLength(2);[m
+[36m@@ -687,16 +719,16 @@[m [mdescribe('Grid Settings', () => {[m
+   it('should set zoom levels within valid ranges', () => {[m
+     store.setZoomHorizontal(50);[m
+     expect(useAppStore.getState().grid.zoomHorizontal).toBe(50);[m
+[31m-    [m
+[32m+[m
+     store.setZoomHorizontal(200); // Above max[m
+     expect(useAppStore.getState().grid.zoomHorizontal).toBe(100);[m
+[31m-    [m
+[32m+[m
+     store.setZoomHorizontal(1); // Below min[m
+     expect(useAppStore.getState().grid.zoomHorizontal).toBe(5);[m
+[31m-    [m
+[32m+[m
+     store.setZoomVertical(100);[m
+     expect(useAppStore.getState().grid.zoomVertical).toBe(100);[m
+[31m-    [m
+[32m+[m
+     store.setZoomVertical(300); // Above max[m
+     expect(useAppStore.getState().grid.zoomVertical).toBe(200);[m
+   });[m
+[36m@@ -706,7 +738,7 @@[m [mdescribe('Grid Settings', () => {[m
+     const scrollPos = useAppStore.getState().grid.scrollPosition;[m
+     expect(scrollPos.x).toBe(100);[m
+     expect(scrollPos.y).toBe(50);[m
+[31m-    [m
+[32m+[m
+     // Should not allow negative positions[m
+     store.setScrollPosition(-10, -5);[m
+     const newPos = useAppStore.getState().grid.scrollPosition;[m
+[36m@@ -716,15 +748,17 @@[m [mdescribe('Grid Settings', () => {[m
+ [m
+   it('should toggle grid settings', () => {[m
+     const initialGridState = useAppStore.getState().grid.showGrid;[m
+[31m-    [m
+[32m+[m
+     store.toggleGrid();[m
+     expect(useAppStore.getState().grid.showGrid).toBe(!initialGridState);[m
+[31m-    [m
+[32m+[m
+     store.toggleTimeRuler();[m
+     expect(useAppStore.getState().grid.showTimeRuler).toBe(!initialGridState);[m
+[31m-    [m
+[32m+[m
+     store.toggleTrackNumbers();[m
+[31m-    expect(useAppStore.getState().grid.showTrackNumbers).toBe(!initialGridState);[m
+[32m+[m[32m    expect(useAppStore.getState().grid.showTrackNumbers).toBe([m
+[32m+[m[32m      !initialGridState[m
+[32m+[m[32m    );[m
+   });[m
+ });[m
+ [m
+[36m@@ -732,9 +766,9 @@[m [mdescribe('Derived Selectors', () => {[m
+   beforeEach(() => {[m
+     store.addTrack(TrackType.AUDIO);[m
+     store.addTrack(TrackType.MIDI);[m
+[31m-    [m
+[32m+[m
+     const tracks = useAppStore.getState().project.tracks;[m
+[31m-    [m
+[32m+[m
+     // Add clips[m
+     store.addClip({[m
+       name: 'Audio Clip',[m
+[36m@@ -754,7 +788,7 @@[m [mdescribe('Derived Selectors', () => {[m
+       offset: 0,[m
+       fadeIn: 0,[m
+       fadeOut: 0,[m
+[31m-      warping: { enabled: false, algorithm: 'beats' }[m
+[32m+[m[32m      warping: { enabled: false, algorithm: 'beats' },[m
+     });[m
+   });[m
+ [m
+[36m@@ -763,7 +797,7 @@[m [mdescribe('Derived Selectors', () => {[m
+     // Select tracks and clips within the test[m
+     store.selectTrack(tracks[0].id);[m
+     store.selectClip(useAppStore.getState().project.clips[0].id);[m
+[31m-    [m
+[32m+[m
+     const selectedTracks = store.getSelectedTracks();[m
+     expect(selectedTracks).toHaveLength(1);[m
+     expect(selectedTracks[0].type).toBe(TrackType.AUDIO);[m
+[36m@@ -774,7 +808,7 @@[m [mdescribe('Derived Selectors', () => {[m
+     // Select tracks and clips within the test[m
+     store.selectTrack(tracks[0].id);[m
+     store.selectClip(useAppStore.getState().project.clips[0].id);[m
+[31m-    [m
+[32m+[m
+     const selectedClips = store.getSelectedClips();[m
+     expect(selectedClips).toHaveLength(1);[m
+     expect(selectedClips[0].name).toBe('Audio Clip');[m
+[36m@@ -783,15 +817,15 @@[m [mdescribe('Derived Selectors', () => {[m
+   it('should get tracks and clips by ID', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const clips = useAppStore.getState().project.clips;[m
+[31m-    [m
+[32m+[m
+     const foundTrack = store.getTrackById(tracks[0].id);[m
+     expect(foundTrack).toBeDefined();[m
+     expect(foundTrack?.id).toBe(tracks[0].id);[m
+[31m-    [m
+[32m+[m
+     const foundClip = store.getClipById(clips[0].id);[m
+     expect(foundClip).toBeDefined();[m
+     expect(foundClip?.id).toBe(clips[0].id);[m
+[31m-    [m
+[32m+[m
+     const notFound = store.getTrackById('non-existent');[m
+     expect(notFound).toBeUndefined();[m
+   });[m
+[36m@@ -799,10 +833,10 @@[m [mdescribe('Derived Selectors', () => {[m
+   it('should get clips by track ID', () => {[m
+     const tracks = useAppStore.getState().project.tracks;[m
+     const trackClips = store.getClipsByTrackId(tracks[0].id);[m
+[31m-    [m
+[32m+[m
+     expect(trackClips).toHaveLength(1);[m
+     expect(trackClips[0].trackId).toBe(tracks[0].id);[m
+[31m-    [m
+[32m+[m
+     const emptyTrackClips = store.getClipsByTrackId('non-existent');[m
+     expect(emptyTrackClips).toHaveLength(0);[m
+   });[m
+[36m@@ -812,43 +846,45 @@[m [mdescribe('History Operations', () => {[m
+   it('should save and restore from history', () => {[m
+     // Initial state[m
+     const initialProject = { ...useAppStore.getState().project };[m
+[31m-    [m
+[32m+[m
+     // Save to history[m
+     store.saveToHistory();[m
+[31m-    [m
+[32m+[m
+     // Make changes[m
+     store.setTempo(140);[m
+     store.addTrack(TrackType.AUDIO);[m
+[31m-    [m
+[32m+[m
+     // Verify changes[m
+     expect(useAppStore.getState().project.tempo).toBe(140);[m
+     expect(useAppStore.getState().project.tracks).toHaveLength(1);[m
+[31m-    [m
+[32m+[m
+     // Undo[m
+     store.undo();[m
+[31m-    [m
+[32m+[m
+     // Verify restoration[m
+     expect(useAppStore.getState().project.tempo).toBe(initialProject.tempo);[m
+[31m-    expect(useAppStore.getState().project.tracks).toHaveLength(initialProject.tracks.length);[m
+[32m+[m[32m    expect(useAppStore.getState().project.tracks).toHaveLength([m
+[32m+[m[32m      initialProject.tracks.length[m
+[32m+[m[32m    );[m
+   });[m
+ [m
+   it.skip('should redo after undo', () => {[m
+     // Save initial state[m
+     store.saveToHistory();[m
+     const initialTempo = useAppStore.getState().project.tempo;[m
+[31m-    [m
+[32m+[m
+     // Make changes[m
+     store.setTempo(160);[m
+     const changedTempo = useAppStore.getState().project.tempo;[m
+[31m-    [m
+[32m+[m
+     // Save the changed state to history[m
+     store.saveToHistory();[m
+[31m-    [m
+[32m+[m
+     // Undo[m
+     store.undo();[m
+     const tempoAfterUndo = useAppStore.getState().project.tempo;[m
+     expect(tempoAfterUndo).toBe(initialTempo); // Should be the initial tempo[m
+[31m-    [m
+[32m+[m
+     // Redo[m
+     store.redo();[m
+     expect(useAppStore.getState().project.tempo).toBe(changedTempo);[m
+[36m@@ -857,13 +893,13 @@[m [mdescribe('History Operations', () => {[m
+   it('should check undo/redo availability', () => {[m
+     expect(store.canUndo()).toBe(false);[m
+     expect(store.canRedo()).toBe(false);[m
+[31m-    [m
+[32m+[m
+     store.saveToHistory();[m
+     store.setTempo(140);[m
+[31m-    [m
+[32m+[m
+     expect(store.canUndo()).toBe(true);[m
+     expect(store.canRedo()).toBe(false);[m
+[31m-    [m
+[32m+[m
+     store.undo();[m
+     expect(store.canUndo()).toBe(false);[m
+     expect(store.canRedo()).toBe(true);[m
+[36m@@ -875,10 +911,10 @@[m [mdescribe('Project Operations', () => {[m
+     // Modify current project[m
+     store.setTempo(140);[m
+     store.addTrack(TrackType.AUDIO);[m
+[31m-    [m
+[32m+[m
+     // Create new project[m
+     store.newProject();[m
+[31m-    [m
+[32m+[m
+     const state = useAppStore.getState();[m
+     expect(state.project.tempo).toBe(120);[m
+     expect(state.project.tracks).toHaveLength(0);[m
+[36m@@ -904,12 +940,12 @@[m [mdescribe('Project Operations', () => {[m
+         createdAt: new Date(),[m
+         modifiedAt: new Date(),[m
+         version: '1.0.0',[m
+[31m-        tags: [][m
+[31m-      }[m
+[32m+[m[32m        tags: [],[m
+[32m+[m[32m      },[m
+     };[m
+[31m-    [m
+[32m+[m
+     store.loadProject(testProject);[m
+[31m-    [m
+[32m+[m
+     const state = useAppStore.getState();[m
+     expect(state.project.name).toBe('Test Project');[m
+     expect(state.project.tempo).toBe(130);[m
+[36m@@ -932,14 +968,14 @@[m [mdescribe('Project Operations', () => {[m
+       sampleRate: 44100,[m
+       bitDepth: 24,[m
+       channels: 2,[m
+[31m-      format: 'wav'[m
+[32m+[m[32m      format: 'wav',[m
+     };[m
+[31m-    [m
+[32m+[m
+     store.addAudioFile(audioFile);[m
+     expect(useAppStore.getState().project.audioFiles).toHaveLength(1);[m
+     expect(useAppStore.getState().project.audioFiles[0].name).toBe('test.wav');[m
+[31m-    [m
+[32m+[m
+     store.removeAudioFile('audio-1');[m
+     expect(useAppStore.getState().project.audioFiles).toHaveLength(0);[m
+   });[m
+[31m-});[m
+\ No newline at end of file[m
+[32m+[m[32m});[m
