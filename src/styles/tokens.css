@@ -1,0 +1,73 @@
+:root {
+  color-scheme: dark;
+  --color-bg-base: #0e1016;
+  --color-bg-surface: #151a24;
+  --color-bg-elevated: #1b2130;
+  --color-bg-panel: #20283c;
+  --color-bg-subtle: #11141d;
+  --color-overlay: rgba(10, 12, 18, 0.8);
+
+  --color-text-primary: #f5f7ff;
+  --color-text-secondary: #b3bcdf;
+  --color-text-muted: #717a93;
+  --color-text-inverse: #0d1018;
+
+  --color-border: rgba(86, 97, 130, 0.45);
+  --color-border-strong: rgba(158, 168, 201, 0.75);
+
+  --color-accent: #66d6b6;
+  --color-accent-strong: #45b797;
+  --color-accent-soft: rgba(102, 214, 182, 0.12);
+  --color-positive: #4dd09b;
+  --color-warning: #f2aa4c;
+  --color-danger: #f87272;
+
+  --shadow-soft: 0 16px 32px -16px rgba(0, 0, 0, 0.45);
+  --shadow-strong: 0 40px 80px -32px rgba(0, 0, 0, 0.6);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 6px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  --space-3xl: 40px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  --font-family-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono:
+    'JetBrains Mono', 'Fira Code', 'SFMono-Regular', ui-monospace, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.45;
+  --line-height-relaxed: 1.7;
+
+  --transport-height: 72px;
+  --track-header-height: 48px;
+  --timeline-header-height: 36px;
+  --timeline-row-height: 88px;
+  --mixer-min-height: 176px;
+  --panel-gutter: 12px;
+
+  --focus-ring: 0 0 0 2px rgba(102, 214, 182, 0.55);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --timeline-row-height: 72px;
+    --transport-height: 64px;
+  }
+}
