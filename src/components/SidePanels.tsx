@@ -23,6 +23,10 @@ interface SidePanelsProps {
   onExportProject?: () => Promise<void> | void;
   onExportAudio?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
   onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
+  isProcessing?: boolean;
+  progress?: number;
+  statusMessage?: string;
+  errorMessage?: string;
 }
 
 type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export';
@@ -43,6 +47,10 @@ const SidePanels = memo(function SidePanels({
   onExportProject,
   onExportAudio,
   onExportStems,
+  isProcessing,
+  progress,
+  statusMessage,
+  errorMessage,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
 
@@ -246,6 +254,10 @@ const SidePanels = memo(function SidePanels({
               onExportProject={onExportProject}
               onExportAudio={onExportAudio}
               onExportStems={onExportStems}
+              isProcessing={isProcessing}
+              progress={progress}
+              statusMessage={statusMessage}
+              errorMessage={errorMessage}
             />
           </div>
         </>

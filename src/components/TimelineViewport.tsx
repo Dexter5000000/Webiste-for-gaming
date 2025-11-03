@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import type { TimelineClip } from '../types';
 
 interface TimelineViewportProps {
@@ -20,6 +20,7 @@ const TimelineViewport = memo(function TimelineViewport({
   const pixelsPerBeat = 48 * zoomLevel;
   const totalBeats = TOTAL_BARS * BEATS_PER_BAR;
   const canvasWidth = Math.max(totalBeats * pixelsPerBeat, 960);
+  const waveformCanvasRefs = useRef(new Map<string, HTMLCanvasElement>());
 
   const rulerMarkers = useMemo(() => {
     return Array.from({ length: TOTAL_BARS + 1 }, (_, index) => ({
@@ -27,6 +28,69 @@ const TimelineViewport = memo(function TimelineViewport({
       position: index * BEATS_PER_BAR * pixelsPerBeat,
     }));
   }, [pixelsPerBeat]);
+
+  useEffect(() => {
+    clips.forEach((clip) => {
+      if (!clip.waveform || clip.waveform.length === 0) {
+        return;
+      }
+
+      const canvas = waveformCanvasRefs.current.get(clip.id);
+      if (!canvas) {
+        return;
+      }
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return;
+      }
+
+      const width = Math.max(1, Math.round(clip.length * pixelsPerBeat));
+      const height = Math.max(
+        1,
+        Math.round(canvas.clientHeight || canvas.height || 48)
+      );
+
+      if (canvas.width !== width) {
+        canvas.width = width;
+      }
+      if (canvas.height !== height) {
+        canvas.height = height;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      const sampleCount = clip.waveform[0].length;
+      if (sampleCount === 0) {
+        return;
+      }
+
+      const centerY = height / 2;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+
+      for (let x = 0; x < width; x++) {
+        const sampleIndex = Math.min(
+          sampleCount - 1,
+          Math.floor((x / width) * sampleCount)
+        );
+
+        let amplitude = 0;
+        for (const channel of clip.waveform) {
+          const value = channel[sampleIndex] ?? 0;
+          amplitude = Math.max(amplitude, Math.abs(value));
+        }
+
+        const y = centerY - amplitude * centerY;
+        const y2 = centerY + amplitude * centerY;
+
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, y);
+        ctx.lineTo(x + 0.5, y2);
+        ctx.stroke();
+      }
+    });
+  }, [clips, pixelsPerBeat]);
 
   return (
     <section className="timeline-viewport" aria-label="Timeline viewport">
@@ -83,6 +147,26 @@ const TimelineViewport = memo(function TimelineViewport({
                     <span className="timeline-clip-name text-xs">
                       {clip.name}
                     </span>
+                    {clip.waveform && clip.waveform.length > 0 && (
+                      <canvas
+                        ref={(el) => {
+                          if (el) {
+                            waveformCanvasRefs.current.set(clip.id, el);
+                          } else {
+                            waveformCanvasRefs.current.delete(clip.id);
+                          }
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '24px',
+                          left: 0,
+                          width: '100%',
+                          height: 'calc(100% - 28px)',
+                          opacity: 0.6,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
