@@ -16,6 +16,13 @@ registerRoute(
   })
 )
 
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/assets/'),
+  new StaleWhileRevalidate({
+    cacheName: 'instrument-assets',
+  })
+)
+
 // Handle offline fallback for navigation
 registerRoute(
   ({ request }) => request.mode === 'navigate',

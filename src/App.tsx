@@ -559,7 +559,11 @@ function App() {
           />
         )}
 
-        <SidePanels collapsed={inspectorCollapsed} width={sidePanelWidth} />
+        <SidePanels 
+          collapsed={inspectorCollapsed} 
+          width={sidePanelWidth}
+          selectedTrackId={tracks.find(t => t.selected)?.id}
+        />
       </main>
 
       <div

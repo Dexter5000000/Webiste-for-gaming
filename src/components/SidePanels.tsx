@@ -1,9 +1,18 @@
 import { memo, useState } from 'react';
 import type { CSSProperties } from 'react';
+import InstrumentPanel, { type TrackInstrumentState } from './InstrumentPanel';
+import type { InstrumentPreset } from '../audio/instruments/types';
 
 interface SidePanelsProps {
   collapsed: boolean;
   width: number;
+  selectedTrackId?: string;
+  instrumentState?: TrackInstrumentState;
+  onInstrumentTypeChange?: (type: TrackInstrumentState['type']) => void;
+  onPresetSelect?: (preset: InstrumentPreset) => void;
+  onParamChange?: (param: string, value: number) => void;
+  onPreviewInstrument?: () => void;
+  onSavePreset?: (name: string) => void;
 }
 
 type PanelTab = 'inspector' | 'instrument';
@@ -11,6 +20,13 @@ type PanelTab = 'inspector' | 'instrument';
 const SidePanels = memo(function SidePanels({
   collapsed,
   width,
+  selectedTrackId,
+  instrumentState,
+  onInstrumentTypeChange,
+  onPresetSelect,
+  onParamChange,
+  onPreviewInstrument,
+  onSavePreset,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
 
@@ -153,97 +169,15 @@ const SidePanels = memo(function SidePanels({
             className="side-panel-content"
             hidden={activeTab !== 'instrument'}
           >
-            <section className="panel">
-              <div className="panel-header">
-                <h3 className="text-sm">Virtual Instrument</h3>
-              </div>
-              <div className="panel-body">
-                <div className="flex-col flex-gap-md">
-                  <div className="card">
-                    <label
-                      htmlFor="instrument-select"
-                      className="text-xs text-muted"
-                    >
-                      Instrument Type
-                    </label>
-                    <select
-                      id="instrument-select"
-                      className="input"
-                      aria-label="Select instrument"
-                    >
-                      <option value="synth">Synthesizer</option>
-                      <option value="sampler">Sampler</option>
-                      <option value="drum">Drum Machine</option>
-                    </select>
-                  </div>
-
-                  <div className="card">
-                    <h4 className="text-xs text-muted">Presets</h4>
-                    <div
-                      className="preset-list"
-                      style={{ marginTop: 'var(--space-sm)' }}
-                    >
-                      {['Bass', 'Lead', 'Pad', 'Pluck', 'Strings'].map(
-                        (preset) => (
-                          <button
-                            key={preset}
-                            type="button"
-                            className="button button-secondary text-xs"
-                            style={{
-                              width: '100%',
-                              marginBottom: 'var(--space-xs)',
-                            }}
-                          >
-                            {preset}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="card">
-                    <h4 className="text-xs text-muted">Controls</h4>
-                    <div
-                      className="flex-col flex-gap-sm"
-                      style={{ marginTop: 'var(--space-sm)' }}
-                    >
-                      <label className="text-xs">Attack</label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        defaultValue={30}
-                        aria-label="Attack"
-                      />
-                      <label className="text-xs">Decay</label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        defaultValue={40}
-                        aria-label="Decay"
-                      />
-                      <label className="text-xs">Sustain</label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        defaultValue={60}
-                        aria-label="Sustain"
-                      />
-                      <label className="text-xs">Release</label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        defaultValue={50}
-                        aria-label="Release"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <InstrumentPanel
+              trackId={selectedTrackId}
+              instrumentState={instrumentState}
+              onInstrumentTypeChange={onInstrumentTypeChange}
+              onPresetSelect={onPresetSelect}
+              onParamChange={onParamChange}
+              onPreview={onPreviewInstrument}
+              onSavePreset={onSavePreset}
+            />
           </div>
         </>
       )}
