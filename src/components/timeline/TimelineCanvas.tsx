@@ -3,6 +3,7 @@ import { useTimeline } from './TimelineContext';
 import { AudioClip, ClipInteraction } from '../../audio/clips';
 import { secondsToBeats, beatsToSeconds } from '../../audio/utils/tempo';
 import { generatePlaceholderWaveform } from './waveformGenerator';
+import { MidiClipEditor } from '../piano-roll';
 
 interface TimelineCanvasProps {
   tempo: number;
@@ -20,6 +21,7 @@ export const TimelineCanvas: React.FC<TimelineCanvasProps> = ({
   const [interaction, setInteraction] = useState<ClipInteraction | null>(null);
   const [marqueeStart, setMarqueeStart] = useState<{ x: number; y: number } | null>(null);
   const [marqueeEnd, setMarqueeEnd] = useState<{ x: number; y: number } | null>(null);
+  const [editingMidiClip, setEditingMidiClip] = useState<AudioClip | null>(null);
   const animationFrameRef = useRef<number>();
 
   const timeToPixel = useCallback((timeInBeats: number) => {
@@ -142,6 +144,25 @@ export const TimelineCanvas: React.FC<TimelineCanvasProps> = ({
       setMarqueeStart({ x, y });
     }
   }, [getClipAtPosition, state.selection, state.clips, selectClips, clearSelection, setSelectionState]);
+
+  const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const clipInfo = getClipAtPosition(x, y);
+    
+    if (clipInfo) {
+      const { clip } = clipInfo;
+      // Check if this is a MIDI clip (you might need to add a type property to AudioClip)
+      if (clip.name && (clip.name.toLowerCase().includes('midi') || clip.name.toLowerCase().includes('piano'))) {
+        setEditingMidiClip(clip);
+      }
+    }
+  }, [getClipAtPosition]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -514,14 +535,57 @@ export const TimelineCanvas: React.FC<TimelineCanvasProps> = ({
   }, [state, tempo, playheadPosition, timeToPixel, marqueeStart, marqueeEnd]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="timeline-canvas"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      style={{ width: '100%', height: '100%', cursor: interaction ? 'grabbing' : isPlaying ? 'not-allowed' : 'default' }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="timeline-canvas"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onDoubleClick={handleDoubleClick}
+        style={{ width: '100%', height: '100%', cursor: interaction ? 'grabbing' : isPlaying ? 'not-allowed' : 'default' }}
+      />
+      
+      {editingMidiClip && (
+        <div className="midi-editor-modal">
+          <MidiClipEditor
+            clip={{
+              id: editingMidiClip.id,
+              name: editingMidiClip.name,
+              type: 'midi',
+              trackId: editingMidiClip.trackId,
+              startTime: secondsToBeats(editingMidiClip.startTime, tempo),
+              duration: secondsToBeats(editingMidiClip.duration, tempo),
+              color: editingMidiClip.color,
+              muted: false,
+              solo: false,
+              gain: 1,
+              pan: 0,
+              notes: [], // TODO: Load actual MIDI notes from clip data
+              velocity: 100,
+              quantize: 16,
+              length: secondsToBeats(editingMidiClip.duration, tempo),
+            }}
+            tempo={tempo}
+            timeSignature={{ numerator: 4, denominator: 4 }}
+            pixelsPerBeat={state.viewport.pixelsPerBeat}
+            onClose={() => setEditingMidiClip(null)}
+            onSave={(updatedClip) => {
+              // Convert back to AudioClip format and save
+              const updatedAudioClip = {
+                ...editingMidiClip,
+                name: updatedClip.name,
+                startTime: beatsToSeconds(updatedClip.startTime, tempo),
+                duration: beatsToSeconds(updatedClip.duration, tempo),
+                // TODO: Store MIDI notes in AudioClip
+              };
+              updateClip(editingMidiClip.id, updatedAudioClip);
+              setEditingMidiClip(null);
+            }}
+          />
+        </div>
+      )}
+    </>
   );
 };

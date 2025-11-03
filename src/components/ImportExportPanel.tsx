@@ -3,13 +3,16 @@ import {
   openFileWithSystemAccess,
   isAudioFileSupported,
 } from '../utils/audioImport';
+import { importMidiFile, exportMidiFile } from '../utils/midiUtils';
 
 export interface ImportExportPanelProps {
   onImportAudio?: (files: File[]) => Promise<void> | void;
   onImportProject?: (file: File) => Promise<void> | void;
+  onImportMidi?: (file: File) => Promise<void> | void;
   onExportProject?: () => Promise<void> | void;
   onExportAudio?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
   onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
+  onExportMidi?: () => Promise<void> | void;
   isProcessing?: boolean;
   progress?: number;
   statusMessage?: string;
@@ -19,9 +22,11 @@ export interface ImportExportPanelProps {
 export function ImportExportPanel({
   onImportAudio,
   onImportProject,
+  onImportMidi,
   onExportProject,
   onExportAudio,
   onExportStems,
+  onExportMidi,
   isProcessing = false,
   progress = 0,
   statusMessage = '',
@@ -94,6 +99,50 @@ export function ImportExportPanel({
     },
     [onImportAudio]
   );
+
+  const handleMidiFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      const midiFiles = files.filter((file) => file.name.toLowerCase().endsWith('.mid') || file.name.toLowerCase().endsWith('.midi'));
+
+      if (midiFiles.length > 0) {
+        try {
+          await onImportMidi?.(midiFiles[0]);
+        } catch (error) {
+          setLocalError(
+            error instanceof Error ? error.message : 'Failed to import MIDI file'
+          );
+          setTimeout(() => setLocalError(''), 3000);
+        }
+      }
+
+      // Clear the input
+      if (e.target) {
+        e.target.value = '';
+      }
+    },
+    [onImportMidi]
+  );
+
+  const handleImportMidi = useCallback(async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.mid,.midi';
+    input.multiple = false;
+    input.onchange = handleMidiFileChange;
+    input.click();
+  }, [handleMidiFileChange]);
+
+  const handleExportMidi = useCallback(async () => {
+    try {
+      await onExportMidi?.();
+    } catch (error) {
+      setLocalError(
+        error instanceof Error ? error.message : 'Failed to export MIDI file'
+      );
+      setTimeout(() => setLocalError(''), 3000);
+    }
+  }, [onExportMidi]);
 
   const handleImportAudio = useCallback(async () => {
     try {
@@ -184,6 +233,32 @@ export function ImportExportPanel({
           className="import-button"
         >
           Import Audio (System Picker)
+        </button>
+      </div>
+
+      <div className="panel-section">
+        <h3>Import MIDI</h3>
+        <div className="drop-zone" onDrop={handleDrop}>
+          <p>Drag and drop MIDI files here</p>
+          <p className="formats">Supported: MID, MIDI</p>
+        </div>
+        <button
+          onClick={handleImportMidi}
+          disabled={isProcessing}
+          className="import-button"
+        >
+          Import MIDI File
+        </button>
+      </div>
+
+      <div className="panel-section">
+        <h3>Export MIDI</h3>
+        <button
+          onClick={handleExportMidi}
+          disabled={isProcessing}
+          className="export-button"
+        >
+          Export MIDI File
         </button>
       </div>
 

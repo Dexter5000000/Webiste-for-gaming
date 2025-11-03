@@ -70,6 +70,8 @@ export interface MidiNote {
   velocity: number; // 0-127
   startTime: number; // relative to clip start, in beats
   duration: number; // in beats
+  articulation?: 'normal' | 'staccato' | 'legato' | 'accent';
+  selected?: boolean;
 }
 
 export interface Effect {

@@ -24,6 +24,7 @@
   "author": "Zenith DAW Team",
   "license": "MIT",
   "dependencies": {
+    "@tonejs/midi": "^2.0.28",
     "immer": "^10.2.0",
     "jszip": "^3.10.1",
     "lamejs": "^1.2.1",

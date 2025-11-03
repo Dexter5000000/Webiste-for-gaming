@@ -67,6 +67,7 @@ export class DistortionEffect extends BaseEffect {
   }
 
   protected initializeParameters(): void {
+  get parameters(): EffectParameter[] {
     const params: EffectParameter[] = [
       {
         id: 'wetLevel',
