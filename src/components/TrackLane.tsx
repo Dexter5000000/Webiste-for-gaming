@@ -1,17 +1,5 @@
 import { memo, KeyboardEvent } from 'react';
-
-export interface Track {
-  id: string;
-  name: string;
-  type: 'audio' | 'midi' | 'instrument';
-  color: string;
-  volume: number;
-  pan: number;
-  muted: boolean;
-  soloed: boolean;
-  armed: boolean;
-  selected: boolean;
-}
+import type { Track } from '../types';
 
 interface TrackLaneProps {
   track: Track;

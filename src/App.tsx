@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
+import type { Track, TimelineClip, MixerChannel } from './types';
 import TransportBar from './components/TransportBar';
-import TrackLane, { Track } from './components/TrackLane';
-import TimelineViewport, { TimelineClip } from './components/TimelineViewport';
+import TrackLane from './components/TrackLane';
+import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
-import MixerDock, { MixerChannel } from './components/MixerDock';
+import MixerDock from './components/MixerDock';
 
 const INITIAL_TEMPO = 120;
 const INITIAL_ZOOM = 1.0;

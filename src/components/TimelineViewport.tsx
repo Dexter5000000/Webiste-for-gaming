@@ -1,13 +1,5 @@
 import { memo, useMemo } from 'react';
-
-export interface TimelineClip {
-  id: string;
-  trackId: string;
-  name: string;
-  start: number; // in beats
-  length: number; // in beats
-  color?: string;
-}
+import type { TimelineClip } from '../types';
 
 interface TimelineViewportProps {
   playheadPosition: number;
