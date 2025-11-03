@@ -1,17 +1,14 @@
-import { 
-  Project, 
-  Track, 
-  Clip, 
-  Effect, 
-  EffectChain, 
+import {
+  Project,
+  Track,
+  Clip,
+  Effect,
+  EffectChain,
   AudioFile,
-  TransportState,
-  SelectionState,
-  GridSettings,
   AppState,
   TrackType,
   ClipType,
-  EffectType
+  EffectType,
 } from './models';
 
 // Serialization version for future compatibility
@@ -96,8 +93,8 @@ export const serializeProject = (project: Project): string => {
         metadata: {
           ...project.metadata,
           createdAt: project.metadata.createdAt.toISOString(),
-          modifiedAt: project.metadata.modifiedAt.toISOString()
-        }
+          modifiedAt: project.metadata.modifiedAt.toISOString(),
+        },
       },
       transport: {
         isPlaying: false, // Don't save playback state
@@ -110,12 +107,12 @@ export const serializeProject = (project: Project): string => {
         punchIn: 0,
         punchOut: 16,
         countIn: 2,
-        playbackSpeed: 1.0
+        playbackSpeed: 1.0,
       },
       selection: {
         selectedTrackIds: [],
         selectedClipIds: [],
-        selectedEffectIds: []
+        selectedEffectIds: [],
       },
       grid: {
         snapEnabled: true,
@@ -126,8 +123,8 @@ export const serializeProject = (project: Project): string => {
         showTrackNumbers: true,
         zoomHorizontal: 20,
         zoomVertical: 60,
-        scrollPosition: { x: 0, y: 0 }
-      }
+        scrollPosition: { x: 0, y: 0 },
+      },
     };
 
     return JSON.stringify(serialized, null, 2);
@@ -151,12 +148,12 @@ export const serializeAppState = (appState: AppState): string => {
         metadata: {
           ...appState.project.metadata,
           createdAt: appState.project.metadata.createdAt.toISOString(),
-          modifiedAt: appState.project.metadata.modifiedAt.toISOString()
-        }
+          modifiedAt: appState.project.metadata.modifiedAt.toISOString(),
+        },
       },
       transport: appState.transport,
       selection: appState.selection,
-      grid: appState.grid
+      grid: appState.grid,
     };
 
     return JSON.stringify(serialized, null, 2);
@@ -174,20 +171,22 @@ export const serializeAppState = (appState: AppState): string => {
 export const rehydrateProject = (jsonString: string): Project => {
   try {
     const data: SerializedProject = JSON.parse(jsonString);
-    
+
     // Check version compatibility
     if (data.version !== SERIALIZATION_VERSION) {
-      console.warn(`Project version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`);
+      console.warn(
+        `Project version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`
+      );
       // In a real app, you might want to handle migration here
     }
 
     const projectData = data.project;
-    
+
     // Convert date strings back to Date objects
     const metadata = {
       ...projectData.metadata,
       createdAt: new Date(projectData.metadata.createdAt),
-      modifiedAt: new Date(projectData.metadata.modifiedAt)
+      modifiedAt: new Date(projectData.metadata.modifiedAt),
     };
 
     // Recreate the project with proper typing
@@ -195,10 +194,16 @@ export const rehydrateProject = (jsonString: string): Project => {
       ...projectData,
       metadata,
       // Ensure arrays are properly typed
-      tracks: projectData.tracks.map((track: any) => validateAndFixTrack(track)),
+      tracks: projectData.tracks.map((track: any) =>
+        validateAndFixTrack(track)
+      ),
       clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),
-      effectChains: projectData.effectChains.map((chain: any) => validateAndFixEffectChain(chain)),
-      audioFiles: projectData.audioFiles.map((file: any) => validateAndFixAudioFile(file))
+      effectChains: projectData.effectChains.map((chain: any) =>
+        validateAndFixEffectChain(chain)
+      ),
+      audioFiles: projectData.audioFiles.map((file: any) =>
+        validateAndFixAudioFile(file)
+      ),
     };
 
     return project;
@@ -216,28 +221,36 @@ export const rehydrateProject = (jsonString: string): Project => {
 export const rehydrateAppState = (jsonString: string): AppState => {
   try {
     const data: SerializedProject = JSON.parse(jsonString);
-    
+
     // Check version compatibility
     if (data.version !== SERIALIZATION_VERSION) {
-      console.warn(`App state version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`);
+      console.warn(
+        `App state version mismatch. Expected ${SERIALIZATION_VERSION}, got ${data.version}`
+      );
     }
 
     const projectData = data.project;
-    
+
     // Convert date strings back to Date objects
     const metadata = {
       ...projectData.metadata,
       createdAt: new Date(projectData.metadata.createdAt),
-      modifiedAt: new Date(projectData.metadata.modifiedAt)
+      modifiedAt: new Date(projectData.metadata.modifiedAt),
     };
 
     const project: Project = {
       ...projectData,
       metadata,
-      tracks: projectData.tracks.map((track: any) => validateAndFixTrack(track)),
+      tracks: projectData.tracks.map((track: any) =>
+        validateAndFixTrack(track)
+      ),
       clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),
-      effectChains: projectData.effectChains.map((chain: any) => validateAndFixEffectChain(chain)),
-      audioFiles: projectData.audioFiles.map((file: any) => validateAndFixAudioFile(file))
+      effectChains: projectData.effectChains.map((chain: any) =>
+        validateAndFixEffectChain(chain)
+      ),
+      audioFiles: projectData.audioFiles.map((file: any) =>
+        validateAndFixAudioFile(file)
+      ),
     };
 
     const appState: AppState = {
@@ -250,14 +263,14 @@ export const rehydrateAppState = (jsonString: string): AppState => {
         showBrowser: true,
         showInspector: true,
         showAutomation: false,
-        focusedPanel: 'timeline'
+        focusedPanel: 'timeline',
       },
       history: {
         past: [],
         present: project,
         future: [],
-        maxSize: 50
-      }
+        maxSize: 50,
+      },
     };
 
     return appState;
@@ -274,7 +287,9 @@ const validateAndFixTrack = (track: any): Track => {
   const baseTrack = {
     id: track.id || crypto.randomUUID(),
     name: track.name || 'Unknown Track',
-    type: Object.values(TrackType).includes(track.type) ? track.type : TrackType.AUDIO,
+    type: Object.values(TrackType).includes(track.type)
+      ? track.type
+      : TrackType.AUDIO,
     color: track.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
     muted: Boolean(track.muted),
     solo: Boolean(track.solo),
@@ -284,7 +299,7 @@ const validateAndFixTrack = (track: any): Track => {
     height: Math.max(20, Math.min(200, Number(track.height) || 60)),
     visible: track.visible !== false,
     locked: Boolean(track.locked),
-    effectChainId: track.effectChainId || crypto.randomUUID()
+    effectChainId: track.effectChainId || crypto.randomUUID(),
   };
 
   switch (track.type) {
@@ -296,7 +311,7 @@ const validateAndFixTrack = (track: any): Track => {
         outputDevice: track.outputDevice,
         monitoring: Boolean(track.monitoring),
         inputGain: Math.max(0, Math.min(2, Number(track.inputGain) || 1)),
-        recordEnabled: Boolean(track.recordEnabled)
+        recordEnabled: Boolean(track.recordEnabled),
       } as Track;
 
     case TrackType.MIDI:
@@ -308,23 +323,26 @@ const validateAndFixTrack = (track: any): Track => {
         instrument: {
           type: track.instrument?.type || 'vsti',
           pluginId: track.instrument?.pluginId,
-          midiChannel: Math.max(0, Math.min(15, Number(track.instrument?.midiChannel) || 0))
+          midiChannel: Math.max(
+            0,
+            Math.min(15, Number(track.instrument?.midiChannel) || 0)
+          ),
         },
-        midiThru: Boolean(track.midiThru)
+        midiThru: Boolean(track.midiThru),
       } as Track;
 
     case TrackType.EFFECT:
       return {
         ...baseTrack,
         type: TrackType.EFFECT,
-        receives: Array.isArray(track.receives) ? track.receives : []
+        receives: Array.isArray(track.receives) ? track.receives : [],
       } as Track;
 
     case TrackType.BUS:
       return {
         ...baseTrack,
         type: TrackType.BUS,
-        receives: Array.isArray(track.receives) ? track.receives : []
+        receives: Array.isArray(track.receives) ? track.receives : [],
       } as Track;
 
     case TrackType.MASTER:
@@ -333,9 +351,15 @@ const validateAndFixTrack = (track: any): Track => {
         type: TrackType.MASTER,
         limiter: {
           enabled: track.limiter?.enabled !== false,
-          ceiling: Math.max(-20, Math.min(0, Number(track.limiter?.ceiling) || -0.1)),
-          release: Math.max(1, Math.min(1000, Number(track.limiter?.release) || 10))
-        }
+          ceiling: Math.max(
+            -20,
+            Math.min(0, Number(track.limiter?.ceiling) || -0.1)
+          ),
+          release: Math.max(
+            1,
+            Math.min(1000, Number(track.limiter?.release) || 10)
+          ),
+        },
       } as Track;
 
     default:
@@ -350,15 +374,20 @@ const validateAndFixClip = (clip: any): Clip => {
   const baseClip = {
     id: clip.id || crypto.randomUUID(),
     name: clip.name || 'Unknown Clip',
-    type: Object.values(ClipType).includes(clip.type) ? clip.type : ClipType.AUDIO,
+    type: Object.values(ClipType).includes(clip.type)
+      ? clip.type
+      : ClipType.AUDIO,
     trackId: clip.trackId || '',
     startTime: Math.max(0, Number(clip.startTime) || 0),
-    duration: Math.max(0.01, Number(clip.duration) >= 0 ? Number(clip.duration) : 1),
+    duration: Math.max(
+      0.01,
+      Number(clip.duration) >= 0 ? Number(clip.duration) : 1
+    ),
     color: clip.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
     muted: Boolean(clip.muted),
     solo: Boolean(clip.solo),
     gain: Math.max(0, Math.min(2, Number(clip.gain) || 1)),
-    pan: Math.max(-1, Math.min(1, Number(clip.pan) || 0))
+    pan: Math.max(-1, Math.min(1, Number(clip.pan) || 0)),
   };
 
   if (clip.type === ClipType.AUDIO) {
@@ -366,7 +395,10 @@ const validateAndFixClip = (clip: any): Clip => {
       ...baseClip,
       type: ClipType.AUDIO,
       audioFileId: clip.audioFileId || '',
-      sampleRate: Math.max(8000, Math.min(192000, Number(clip.sampleRate) || 44100)),
+      sampleRate: Math.max(
+        8000,
+        Math.min(192000, Number(clip.sampleRate) || 44100)
+      ),
       bitDepth: [16, 24, 32].includes(clip.bitDepth) ? clip.bitDepth : 24,
       channels: Math.max(1, Math.min(32, Number(clip.channels) || 2)),
       offset: Math.max(0, Number(clip.offset) || 0),
@@ -374,19 +406,27 @@ const validateAndFixClip = (clip: any): Clip => {
       fadeOut: Math.max(0, Number(clip.fadeOut) || 0),
       warping: {
         enabled: Boolean(clip.warping?.enabled),
-        algorithm: ['beats', 'tones', 'complex', 'complexpro', 're-pitch'].includes(clip.warping?.algorithm) 
-          ? clip.warping.algorithm 
-          : 'beats'
-      }
+        algorithm: [
+          'beats',
+          'tones',
+          'complex',
+          'complexpro',
+          're-pitch',
+        ].includes(clip.warping?.algorithm)
+          ? clip.warping.algorithm
+          : 'beats',
+      },
     } as Clip;
   } else if (clip.type === ClipType.MIDI) {
     return {
       ...baseClip,
       type: ClipType.MIDI,
-      notes: Array.isArray(clip.notes) ? clip.notes.map(validateAndFixMidiNote) : [],
+      notes: Array.isArray(clip.notes)
+        ? clip.notes.map(validateAndFixMidiNote)
+        : [],
       velocity: Math.max(0, Math.min(127, Number(clip.velocity) || 100)),
       quantize: Math.max(1, Number(clip.quantize) || 4),
-      length: Math.max(0.1, Number(clip.length) || 1)
+      length: Math.max(0.1, Number(clip.length) || 1),
     } as Clip;
   }
 
@@ -401,7 +441,7 @@ const validateAndFixMidiNote = (note: any) => ({
   pitch: Math.max(0, Math.min(127, Number(note.pitch) || 60)),
   velocity: Math.max(0, Math.min(127, Number(note.velocity) || 100)),
   startTime: Math.max(0, Number(note.startTime) || 0),
-  duration: Math.max(0.01, Number(note.duration) || 0.25)
+  duration: Math.max(0.01, Number(note.duration) || 0.25),
 });
 
 /**
@@ -410,9 +450,9 @@ const validateAndFixMidiNote = (note: any) => ({
 const validateAndFixEffectChain = (chain: any): EffectChain => ({
   id: chain.id || crypto.randomUUID(),
   trackId: chain.trackId || '',
-  effects: Array.isArray(chain.effects) 
+  effects: Array.isArray(chain.effects)
     ? chain.effects.map((effect: any) => validateAndFixEffect(effect))
-    : []
+    : [],
 });
 
 /**
@@ -421,13 +461,16 @@ const validateAndFixEffectChain = (chain: any): EffectChain => ({
 const validateAndFixEffect = (effect: any): Effect => ({
   id: effect.id || crypto.randomUUID(),
   name: effect.name || 'Unknown Effect',
-  type: Object.values(EffectType).includes(effect.type) ? effect.type : EffectType.REVERB,
+  type: Object.values(EffectType).includes(effect.type)
+    ? effect.type
+    : EffectType.REVERB,
   enabled: effect.enabled !== false,
   bypassed: Boolean(effect.bypassed),
-  parameters: typeof effect.parameters === 'object' && effect.parameters !== null 
-    ? effect.parameters 
-    : {},
-  position: Math.max(0, Number(effect.position) || 0)
+  parameters:
+    typeof effect.parameters === 'object' && effect.parameters !== null
+      ? effect.parameters
+      : {},
+  position: Math.max(0, Number(effect.position) || 0),
 });
 
 /**
@@ -439,7 +482,10 @@ const validateAndFixAudioFile = (file: any): AudioFile => ({
   path: file.path || '',
   size: Math.max(0, Number(file.size) || 0),
   duration: Math.max(0, Number(file.duration) || 0),
-  sampleRate: Math.max(8000, Math.min(192000, Number(file.sampleRate) || 44100)),
+  sampleRate: Math.max(
+    8000,
+    Math.min(192000, Number(file.sampleRate) || 44100)
+  ),
   bitDepth: [16, 24, 32].includes(file.bitDepth) ? file.bitDepth : 24,
   channels: Math.max(1, Math.min(32, Number(file.channels) || 2)),
   format: file.format || 'wav',
@@ -448,8 +494,10 @@ const validateAndFixAudioFile = (file: any): AudioFile => ({
     title: file.metadata?.title,
     album: file.metadata?.album,
     genre: file.metadata?.genre,
-    year: file.metadata?.year ? Math.max(0, Number(file.metadata.year)) : undefined
-  }
+    year: file.metadata?.year
+      ? Math.max(0, Number(file.metadata.year))
+      : undefined,
+  },
 });
 
 /**
@@ -457,12 +505,13 @@ const validateAndFixAudioFile = (file: any): AudioFile => ({
  * @param project - The project to backup
  * @returns Promise that resolves to the backup file path
  */
-export const createProjectBackup = async (project: Project): Promise<string> => {
+export const createProjectBackup = async (
+  project: Project
+): Promise<string> => {
   try {
-    const serialized = serializeProject(project);
-    const blob = new Blob([serialized], { type: 'application/json' });
+    serializeProject(project);
     const fileName = `${project.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`;
-    
+
     // In a browser environment, we'd trigger a download
     // In Node.js, we'd write to filesystem
     // For now, return the serialized data
@@ -481,14 +530,19 @@ export const createProjectBackup = async (project: Project): Promise<string> => 
 export const validateSerializedProject = (jsonString: string): boolean => {
   try {
     const data: SerializedProject = JSON.parse(jsonString);
-    
+
     // Check required fields
     if (!data.version || !data.project) {
       return false;
     }
 
     const project = data.project;
-    if (!project.id || !project.name || !project.tempo || !project.timeSignature) {
+    if (
+      !project.id ||
+      !project.name ||
+      !project.tempo ||
+      !project.timeSignature
+    ) {
       return false;
     }
 
@@ -509,7 +563,11 @@ export const validateSerializedProject = (jsonString: string): boolean => {
  * @param toVersion - The target version
  * @returns Migrated data
  */
-export const migrateProjectData = (data: any, fromVersion: string, toVersion: string): any => {
+export const migrateProjectData = (
+  data: any,
+  fromVersion: string,
+  toVersion: string
+): any => {
   // This is a placeholder for future migration logic
   // For now, just return the data as-is
   console.log(`Migrating project from version ${fromVersion} to ${toVersion}`);

@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { 
-  serializeProject, 
-  rehydrateProject, 
-  serializeAppState, 
+import {
+  serializeProject,
+  rehydrateProject,
+  serializeAppState,
   rehydrateAppState,
   validateSerializedProject,
   createProjectBackup,
   SERIALIZATION_VERSION,
-  createEmptyProject
+  createEmptyProject,
 } from '../state';
-import { TrackType, ClipType, EffectType } from '../state/models';
+import { TrackType, ClipType, EffectType, AppState } from '../state/models';
 
 describe('Serialization', () => {
   let testProject: any;
@@ -22,7 +22,7 @@ describe('Serialization', () => {
       tempo: 140,
       timeSignature: {
         numerator: 6,
-        denominator: 8
+        denominator: 8,
       },
       sampleRate: 48000,
       bitDepth: 32,
@@ -46,7 +46,7 @@ describe('Serialization', () => {
           outputDevice: 'audio-output-1',
           monitoring: true,
           inputGain: 1.2,
-          recordEnabled: true
+          recordEnabled: true,
         },
         {
           id: 'track-2',
@@ -65,10 +65,10 @@ describe('Serialization', () => {
           instrument: {
             type: 'vsti',
             pluginId: 'synth-plugin-1',
-            midiChannel: 2
+            midiChannel: 2,
           },
-          midiThru: false
-        }
+          midiThru: false,
+        },
       ],
       clips: [
         {
@@ -92,8 +92,8 @@ describe('Serialization', () => {
           fadeOut: 0.25,
           warping: {
             enabled: true,
-            algorithm: 'complexpro'
-          }
+            algorithm: 'complexpro',
+          },
         },
         {
           id: 'clip-2',
@@ -113,20 +113,20 @@ describe('Serialization', () => {
               pitch: 60,
               velocity: 100,
               startTime: 0,
-              duration: 0.5
+              duration: 0.5,
             },
             {
               id: 'note-2',
               pitch: 64,
               velocity: 80,
               startTime: 0.5,
-              duration: 0.25
-            }
+              duration: 0.25,
+            },
           ],
           velocity: 100,
           quantize: 8,
-          length: 2
-        }
+          length: 2,
+        },
       ],
       effectChains: [
         {
@@ -143,9 +143,9 @@ describe('Serialization', () => {
                 roomSize: 0.7,
                 damping: 0.3,
                 wetLevel: 0.5,
-                dryLevel: 0.3
+                dryLevel: 0.3,
               },
-              position: 0
+              position: 0,
             },
             {
               id: 'effect-2',
@@ -158,17 +158,17 @@ describe('Serialization', () => {
                 ratio: 4,
                 attack: 0.003,
                 release: 0.1,
-                makeupGain: 2
+                makeupGain: 2,
               },
-              position: 1
-            }
-          ]
+              position: 1,
+            },
+          ],
         },
         {
           id: 'effect-chain-2',
           trackId: 'track-2',
-          effects: []
-        }
+          effects: [],
+        },
       ],
       audioFiles: [
         {
@@ -186,9 +186,9 @@ describe('Serialization', () => {
             title: 'Drum Loop',
             album: 'Test Album',
             genre: 'Electronic',
-            year: 2023
-          }
-        }
+            year: 2023,
+          },
+        },
       ],
       metadata: {
         createdAt: new Date('2023-01-01T00:00:00Z'),
@@ -196,17 +196,17 @@ describe('Serialization', () => {
         version: '1.0.0',
         author: 'Test Author',
         description: 'A test project for serialization',
-        tags: ['test', 'demo', 'electronic']
-      }
+        tags: ['test', 'demo', 'electronic'],
+      },
     };
   });
 
   describe('Project Serialization', () => {
     it('should serialize a project to JSON', () => {
       const serialized = serializeProject(testProject);
-      
+
       expect(() => JSON.parse(serialized)).not.toThrow();
-      
+
       const parsed = JSON.parse(serialized);
       expect(parsed.version).toBe(SERIALIZATION_VERSION);
       expect(parsed.project.name).toBe(testProject.name);
@@ -220,7 +220,7 @@ describe('Serialization', () => {
     it('should not save transport state in project serialization', () => {
       const serialized = serializeProject(testProject);
       const parsed = JSON.parse(serialized);
-      
+
       expect(parsed.transport.isPlaying).toBe(false);
       expect(parsed.transport.isRecording).toBe(false);
       expect(parsed.transport.currentTime).toBe(0);
@@ -229,7 +229,7 @@ describe('Serialization', () => {
     it('should not save selection state in project serialization', () => {
       const serialized = serializeProject(testProject);
       const parsed = JSON.parse(serialized);
-      
+
       expect(parsed.selection.selectedTrackIds).toHaveLength(0);
       expect(parsed.selection.selectedClipIds).toHaveLength(0);
     });
@@ -237,7 +237,7 @@ describe('Serialization', () => {
     it('should reset grid settings in project serialization', () => {
       const serialized = serializeProject(testProject);
       const parsed = JSON.parse(serialized);
-      
+
       expect(parsed.grid.snapEnabled).toBe(true);
       expect(parsed.grid.zoomHorizontal).toBe(20);
       expect(parsed.grid.zoomVertical).toBe(60);
@@ -250,12 +250,16 @@ describe('Serialization', () => {
     it('should rehydrate a project from JSON', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       expect(rehydrated.id).toBe(testProject.id);
       expect(rehydrated.name).toBe(testProject.name);
       expect(rehydrated.tempo).toBe(testProject.tempo);
-      expect(rehydrated.timeSignature.numerator).toBe(testProject.timeSignature.numerator);
-      expect(rehydrated.timeSignature.denominator).toBe(testProject.timeSignature.denominator);
+      expect(rehydrated.timeSignature.numerator).toBe(
+        testProject.timeSignature.numerator
+      );
+      expect(rehydrated.timeSignature.denominator).toBe(
+        testProject.timeSignature.denominator
+      );
       expect(rehydrated.tracks).toHaveLength(2);
       expect(rehydrated.clips).toHaveLength(2);
       expect(rehydrated.effectChains).toHaveLength(2);
@@ -265,23 +269,31 @@ describe('Serialization', () => {
     it('should properly convert date strings to Date objects', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       expect(rehydrated.metadata.createdAt).toBeInstanceOf(Date);
       expect(rehydrated.metadata.modifiedAt).toBeInstanceOf(Date);
-      expect(rehydrated.metadata.createdAt.getTime()).toBe(testProject.metadata.createdAt.getTime());
-      expect(rehydrated.metadata.modifiedAt.getTime()).toBe(testProject.metadata.modifiedAt.getTime());
+      expect(rehydrated.metadata.createdAt.getTime()).toBe(
+        testProject.metadata.createdAt.getTime()
+      );
+      expect(rehydrated.metadata.modifiedAt.getTime()).toBe(
+        testProject.metadata.modifiedAt.getTime()
+      );
     });
 
     it('should preserve track types and properties', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
-      const audioTrack = rehydrated.tracks.find(t => t.type === TrackType.AUDIO);
+
+      const audioTrack = rehydrated.tracks.find(
+        (t) => t.type === TrackType.AUDIO
+      );
       expect(audioTrack).toBeDefined();
       expect((audioTrack as any).monitoring).toBe(true);
       expect((audioTrack as any).inputGain).toBe(1.2);
-      
-      const midiTrack = rehydrated.tracks.find(t => t.type === TrackType.MIDI);
+
+      const midiTrack = rehydrated.tracks.find(
+        (t) => t.type === TrackType.MIDI
+      );
       expect(midiTrack).toBeDefined();
       expect((midiTrack as any).instrument.pluginId).toBe('synth-plugin-1');
       expect((midiTrack as any).instrument.midiChannel).toBe(2);
@@ -290,13 +302,13 @@ describe('Serialization', () => {
     it('should preserve clip types and properties', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
-      const audioClip = rehydrated.clips.find(c => c.type === ClipType.AUDIO);
+
+      const audioClip = rehydrated.clips.find((c) => c.type === ClipType.AUDIO);
       expect(audioClip).toBeDefined();
       expect((audioClip as any).audioFileId).toBe('audio-file-1');
       expect((audioClip as any).warping.enabled).toBe(true);
-      
-      const midiClip = rehydrated.clips.find(c => c.type === ClipType.MIDI);
+
+      const midiClip = rehydrated.clips.find((c) => c.type === ClipType.MIDI);
       expect(midiClip).toBeDefined();
       expect((midiClip as any).notes).toHaveLength(2);
       expect((midiClip as any).quantize).toBe(8);
@@ -305,12 +317,16 @@ describe('Serialization', () => {
     it('should preserve effect chains and effects', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
-      const effectChain = rehydrated.effectChains.find(ec => ec.trackId === 'track-1');
+
+      const effectChain = rehydrated.effectChains.find(
+        (ec) => ec.trackId === 'track-1'
+      );
       expect(effectChain).toBeDefined();
       expect(effectChain!.effects).toHaveLength(2);
-      
-      const reverb = effectChain!.effects.find(e => e.type === EffectType.REVERB);
+
+      const reverb = effectChain!.effects.find(
+        (e) => e.type === EffectType.REVERB
+      );
       expect(reverb).toBeDefined();
       expect(reverb!.parameters.roomSize).toBe(0.7);
       expect(reverb!.parameters.wetLevel).toBe(0.5);
@@ -319,17 +335,19 @@ describe('Serialization', () => {
     it('should preserve audio file metadata', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       const audioFile = rehydrated.audioFiles[0];
       expect(audioFile.name).toBe('drums.wav');
-      expect(audioFile.metadata.artist).toBe('Test Artist');
-      expect(audioFile.metadata.year).toBe(2023);
+      expect(audioFile.metadata?.artist).toBe('Test Artist');
+      expect(audioFile.metadata?.year).toBe(2023);
     });
 
     it('should handle corrupted or invalid data gracefully', () => {
       const invalidJson = '{ invalid json }';
-      
-      expect(() => rehydrateProject(invalidJson)).toThrow('Project rehydration failed');
+
+      expect(() => rehydrateProject(invalidJson)).toThrow(
+        'Project rehydration failed'
+      );
     });
 
     it('should fix invalid track data during rehydration', () => {
@@ -341,14 +359,14 @@ describe('Serialization', () => {
             type: 'invalid-type',
             volume: 5, // Above max
             pan: 2, // Above max
-            height: 300 // Above max
-          }
-        ]
+            height: 300, // Above max
+          },
+        ],
       };
-      
+
       const serialized = serializeProject(projectWithInvalidData);
       const rehydrated = rehydrateProject(serialized);
-      
+
       const track = rehydrated.tracks[0];
       expect(track.type).toBe(TrackType.AUDIO); // Should default to AUDIO
       expect(track.volume).toBe(2); // Should be clamped to max
@@ -366,14 +384,14 @@ describe('Serialization', () => {
             startTime: -5, // Negative
             duration: 0, // Zero duration
             gain: 5, // Above max
-            pan: -3 // Below min
-          }
-        ]
+            pan: -3, // Below min
+          },
+        ],
       };
-      
+
       const serialized = serializeProject(projectWithInvalidClip);
       const rehydrated = rehydrateProject(serialized);
-      
+
       const clip = rehydrated.clips[0];
       expect(clip.type).toBe(ClipType.AUDIO); // Should default to AUDIO
       expect(clip.startTime).toBe(0); // Should be clamped to min
@@ -385,7 +403,7 @@ describe('Serialization', () => {
 
   describe('App State Serialization', () => {
     it('should serialize complete app state', () => {
-      const appState = {
+      const appState: AppState = {
         project: testProject,
         transport: {
           isPlaying: true,
@@ -398,7 +416,7 @@ describe('Serialization', () => {
           punchIn: 6,
           punchOut: 18,
           countIn: 4,
-          playbackSpeed: 1.25
+          playbackSpeed: 1.25,
         },
         selection: {
           selectedTrackIds: ['track-1'],
@@ -407,7 +425,7 @@ describe('Serialization', () => {
           selectionStartTime: 2,
           selectionEndTime: 8,
           selectionTrackStart: 0,
-          selectionTrackEnd: 2
+          selectionTrackEnd: 2,
         },
         grid: {
           snapEnabled: false,
@@ -418,13 +436,26 @@ describe('Serialization', () => {
           showTrackNumbers: false,
           zoomHorizontal: 40,
           zoomVertical: 120,
-          scrollPosition: { x: 500, y: 200 }
-        }
+          scrollPosition: { x: 500, y: 200 },
+        },
+        history: {
+          past: [],
+          present: testProject,
+          future: [],
+          maxSize: 50,
+        },
+        ui: {
+          showMixer: false,
+          showBrowser: false,
+          showInspector: true,
+          showAutomation: false,
+          focusedPanel: 'timeline',
+        },
       };
-      
+
       const serialized = serializeAppState(appState);
       const parsed = JSON.parse(serialized);
-      
+
       expect(parsed.transport.isPlaying).toBe(true);
       expect(parsed.transport.currentTime).toBe(12.5);
       expect(parsed.selection.selectedTrackIds).toHaveLength(1);
@@ -433,7 +464,7 @@ describe('Serialization', () => {
     });
 
     it('should rehydrate complete app state', () => {
-      const appState = {
+      const appState: AppState = {
         project: testProject,
         transport: {
           isPlaying: true,
@@ -446,14 +477,14 @@ describe('Serialization', () => {
           punchIn: 6,
           punchOut: 18,
           countIn: 4,
-          playbackSpeed: 1.25
+          playbackSpeed: 1.25,
         },
         selection: {
           selectedTrackIds: ['track-1'],
           selectedClipIds: ['clip-1'],
           selectedEffectIds: ['effect-1'],
           selectionStartTime: 2,
-          selectionEndTime: 8
+          selectionEndTime: 8,
         },
         grid: {
           snapEnabled: false,
@@ -464,13 +495,26 @@ describe('Serialization', () => {
           showTrackNumbers: false,
           zoomHorizontal: 40,
           zoomVertical: 120,
-          scrollPosition: { x: 500, y: 200 }
-        }
+          scrollPosition: { x: 500, y: 200 },
+        },
+        history: {
+          past: [],
+          present: testProject,
+          future: [],
+          maxSize: 50,
+        },
+        ui: {
+          showMixer: false,
+          showBrowser: false,
+          showInspector: true,
+          showAutomation: false,
+          focusedPanel: 'timeline',
+        },
       };
-      
+
       const serialized = serializeAppState(appState);
       const rehydrated = rehydrateAppState(serialized);
-      
+
       expect(rehydrated.project.name).toBe(testProject.name);
       expect(rehydrated.transport.isPlaying).toBe(true);
       expect(rehydrated.transport.currentTime).toBe(12.5);
@@ -496,7 +540,9 @@ describe('Serialization', () => {
         version: SERIALIZATION_VERSION,
         // missing project field
       };
-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);
+      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(
+        false
+      );
     });
 
     it('should reject missing project properties', () => {
@@ -504,9 +550,11 @@ describe('Serialization', () => {
         version: SERIALIZATION_VERSION,
         project: {
           // missing required properties like id, name, tempo
-        }
+        },
       };
-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);
+      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(
+        false
+      );
     });
 
     it('should reject invalid arrays', () => {
@@ -515,10 +563,12 @@ describe('Serialization', () => {
         project: {
           ...testProject,
           tracks: 'not an array',
-          clips: null
-        }
+          clips: null,
+        },
       };
-      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(false);
+      expect(validateSerializedProject(JSON.stringify(invalidData))).toBe(
+        false
+      );
     });
   });
 
@@ -531,7 +581,9 @@ describe('Serialization', () => {
 
     it('should handle backup creation errors', async () => {
       const invalidProject = null as any;
-      await expect(createProjectBackup(invalidProject)).rejects.toThrow('Project backup failed');
+      await expect(createProjectBackup(invalidProject)).rejects.toThrow(
+        'Project backup failed'
+      );
     });
   });
 
@@ -539,16 +591,20 @@ describe('Serialization', () => {
     it('should maintain data integrity through serialize/rehydrate cycle', () => {
       const serialized = serializeProject(testProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       // Compare core properties
       expect(rehydrated.id).toBe(testProject.id);
       expect(rehydrated.name).toBe(testProject.name);
       expect(rehydrated.tempo).toBe(testProject.tempo);
-      expect(rehydrated.timeSignature.numerator).toBe(testProject.timeSignature.numerator);
-      expect(rehydrated.timeSignature.denominator).toBe(testProject.timeSignature.denominator);
+      expect(rehydrated.timeSignature.numerator).toBe(
+        testProject.timeSignature.numerator
+      );
+      expect(rehydrated.timeSignature.denominator).toBe(
+        testProject.timeSignature.denominator
+      );
       expect(rehydrated.sampleRate).toBe(testProject.sampleRate);
       expect(rehydrated.bitDepth).toBe(testProject.bitDepth);
-      
+
       // Compare tracks
       expect(rehydrated.tracks).toHaveLength(testProject.tracks.length);
       testProject.tracks.forEach((originalTrack: any, index: number) => {
@@ -559,7 +615,7 @@ describe('Serialization', () => {
         expect(rehydratedTrack.volume).toBe(originalTrack.volume);
         expect(rehydratedTrack.pan).toBe(originalTrack.pan);
       });
-      
+
       // Compare clips
       expect(rehydrated.clips).toHaveLength(testProject.clips.length);
       testProject.clips.forEach((originalClip: any, index: number) => {
@@ -570,16 +626,20 @@ describe('Serialization', () => {
         expect(rehydratedClip.startTime).toBe(originalClip.startTime);
         expect(rehydratedClip.duration).toBe(originalClip.duration);
       });
-      
+
       // Compare effect chains
-      expect(rehydrated.effectChains).toHaveLength(testProject.effectChains.length);
+      expect(rehydrated.effectChains).toHaveLength(
+        testProject.effectChains.length
+      );
       testProject.effectChains.forEach((originalChain: any, index: number) => {
         const rehydratedChain = rehydrated.effectChains[index];
         expect(rehydratedChain.id).toBe(originalChain.id);
         expect(rehydratedChain.trackId).toBe(originalChain.trackId);
-        expect(rehydratedChain.effects).toHaveLength(originalChain.effects.length);
+        expect(rehydratedChain.effects).toHaveLength(
+          originalChain.effects.length
+        );
       });
-      
+
       // Compare audio files
       expect(rehydrated.audioFiles).toHaveLength(testProject.audioFiles.length);
       testProject.audioFiles.forEach((originalFile: any, index: number) => {
@@ -593,13 +653,13 @@ describe('Serialization', () => {
 
     it('should handle multiple serialize/rehydrate cycles', () => {
       let currentProject = testProject;
-      
+
       // Perform multiple cycles
       for (let i = 0; i < 5; i++) {
         const serialized = serializeProject(currentProject);
         currentProject = rehydrateProject(serialized);
       }
-      
+
       // Should still have all data
       expect(currentProject.name).toBe(testProject.name);
       expect(currentProject.tracks).toHaveLength(2);
@@ -612,10 +672,10 @@ describe('Serialization', () => {
   describe('Edge Cases', () => {
     it('should handle empty project', () => {
       const emptyProject = createEmptyProject();
-      
+
       const serialized = serializeProject(emptyProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       expect(rehydrated.name).toBe('Untitled Project');
       expect(rehydrated.tracks).toHaveLength(0);
       expect(rehydrated.clips).toHaveLength(0);
@@ -643,13 +703,13 @@ describe('Serialization', () => {
           effectChainId: `chain-${i}`,
           monitoring: false,
           inputGain: 2,
-          recordEnabled: false
-        }))
+          recordEnabled: false,
+        })),
       };
-      
+
       const serialized = serializeProject(maxProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       expect(rehydrated.tempo).toBe(300);
       expect(rehydrated.tracks).toHaveLength(100);
     });
@@ -661,14 +721,14 @@ describe('Serialization', () => {
         tracks: [
           {
             ...testProject.tracks[0],
-            name: 'Track with émojis 🎵 and unicode ñáí'
-          }
-        ]
+            name: 'Track with émojis 🎵 and unicode ñáí',
+          },
+        ],
       };
-      
+
       const serialized = serializeProject(specialProject);
       const rehydrated = rehydrateProject(serialized);
-      
+
       expect(rehydrated.name).toContain('quotes');
       expect(rehydrated.tracks[0].name).toContain('🎵');
     });

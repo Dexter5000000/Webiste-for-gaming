@@ -6,7 +6,7 @@ export enum TrackType {
   MIDI = 'midi',
   EFFECT = 'effect',
   BUS = 'bus',
-  MASTER = 'master'
+  MASTER = 'master',
 }
 
 export enum EffectType {
@@ -18,12 +18,12 @@ export enum EffectType {
   CHORUS = 'chorus',
   FILTER = 'filter',
   GATE = 'gate',
-  LIMITER = 'limiter'
+  LIMITER = 'limiter',
 }
 
 export enum ClipType {
   AUDIO = 'audio',
-  MIDI = 'midi'
+  MIDI = 'midi',
 }
 
 // Base interfaces
@@ -155,7 +155,12 @@ export interface TrackReceive {
 }
 
 // Union type for all track types
-export type Track = AudioTrack | MidiTrack | EffectTrack | BusTrack | MasterTrack;
+export type Track =
+  | AudioTrack
+  | MidiTrack
+  | EffectTrack
+  | BusTrack
+  | MasterTrack;
 
 // Union type for all clip types
 export type Clip = AudioClip | MidiClip;
@@ -267,6 +272,11 @@ export interface AppState {
     showBrowser: boolean;
     showInspector: boolean;
     showAutomation: boolean;
-    focusedPanel?: 'timeline' | 'mixer' | 'browser' | 'inspector' | 'automation';
+    focusedPanel?:
+      | 'timeline'
+      | 'mixer'
+      | 'browser'
+      | 'inspector'
+      | 'automation';
   };
 }
