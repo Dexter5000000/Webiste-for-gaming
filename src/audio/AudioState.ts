@@ -2,6 +2,20 @@ export type TransportState = 'stopped' | 'playing' | 'paused';
 
 export type AudioEngineListener = (state: AudioEngineState) => void;
 
+export interface EffectState {
+  id: string;
+  type: string;
+  name: string;
+  enabled: boolean;
+  parameters: Record<string, number>;
+}
+
+export interface EffectChainState {
+  id: string;
+  effects: EffectState[];
+  level: number;
+}
+
 export interface AudioEngineState {
   transport: {
     state: TransportState;
@@ -14,6 +28,10 @@ export interface AudioEngineState {
   tracks: Map<string, TrackState>;
   masterGain: number;
   metronomeEnabled: boolean;
+  effects: {
+    master: EffectChainState;
+    tracks: Record<string, EffectChainState>;
+  };
 }
 
 export interface TrackState {
@@ -44,6 +62,14 @@ export class AudioStateStore {
       tracks: new Map(),
       masterGain: 0.8,
       metronomeEnabled: false,
+      effects: {
+        master: {
+          id: 'master',
+          effects: [],
+          level: 1,
+        },
+        tracks: {},
+      },
     };
     this.listeners = new Set();
   }
@@ -91,6 +117,40 @@ export class AudioStateStore {
     return () => {
       this.listeners.delete(listener);
     };
+  }
+
+  // Effects management methods
+  setEffectsState(effectsState: AudioEngineState['effects']): void {
+    this.state.effects = effectsState;
+    this.notifyListeners();
+  }
+
+  updateMasterEffectChain(updates: Partial<EffectChainState>): void {
+    this.state.effects.master = {
+      ...this.state.effects.master,
+      ...updates,
+    };
+    this.notifyListeners();
+  }
+
+  updateTrackEffectChain(trackId: string, updates: Partial<EffectChainState>): void {
+    if (!this.state.effects.tracks[trackId]) {
+      this.state.effects.tracks[trackId] = {
+        id: `track-${trackId}`,
+        effects: [],
+        level: 1,
+      };
+    }
+    this.state.effects.tracks[trackId] = {
+      ...this.state.effects.tracks[trackId],
+      ...updates,
+    };
+    this.notifyListeners();
+  }
+
+  removeTrackEffectChain(trackId: string): void {
+    delete this.state.effects.tracks[trackId];
+    this.notifyListeners();
   }
 
   private notifyListeners(): void {

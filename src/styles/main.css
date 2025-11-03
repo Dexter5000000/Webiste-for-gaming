@@ -23,6 +23,16 @@
   --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
 
+  /* Effects-specific variables */
+  --surface-1: #1a1a1a;
+  --surface-2: #2d2d2d;
+  --surface-3: #404040;
+  --border: #404040;
+  --accent: #667eea;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
+
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
