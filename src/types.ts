@@ -20,6 +20,9 @@ export interface TimelineClip {
   start: number;
   length: number;
   color: string;
+  audioFileId?: string;
+  waveform?: Float32Array[];
+  durationSeconds?: number;
 }
 
 export interface MixerChannel {
