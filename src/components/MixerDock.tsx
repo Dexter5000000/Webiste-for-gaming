@@ -1,15 +1,6 @@
 import { memo } from 'react';
 import type { CSSProperties } from 'react';
-
-export interface MixerChannel {
-  id: string;
-  name: string;
-  volume: number;
-  pan: number;
-  muted: boolean;
-  soloed: boolean;
-  color: string;
-}
+import type { MixerChannel } from '../types';
 
 interface MixerDockProps {
   channels: MixerChannel[];

@@ -1,19 +1,19 @@
-# Zenith Browser
+# Zenith DAW
 
-A minimalistic, clean browser alternative with modern design - now refactored as a Progressive Web App (PWA).
+A professional digital audio workstation (DAW) built with modern web technologies, featuring a comprehensive timeline, mixer, and instrument system.
 
 ## Features
 
-- 🎨 **Minimalistic Design**: Clean interface with beautiful gradients
-- 🚀 **Fast Performance**: Lightweight and optimized for speed with Vite
-- 🔒 **Privacy Focused**: Built-in tracking protection and privacy controls
-- 🌐 **PWA Ready**: Installable web app with offline support
-- 📱 **Responsive**: Works on desktop and mobile devices
-- ⚡ **Modern**: Built with React, TypeScript, and Vite
+- 🎵 **Professional Timeline**: Multi-track audio/MIDI sequencing with clip-based workflow
+- 🎛️ **Full Mixer**: Complete mixing console with volume, pan, mute, and solo controls
+- 🎹 **Instrument Support**: Built-in synthesizers and drum machines
+- ⚡ **Real-time Audio**: Web Audio API integration for low-latency performance
+- 🎨 **Modern Interface**: Clean, responsive design built with React and TypeScript
+- 🔧 **Extensible Architecture**: Modular components for easy customization
 
 ## Prerequisites
 
-Before running Zenith Browser, you need to install Node.js:
+Before running Zenith DAW, you need to install Node.js:
 
 1. **Download Node.js**: Go to https://nodejs.org/
 2. **Install**: Download the LTS version and install it
@@ -32,7 +32,7 @@ Before running Zenith Browser, you need to install Node.js:
    npm install
    ```
 
-## Running the Browser
+## Running the DAW
 
 ### Development Mode
 ```bash
@@ -53,93 +53,89 @@ npm run preview
 
 ```
 ├── src/
-│   ├── components/      # React components
-│   │   ├── TitleBar.tsx
-│   │   ├── NavigationBar.tsx
-│   │   ├── TabStrip.tsx
-│   │   ├── ContentArea.tsx
-│   │   ├── StatusBar.tsx
-│   │   ├── SettingsPanel.tsx
-│   │   └── StartPage.tsx
-│   ├── styles/         # CSS stylesheets
-│   │   ├── main.css
-│   │   ├── components.css
-│   │   └── index.css
-│   ├── main.tsx        # React entry point
-│   ├── App.tsx         # Main application component
-│   ├── types.ts        # TypeScript type definitions
-│   ├── sw.js           # Service worker for PWA
-│   └── vite-env.d.ts   # Vite type definitions
-├── public/             # Static assets
-│   ├── favicon.svg
-│   ├── pwa-192x192.svg
-│   └── pwa-512x512.svg
-├── dist/               # Build output
-├── package.json        # Project configuration
-├── vite.config.ts      # Vite configuration
-├── tsconfig.json       # TypeScript configuration
-└── .eslintrc.json      # ESLint configuration
+│   ├── components/          # React components
+│   │   ├── TransportBar.tsx # Playback controls and tempo
+│   │   ├── TrackLane.tsx    # Track management interface
+│   │   ├── TimelineViewport.tsx # Main timeline view
+│   │   ├── MixerDock.tsx    # Mixing console
+│   │   ├── SidePanels.tsx   # Instrument and property panels
+│   │   ├── SettingsPanel.tsx # Application settings
+│   │   └── timeline/        # Timeline-specific components
+│   ├── audio/               # Audio engine and processing
+│   │   ├── AudioEngine.ts   # Core audio management
+│   │   ├── instruments/     # Built-in instruments
+│   │   ├── workers/         # Audio processing workers
+│   │   └── worklet/         # Audio worklets
+│   ├── state/               # State management
+│   ├── styles/              # CSS stylesheets
+│   ├── main.tsx             # React entry point
+│   ├── App.tsx              # Main application component
+│   └── types.ts             # TypeScript type definitions
+├── public/                  # Static assets
+├── dist/                    # Build output
+├── package.json             # Project configuration
+├── vite.config.ts           # Vite configuration
+├── tsconfig.json            # TypeScript configuration
+└── .eslintrc.json           # ESLint configuration
 ```
 
 ## Key Features
 
-### Navigation
-- **Address Bar**: Combined URL and search input
-- **Tab Management**: Create, switch, and close tabs
-- **History**: Back/forward navigation
-- **Bookmarks**: Save and organize favorite sites
+### Timeline & Sequencing
+- **Multi-track Support**: Audio, MIDI, and instrument tracks
+- **Clip-based Workflow**: Arrange and edit audio/MIDI clips
+- **Zoom & Navigation**: Detailed timeline navigation with zoom controls
+- **Grid Snapping**: Precise editing with beat-based grid
 
-### PWA Features
-- **Offline Support**: Works without internet connection
-- **Installable**: Can be installed as a desktop app
-- **Service Worker**: Caches assets for fast loading
-- **Responsive**: Adapts to mobile and desktop screens
+### Mixing & Processing
+- **Channel Strips**: Individual volume, pan, mute, and solo controls
+- **Real-time Mixing**: Low-latency audio processing
+- **Track Management**: Add, remove, and organize tracks
+- **Visual Feedback**: Color-coded tracks and meters
 
-### Interface
-- **Modern React UI**: Component-based architecture
-- **TypeScript**: Type-safe development
+### Instruments & Audio
+- **Built-in Synthesizers**: Subtractivesynthesis and drum machines
+- **Audio Engine**: Professional Web Audio API implementation
+- **Effects Processing**: Reverb, delay, and other audio effects
+- **MIDI Support**: Full MIDI recording and playback
+
+### User Interface
 - **Responsive Design**: Adapts to different screen sizes
-- **Clean Typography**: Readable and modern fonts
-
-### Privacy & Security
-- **HTTPS Enforcement**: Prefer secure connections
-- **Tracking Protection**: Block tracking scripts
-- **Privacy Settings**: Granular privacy controls
-
-### Settings & Customization
-- **Theme Options**: Light, dark, and auto themes
-- **Homepage**: Customizable start page
-- **Quick Links**: Fast access to favorite sites
+- **Keyboard Shortcuts**: Professional workflow shortcuts
+- **Modern React UI**: Component-based architecture
+- **TypeScript**: Type-safe development experience
 
 ## Development
 
 ### Adding Features
 1. **Components**: Create new React components in `src/components/`
-2. **Styling**: Add CSS to `src/styles/`
-3. **Types**: Update TypeScript types in `src/types.ts`
-4. **Service Worker**: Modify PWA behavior in `src/sw.js`
+2. **Audio**: Add instruments or effects in `src/audio/`
+3. **Styling**: Add CSS to `src/styles/`
+4. **Types**: Update TypeScript types in `src/types.ts`
 
 ### Development Commands
 - **Development**: `npm run dev` - Start dev server with hot reload
 - **Build**: `npm run build` - Create production build
 - **Preview**: `npm run preview` - Preview production build
+- **Test**: `npm run test` - Run unit tests
 - **Lint**: `npm run lint` - Run ESLint
 - **Format**: `npm run format` - Format code with Prettier
 
-### PWA Development
-- Service worker is generated by vite-plugin-pwa
-- Manifest is automatically created
-- Offline caching is configured in `src/sw.js`
-- Build outputs to `dist/` directory
+## Audio Architecture
+
+The DAW uses a modular audio architecture:
+- **AudioEngine**: Core audio management and context
+- **Workers**: Background audio processing for performance
+- **Worklets**: Low-latency audio processing
+- **Instruments**: Pluggable instrument system
 
 ## Contributing
 
-This is a personal project to create an original, minimalistic browser alternative. The design focuses on:
-
-- **Simplicity**: Only essential features
-- **Performance**: Fast and lightweight
-- **Privacy**: User-focused privacy controls
-- **Originality**: Unique design not copying existing browsers
+This is a professional DAW project focused on:
+- **Performance**: Low-latency audio processing
+- **Usability**: Intuitive workflow for music production
+- **Extensibility**: Modular architecture for custom features
+- **Quality**: Type-safe, well-tested codebase
 
 ## License
 
@@ -148,11 +144,11 @@ MIT License - see LICENSE file for details
 ## Support
 
 For issues or questions:
-1. Check the console for error messages
+1. Check the browser console for error messages
 2. Ensure Node.js is properly installed
 3. Try reinstalling dependencies with `npm install`
-4. Make sure all files are present in the project structure
+4. Verify your browser supports Web Audio API
 
 ---
 
-**Zenith Browser** - A fresh, minimalistic approach to web browsing.
+**Zenith DAW** - Professional audio production in the browser.
