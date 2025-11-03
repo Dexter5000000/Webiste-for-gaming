@@ -4,6 +4,7 @@ import InstrumentPanel, { type TrackInstrumentState } from './InstrumentPanel';
 import type { InstrumentPreset } from '../audio/instruments/types';
 import { ImportExportPanel } from './ImportExportPanel';
 import EffectsPanel from './EffectsPanel';
+import AIMusicPanel from './AIMusicPanel';
 import type { AudioEngine } from '../audio/AudioEngine';
 import './ImportExportPanel.css';
 
@@ -29,9 +30,10 @@ interface SidePanelsProps {
   statusMessage?: string;
   errorMessage?: string;
   onExportMidi?: () => Promise<void> | void;
+  onAiMusicGenerated?: (audioBuffer: AudioBuffer, name: string, blob?: Blob) => void;
 }
 
-type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export';
+type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music';
 
 const SidePanels = memo(function SidePanels({
   collapsed,
@@ -55,6 +57,7 @@ const SidePanels = memo(function SidePanels({
   statusMessage,
   errorMessage,
   onExportMidi,
+  onAiMusicGenerated,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
 
@@ -119,6 +122,17 @@ const SidePanels = memo(function SidePanels({
               onClick={() => setActiveTab('import-export')}
             >
               Import/Export
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'ai-music'}
+              aria-controls="ai-music-panel"
+              id="ai-music-tab"
+              className={`side-panel-tab ${activeTab === 'ai-music' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ai-music')}
+            >
+              AI Music
             </button>
           </nav>
 
@@ -265,6 +279,16 @@ const SidePanels = memo(function SidePanels({
               errorMessage={errorMessage}
               onExportMidi={onExportMidi}
             />
+          </div>
+
+          <div
+            id="ai-music-panel"
+            role="tabpanel"
+            aria-labelledby="ai-music-tab"
+            className="side-panel-content"
+            hidden={activeTab !== 'ai-music'}
+          >
+            <AIMusicPanel onAudioGenerated={onAiMusicGenerated} />
           </div>
         </>
       )}
