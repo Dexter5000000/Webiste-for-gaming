@@ -6,6 +6,9 @@ interface TimelineViewportProps {
   zoomLevel: number;
   tracks: Array<{ id: string; name: string }>;
   clips: TimelineClip[];
+  onClipMove?: (clipId: string, newTrackId: string, newStartTime: number) => void;
+  onClipResize?: (clipId: string, newStartTime: number, newDuration: number) => void;
+  onClipSelect?: (clipId: string, multi?: boolean) => void;
 }
 
 const TOTAL_BARS = 16;
@@ -16,11 +19,33 @@ const TimelineViewport = memo(function TimelineViewport({
   zoomLevel,
   tracks,
   clips,
+  onClipMove,
+  onClipResize,
+  onClipSelect,
 }: TimelineViewportProps) {
   const pixelsPerBeat = 48 * zoomLevel;
   const totalBeats = TOTAL_BARS * BEATS_PER_BAR;
   const canvasWidth = Math.max(totalBeats * pixelsPerBeat, 960);
   const waveformCanvasRefs = useRef(new Map<string, HTMLCanvasElement>());
+
+  // Drag state
+  const [dragState, setDragState] = useState<{
+    clipId: string | null;
+    type: 'move' | 'resize-left' | 'resize-right' | null;
+    startX: number;
+    startY: number;
+    originalStartTime: number;
+    originalDuration: number;
+    originalTrackId: string;
+  }>({
+    clipId: null,
+    type: null,
+    startX: 0,
+    startY: 0,
+    originalStartTime: 0,
+    originalDuration: 0,
+    originalTrackId: '',
+  });
 
   const rulerMarkers = useMemo(() => {
     return Array.from({ length: TOTAL_BARS + 1 }, (_, index) => ({
@@ -134,7 +159,7 @@ const TimelineViewport = memo(function TimelineViewport({
                 {trackClips.map((clip) => (
                   <div
                     key={clip.id}
-                    className="timeline-clip"
+                    className={`timeline-clip ${dragState.clipId === clip.id ? 'dragging' : ''}`}
                     style={{
                       left: `${clip.start * pixelsPerBeat}px`,
                       width: `${clip.length * pixelsPerBeat}px`,
@@ -143,7 +168,12 @@ const TimelineViewport = memo(function TimelineViewport({
                     role="button"
                     tabIndex={0}
                     aria-label={`${clip.name} clip`}
+                    onMouseDown={(e) => handleClipMouseDown(e, clip.id, clip, 'move')}
                   >
+                    <div
+                      className="timeline-clip-resize-handle timeline-clip-resize-left"
+                      onMouseDown={(e) => handleClipMouseDown(e, clip.id, clip, 'resize-left')}
+                    />
                     <span className="timeline-clip-name text-xs">
                       {clip.name}
                     </span>

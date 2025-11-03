@@ -309,6 +309,65 @@
   outline-offset: -2px;
 }
 
+/* Timeline clips */
+.timeline-clip {
+  position: absolute;
+  height: calc(var(--timeline-row-height) - 8px);
+  top: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  user-select: none;
+  transition: opacity 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.timeline-clip:hover {
+  opacity: 0.8;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.timeline-clip.dragging {
+  opacity: 0.6;
+  z-index: 1000;
+  cursor: grabbing;
+}
+
+.timeline-clip-name {
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 8px;
+}
+
+.timeline-clip-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.timeline-clip-resize-handle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.timeline-clip-resize-left {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.timeline-clip-resize-right {
+  right: 0;
+  border-radius: 0 4px 4px 0;
+}
+
 /* Context menu */
 .timeline-context-menu {
   position: fixed;
