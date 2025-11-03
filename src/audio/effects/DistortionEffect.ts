@@ -61,6 +61,8 @@ export class DistortionEffect extends BaseEffect {
     protected getEffectOutput(): AudioNode {
     return this.mixGain;
   }
+
+  get parameters(): EffectParameter[] {
     const params: EffectParameter[] = [
       {
         id: 'wetLevel',

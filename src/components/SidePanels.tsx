@@ -20,9 +20,11 @@ interface SidePanelsProps {
   onSavePreset?: (name: string) => void;
   onImportAudio?: (files: File[]) => void;
   onImportProject?: (file: File) => Promise<void> | void;
+  onImportMidi?: (file: File) => Promise<void> | void;
   onExportProject?: () => Promise<void> | void;
   onExportAudio?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
   onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
+  onExportMidi?: () => Promise<void> | void;
 }
 
 type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export';
@@ -40,9 +42,11 @@ const SidePanels = memo(function SidePanels({
   onSavePreset,
   onImportAudio,
   onImportProject,
+  onImportMidi,
   onExportProject,
   onExportAudio,
   onExportStems,
+  onExportMidi,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
 
@@ -243,9 +247,11 @@ const SidePanels = memo(function SidePanels({
             <ImportExportPanel
               onImportAudio={onImportAudio}
               onImportProject={onImportProject}
+              onImportMidi={onImportMidi}
               onExportProject={onExportProject}
               onExportAudio={onExportAudio}
               onExportStems={onExportStems}
+              onExportMidi={onExportMidi}
             />
           </div>
         </>
