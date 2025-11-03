@@ -1,0 +1,315 @@
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.timeline-header {
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #444;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #333;
+  border-bottom: 1px solid #444;
+}
+
+.add-track-btn {
+  padding: 6px 12px;
+  background-color: #4a6a9a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.add-track-btn:hover {
+  background-color: #5a7fc7;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zoom-controls button {
+  width: 28px;
+  height: 28px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.zoom-controls button:hover {
+  background-color: #555;
+}
+
+.zoom-controls span {
+  min-width: 50px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.snap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.snap-toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.timeline-ruler {
+  display: block;
+  background-color: #2a2a2a;
+}
+
+.timeline-content {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.timeline-tracks-header {
+  width: 200px;
+  background-color: #252525;
+  border-right: 1px solid #444;
+  overflow: hidden;
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.track-header {
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #444;
+  padding: 8px;
+  position: relative;
+}
+
+.track-header:hover {
+  background-color: #2e2e2e;
+}
+
+.track-title {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.track-header.dragging {
+  opacity: 0.5;
+}
+
+.track-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.track-button {
+  width: 24px;
+  height: 24px;
+  background-color: #444;
+  color: #aaa;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.track-button:hover {
+  background-color: #555;
+  color: #fff;
+}
+
+.track-button.active {
+  background-color: #c75a5a;
+  color: white;
+}
+
+.track-button.active:hover {
+  background-color: #d76a6a;
+}
+
+.track-resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: ns-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.track-resize-handle:hover,
+.track-resize-handle.dragging {
+  background-color: #4a6a9a;
+}
+
+.timeline-canvas-container {
+  position: relative;
+  overflow: hidden;
+  background-color: #1a1a1a;
+}
+
+.timeline-canvas {
+  display: block;
+  cursor: default;
+}
+
+/* Transport controls */
+.transport-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #2a2a2a;
+  border-top: 1px solid #444;
+}
+
+.transport-button {
+  width: 36px;
+  height: 36px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.transport-button:hover {
+  background-color: #555;
+}
+
+.transport-button.playing {
+  background-color: #4a6a9a;
+}
+
+.transport-button.playing:hover {
+  background-color: #5a7fc7;
+}
+
+.position-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  padding: 0 12px;
+}
+
+.tempo-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.tempo-display input {
+  width: 60px;
+  padding: 4px 8px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Scrollbars */
+.timeline-content::-webkit-scrollbar,
+.timeline-tracks-header::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.timeline-content::-webkit-scrollbar-track,
+.timeline-tracks-header::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.timeline-content::-webkit-scrollbar-thumb,
+.timeline-tracks-header::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 6px;
+}
+
+.timeline-content::-webkit-scrollbar-thumb:hover,
+.timeline-tracks-header::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Selection */
+.clip-selected {
+  outline: 2px solid #7a9fe7;
+  outline-offset: -2px;
+}
+
+/* Context menu */
+.timeline-context-menu {
+  position: fixed;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  min-width: 160px;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: #333;
+}
+
+.context-menu-separator {
+  height: 1px;
+  background-color: #444;
+  margin: 4px 0;
+}
