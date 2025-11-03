@@ -1,140 +1,53 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import type { Track, TimelineClip, MixerChannel } from './types';
+import type { Track, MixerChannel } from './types';
 import TransportBar from './components/TransportBar';
 import TrackLane from './components/TrackLane';
 import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
+import { useAppStore } from './state/store';
+import { TrackType } from './state/models';
 
-const INITIAL_TEMPO = 120;
-const INITIAL_ZOOM = 1.0;
-const MIN_ZOOM = 0.25;
-const MAX_ZOOM = 4.0;
 const LOOP_LENGTH_BEATS = 64;
-
-const trackColors = ['#66d6b6', '#f2aa4c', '#f87272', '#667eea', '#45b797'];
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-const createMockTracks = (): Track[] => [
-  {
-    id: 'track-1',
-    name: 'Kick',
-    type: 'audio',
-    color: trackColors[0],
-    volume: 0.82,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: true,
-  },
-  {
-    id: 'track-2',
-    name: 'Snare',
-    type: 'audio',
-    color: trackColors[1],
-    volume: 0.74,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-3',
-    name: 'Hi-Hat',
-    type: 'midi',
-    color: trackColors[2],
-    volume: 0.66,
-    pan: 8,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-4',
-    name: 'Bass',
-    type: 'instrument',
-    color: trackColors[3],
-    volume: 0.77,
-    pan: -6,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-5',
-    name: 'Synth Lead',
-    type: 'instrument',
-    color: trackColors[4],
-    volume: 0.68,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-];
-
-const createMockClips = (): TimelineClip[] => [
-  {
-    id: 'clip-1',
-    trackId: 'track-1',
-    name: 'Kick Pattern',
-    start: 0,
-    length: 16,
-    color: trackColors[0],
-  },
-  {
-    id: 'clip-2',
-    trackId: 'track-2',
-    name: 'Snare Loop',
-    start: 4,
-    length: 12,
-    color: trackColors[1],
-  },
-  {
-    id: 'clip-3',
-    trackId: 'track-3',
-    name: 'Hat Rhythm',
-    start: 8,
-    length: 24,
-    color: trackColors[2],
-  },
-  {
-    id: 'clip-4',
-    trackId: 'track-4',
-    name: 'Bass Line',
-    start: 0,
-    length: 32,
-    color: trackColors[3],
-  },
-  {
-    id: 'clip-5',
-    trackId: 'track-5',
-    name: 'Lead Melody',
-    start: 16,
-    length: 16,
-    color: trackColors[4],
-  },
-];
-
 function App() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
-  const [metronomeEnabled, setMetronomeEnabled] = useState(false);
-  const [tempo, setTempo] = useState(INITIAL_TEMPO);
-  const [playheadPosition, setPlayheadPosition] = useState(0);
-  const [zoomLevel, setZoomLevel] = useState(INITIAL_ZOOM);
-  const [tracks, setTracks] = useState<Track[]>(createMockTracks);
-  const [clips] = useState<TimelineClip[]>(createMockClips);
+  // Zustand store state
+  const {
+    project,
+    transport,
+    selection,
+    grid,
+    // Transport actions
+    stop,
+    togglePlayback,
+    toggleRecording,
+    toggleLoop,
+    toggleMetronome,
+    setCurrentTime,
+    setTempo,
+    // Track actions
+    addTrack,
+    setTrackMute,
+    setTrackSolo,
+    setTrackArm,
+    // Clip actions
+    moveClip,
+    resizeClip,
+    selectClip,
+    // Selection actions
+    selectTrack,
+    // Grid actions
+    setZoomHorizontal,
+    // UI actions
+    toggleMixer,
+  } = useAppStore();
+
+  // Local UI state
   const [tracksCollapsed, setTracksCollapsed] = useState(false);
   const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
   const [mixerCollapsed, setMixerCollapsed] = useState(false);
@@ -147,33 +60,34 @@ function App() {
 
   const loopGuardRef = useRef(false);
 
-  const timeSignature = '4/4';
+  const timeSignature = `${project.timeSignature.numerator}/${project.timeSignature.denominator}`;
 
   const formatPlayhead = (position: number): string => {
-    const bar = Math.floor(position / 4) + 1;
-    const beat = Math.floor(position % 4) + 1;
+    const beatsPerBar = project.timeSignature.numerator;
+    const bar = Math.floor(position / beatsPerBar) + 1;
+    const beat = Math.floor(position % beatsPerBar) + 1;
     const tick = Math.floor((position % 1) * 960);
     return `${bar.toString().padStart(2, '0')}.${beat}.${tick.toString().padStart(3, '0')}`;
   };
 
   useEffect(() => {
-    if (!isPlaying) {
+    if (!transport.isPlaying) {
       loopGuardRef.current = false;
       return undefined;
     }
 
     let animationFrameId = 0;
     let lastTime = performance.now();
-    const beatsPerSecond = tempo / 60;
+    const beatsPerSecond = project.tempo / 60;
 
     const step = (time: number) => {
       const deltaSeconds = (time - lastTime) / 1000;
       lastTime = time;
 
-      setPlayheadPosition((prev) => {
+      setCurrentTime((prev) => {
         const next = prev + deltaSeconds * beatsPerSecond;
 
-        if (isLoopEnabled) {
+        if (transport.isLooping) {
           return next % LOOP_LENGTH_BEATS;
         }
 
@@ -186,7 +100,7 @@ function App() {
       });
 
       if (loopGuardRef.current) {
-        setIsPlaying(false);
+        stop();
         loopGuardRef.current = false;
         return;
       }
@@ -199,65 +113,136 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isPlaying, tempo, isLoopEnabled]);
+  }, [transport.isPlaying, project.tempo, transport.isLooping, setCurrentTime, stop]);
 
   const handleTogglePlay = useCallback(() => {
-    setIsPlaying((prev) => !prev);
-  }, []);
+    togglePlayback();
+  }, [togglePlayback]);
 
   const handleStop = useCallback(() => {
-    setIsPlaying(false);
-    setPlayheadPosition(0);
-  }, []);
+    stop();
+  }, [stop]);
 
   const handleZoomIn = useCallback(() => {
-    setZoomLevel((prev) => clamp(prev * 1.25, MIN_ZOOM, MAX_ZOOM));
-  }, []);
+    setZoomHorizontal(grid.zoomHorizontal * 1.25);
+  }, [grid.zoomHorizontal, setZoomHorizontal]);
 
   const handleZoomOut = useCallback(() => {
-    setZoomLevel((prev) => clamp(prev / 1.25, MIN_ZOOM, MAX_ZOOM));
-  }, []);
+    setZoomHorizontal(grid.zoomHorizontal / 1.25);
+  }, [grid.zoomHorizontal, setZoomHorizontal]);
 
   const handleZoomReset = useCallback(() => {
-    setZoomLevel(INITIAL_ZOOM);
-  }, []);
+    setZoomHorizontal(20); // Reset to default
+  }, [setZoomHorizontal]);
 
   const handleTempoChange = useCallback((nextTempo: number) => {
     setTempo(clamp(Math.round(nextTempo), 40, 220));
-  }, []);
+  }, [setTempo]);
 
   const handleSelectTrack = useCallback((trackId: string) => {
-    setTracks((prev) =>
-      prev.map((track) => ({
-        ...track,
-        selected: track.id === trackId,
-      }))
-    );
-  }, []);
+    selectTrack(trackId);
+  }, [selectTrack]);
 
   const handleToggleMute = useCallback((trackId: string) => {
-    setTracks((prev) =>
-      prev.map((track) =>
-        track.id === trackId ? { ...track, muted: !track.muted } : track
-      )
-    );
-  }, []);
+    const track = project.tracks.find(t => t.id === trackId);
+    if (track) {
+      setTrackMute(trackId, !track.muted);
+    }
+  }, [project.tracks, setTrackMute]);
 
   const handleToggleSolo = useCallback((trackId: string) => {
-    setTracks((prev) =>
-      prev.map((track) =>
-        track.id === trackId ? { ...track, soloed: !track.soloed } : track
-      )
-    );
-  }, []);
+    const track = project.tracks.find(t => t.id === trackId);
+    if (track) {
+      setTrackSolo(trackId, !track.solo);
+    }
+  }, [project.tracks, setTrackSolo]);
 
   const handleToggleArm = useCallback((trackId: string) => {
-    setTracks((prev) =>
-      prev.map((track) =>
-        track.id === trackId ? { ...track, armed: !track.armed } : track
-      )
-    );
-  }, []);
+    const track = project.tracks.find(t => t.id === trackId);
+    if (track) {
+      setTrackArm(trackId, !track.armed);
+    }
+  }, [project.tracks, setTrackArm]);
+
+  const handleAddTrack = useCallback(() => {
+    addTrack(TrackType.AUDIO);
+  }, [addTrack]);
+
+  const handleAddTestClip = useCallback(() => {
+    if (project.tracks.length === 0) {
+      // Add a track first if none exist
+      addTrack(TrackType.AUDIO);
+      setTimeout(() => {
+        // Add clip after track is created
+        const tracks = useAppStore.getState().project.tracks;
+        if (tracks.length > 0) {
+          const store = useAppStore.getState();
+          store.addClip({
+            name: 'Test Clip',
+            type: 'audio' as any,
+            trackId: tracks[0].id,
+            startTime: 0,
+            duration: 4,
+            color: '#4a6a9a',
+            muted: false,
+            solo: false,
+            gain: 1,
+            pan: 0,
+            audioFileId: 'test-file',
+            sampleRate: 44100,
+            bitDepth: 24,
+            channels: 2,
+            offset: 0,
+            fadeIn: 0,
+            fadeOut: 0,
+            warping: {
+              enabled: false,
+              algorithm: 'beats',
+            },
+          });
+        }
+      }, 100);
+    } else {
+      // Add clip to first track
+      const store = useAppStore.getState();
+      store.addClip({
+        name: 'Test Clip',
+        type: 'audio' as any,
+        trackId: project.tracks[0].id,
+        startTime: Math.random() * 8, // Random position
+        duration: 2 + Math.random() * 4, // Random duration 2-6 beats
+        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        muted: false,
+        solo: false,
+        gain: 1,
+        pan: 0,
+        audioFileId: 'test-file',
+        sampleRate: 44100,
+        bitDepth: 24,
+        channels: 2,
+        offset: 0,
+        fadeIn: 0,
+        fadeOut: 0,
+        warping: {
+          enabled: false,
+          algorithm: 'beats',
+        },
+      });
+    }
+  }, [addTrack, project.tracks]);
+
+  // Clip handlers
+  const handleClipMove = useCallback((clipId: string, newTrackId: string, newStartTime: number) => {
+    moveClip(clipId, newTrackId, newStartTime);
+  }, [moveClip]);
+
+  const handleClipResize = useCallback((clipId: string, newStartTime: number, newDuration: number) => {
+    resizeClip(clipId, newStartTime, newDuration);
+  }, [resizeClip]);
+
+  const handleClipSelect = useCallback((clipId: string, multi?: boolean) => {
+    selectClip(clipId, multi);
+  }, [selectClip]);
 
   const toggleTracksPanel = useCallback(() => {
     setTracksCollapsed((prev) => !prev);
@@ -269,7 +254,8 @@ function App() {
 
   const toggleMixerPanel = useCallback(() => {
     setMixerCollapsed((prev) => !prev);
-  }, []);
+    toggleMixer(); // Also update store state
+  }, [toggleMixer]);
 
   const handleTrackResizeStart = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -373,13 +359,13 @@ function App() {
     [mixerHeight]
   );
 
-  const mixerChannels: MixerChannel[] = tracks.map((track) => ({
+  const mixerChannels: MixerChannel[] = project.tracks.map((track) => ({
     id: track.id,
     name: track.name,
     volume: track.volume,
     pan: track.pan,
     muted: track.muted,
-    soloed: track.soloed,
+    soloed: track.solo,
     color: track.color,
   }));
 
@@ -451,20 +437,20 @@ function App() {
   return (
     <div className="daw-shell">
       <TransportBar
-        isPlaying={isPlaying}
-        isRecording={isRecording}
-        isLoopEnabled={isLoopEnabled}
-        tempo={tempo}
+        isPlaying={transport.isPlaying}
+        isRecording={transport.isRecording}
+        isLoopEnabled={transport.isLooping}
+        tempo={project.tempo}
         timeSignature={timeSignature}
-        playheadPosition={formatPlayhead(playheadPosition)}
-        metronomeEnabled={metronomeEnabled}
-        zoomLevel={zoomLevel}
+        playheadPosition={formatPlayhead(transport.currentTime)}
+        metronomeEnabled={transport.isMetronomeEnabled}
+        zoomLevel={grid.zoomHorizontal / 20} // Convert to percentage
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
-        onToggleRecord={() => setIsRecording((prev) => !prev)}
-        onToggleLoop={() => setIsLoopEnabled((prev) => !prev)}
+        onToggleRecord={toggleRecording}
+        onToggleLoop={toggleLoop}
         onTempoChange={handleTempoChange}
-        onMetronomeToggle={() => setMetronomeEnabled((prev) => !prev)}
+        onMetronomeToggle={toggleMetronome}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onZoomReset={handleZoomReset}
@@ -481,10 +467,21 @@ function App() {
                 type="button"
                 className="button button-ghost button-icon-sm"
                 aria-label="Add track"
+                onClick={handleAddTrack}
               >
                 ＋
               </button>
               <span className="text-xs text-muted">Add Track</span>
+              <button
+                type="button"
+                className="button button-ghost button-icon-sm"
+                aria-label="Add test clip"
+                onClick={handleAddTestClip}
+                style={{ marginLeft: '8px' }}
+              >
+                🎵
+              </button>
+              <span className="text-xs text-muted">Add Clip</span>
             </div>
             <div className="flex-1" />
             <div className="zoom-control">
@@ -522,16 +519,31 @@ function App() {
                     <h2 className="text-sm text-muted">Tracks</h2>
                   </header>
                   <div className="track-list-body">
-                    {tracks.map((track) => (
-                      <TrackLane
-                        key={track.id}
-                        track={track}
-                        onSelect={handleSelectTrack}
-                        onToggleMute={handleToggleMute}
-                        onToggleSolo={handleToggleSolo}
-                        onToggleArm={handleToggleArm}
-                      />
-                    ))}
+                    {project.tracks.map((track) => {
+                      // Convert store track to old Track type for compatibility
+                      const compatibleTrack: Track = {
+                        id: track.id,
+                        name: track.name,
+                        type: track.type === 'audio' ? 'audio' : track.type === 'midi' ? 'midi' : 'instrument',
+                        color: track.color,
+                        volume: track.volume,
+                        pan: track.pan,
+                        muted: track.muted,
+                        soloed: track.solo,
+                        armed: track.armed,
+                        selected: selection.selectedTrackIds.includes(track.id),
+                      };
+                      return (
+                        <TrackLane
+                          key={track.id}
+                          track={compatibleTrack}
+                          onSelect={handleSelectTrack}
+                          onToggleMute={handleToggleMute}
+                          onToggleSolo={handleToggleSolo}
+                          onToggleArm={handleToggleArm}
+                        />
+                      );
+                    })}
                   </div>
                 </aside>
 
@@ -546,10 +558,20 @@ function App() {
             )}
 
             <TimelineViewport
-              playheadPosition={playheadPosition}
-              zoomLevel={zoomLevel}
-              tracks={tracks}
-              clips={clips}
+              playheadPosition={transport.currentTime}
+              zoomLevel={grid.zoomHorizontal / 20} // Convert to percentage
+              tracks={project.tracks}
+              clips={project.clips.map(clip => ({
+                id: clip.id,
+                trackId: clip.trackId,
+                name: clip.name,
+                start: clip.startTime,
+                length: clip.duration,
+                color: clip.color,
+              }))}
+              onClipMove={handleClipMove}
+              onClipResize={handleClipResize}
+              onClipSelect={handleClipSelect}
             />
           </div>
         </div>
@@ -567,7 +589,7 @@ function App() {
         <SidePanels 
           collapsed={inspectorCollapsed} 
           width={sidePanelWidth}
-          selectedTrackId={tracks.find(t => t.selected)?.id}
+          selectedTrackId={selection.selectedTrackIds[0]}
           audioEngine={audioEngine}
         />
       </main>
