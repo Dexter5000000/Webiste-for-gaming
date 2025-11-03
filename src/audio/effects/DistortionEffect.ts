@@ -67,7 +67,6 @@ export class DistortionEffect extends BaseEffect {
   }
 
   protected initializeParameters(): void {
-  get parameters(): EffectParameter[] {
     const params: EffectParameter[] = [
       {
         id: 'wetLevel',
@@ -152,6 +151,91 @@ export class DistortionEffect extends BaseEffect {
     ];
 
     params.forEach(param => this.parameters.set(param.id, param));
+  }
+
+  get parameters(): EffectParameter[] {
+    return [
+      {
+        id: 'wetLevel',
+        name: 'Wet Level',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        value: 0.5,
+        type: 'linear',
+        unit: '%',
+      },
+      {
+        id: 'dryLevel',
+        name: 'Dry Level',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        value: 0.5,
+        type: 'linear',
+        unit: '%',
+      },
+      {
+        id: 'amount',
+        name: 'Amount',
+        min: 0,
+        max: 100,
+        default: 50,
+        value: 50,
+        type: 'linear',
+        unit: '%',
+      },
+      {
+        id: 'drive',
+        name: 'Drive',
+        min: 1,
+        max: 50,
+        default: 5,
+        value: 5,
+        type: 'logarithmic',
+        unit: '',
+      },
+      {
+        id: 'tone',
+        name: 'Tone',
+        min: 100,
+        max: 10000,
+        default: 3000,
+        value: 3000,
+        type: 'logarithmic',
+        unit: 'Hz',
+      },
+      {
+        id: 'level',
+        name: 'Level',
+        min: 0,
+        max: 2,
+        default: 0.5,
+        value: 0.5,
+        type: 'linear',
+        unit: '',
+      },
+      {
+        id: 'filterFreq',
+        name: 'Filter Freq',
+        min: 100,
+        max: 20000,
+        default: 5000,
+        value: 5000,
+        type: 'logarithmic',
+        unit: 'Hz',
+      },
+      {
+        id: 'filterQ',
+        name: 'Filter Q',
+        min: 0.1,
+        max: 30,
+        default: 1,
+        value: 1,
+        type: 'logarithmic',
+        unit: '',
+      },
+    ];
   }
 
   protected applyParameter(id: string, value: number): void {
