@@ -24,6 +24,10 @@ interface SidePanelsProps {
   onExportProject?: () => Promise<void> | void;
   onExportAudio?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
   onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
+  isProcessing?: boolean;
+  progress?: number;
+  statusMessage?: string;
+  errorMessage?: string;
   onExportMidi?: () => Promise<void> | void;
 }
 
@@ -46,6 +50,10 @@ const SidePanels = memo(function SidePanels({
   onExportProject,
   onExportAudio,
   onExportStems,
+  isProcessing,
+  progress,
+  statusMessage,
+  errorMessage,
   onExportMidi,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
@@ -251,6 +259,10 @@ const SidePanels = memo(function SidePanels({
               onExportProject={onExportProject}
               onExportAudio={onExportAudio}
               onExportStems={onExportStems}
+              isProcessing={isProcessing}
+              progress={progress}
+              statusMessage={statusMessage}
+              errorMessage={errorMessage}
               onExportMidi={onExportMidi}
             />
           </div>

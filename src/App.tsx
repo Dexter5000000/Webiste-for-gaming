@@ -7,6 +7,7 @@ import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
+import { useAudioImportExport } from './hooks/useAudioImportExport';
 
 const INITIAL_TEMPO = 120;
 const INITIAL_ZOOM = 1.0;
@@ -18,6 +19,22 @@ const trackColors = ['#66d6b6', '#f2aa4c', '#f87272', '#667eea', '#45b797'];
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+const getMimeTypeForFormat = (format?: string) => {
+  switch ((format ?? '').toLowerCase()) {
+    case 'wav':
+    case 'wave':
+      return 'audio/wav';
+    case 'mp3':
+      return 'audio/mpeg';
+    case 'ogg':
+      return 'audio/ogg';
+    case 'flac':
+      return 'audio/flac';
+    default:
+      return 'application/octet-stream';
+  }
+};
 
 const createMockTracks = (): Track[] => [
   {
@@ -134,7 +151,7 @@ function App() {
   const [playheadPosition, setPlayheadPosition] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(INITIAL_ZOOM);
   const [tracks, setTracks] = useState<Track[]>(createMockTracks);
-  const [clips] = useState<TimelineClip[]>(createMockClips);
+  const [clips, setClips] = useState<TimelineClip[]>(createMockClips);
   const [tracksCollapsed, setTracksCollapsed] = useState(false);
   const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
   const [mixerCollapsed, setMixerCollapsed] = useState(false);
@@ -144,6 +161,24 @@ function App() {
 
   // Initialize AudioEngine
   const [audioEngine] = useState(() => new AudioEngine());
+
+  // Audio import/export hook
+  const {
+    isImporting,
+    isExporting,
+    progress,
+    statusMessage,
+    errorMessage,
+    importAudio,
+    exportProject,
+    importProject,
+  } = useAudioImportExport();
+
+  // Store audio buffers and file data
+  const audioBuffersRef = useRef(new Map<string, AudioBuffer>());
+  const audioFilesRef = useRef(new Map<string, Blob | ArrayBuffer>());
+  const nextClipIdRef = useRef(clips.length + 1);
+  const nextAudioFileIdRef = useRef(1);
 
   const loopGuardRef = useRef(false);
 
@@ -258,6 +293,91 @@ function App() {
       )
     );
   }, []);
+
+  const handleImportAudio = useCallback(async (files: File[]) => {
+    const result = await importAudio(files);
+    
+    if (result.success && result.importedData) {
+      const selectedTrack =
+        tracks.find((t) => t.selected && t.type === 'audio') ??
+        tracks.find((t) => t.selected) ??
+        tracks.find((t) => t.type === 'audio') ??
+        tracks[0];
+
+      if (!selectedTrack) {
+        console.warn('No track available for audio import');
+        return;
+      }
+
+      const newClips: TimelineClip[] = [];
+      let currentPosition = Math.max(0, playheadPosition);
+
+      for (const data of result.importedData) {
+        const audioFileId = `audio-file-${nextAudioFileIdRef.current++}`;
+        const clipId = `clip-${nextClipIdRef.current++}`;
+
+        audioBuffersRef.current.set(audioFileId, data.audioBuffer);
+        audioFilesRef.current.set(audioFileId, data.originalData);
+
+        const durationInBeats = Math.max(
+          (data.audioBuffer.duration * tempo) / 60,
+          0.25
+        );
+
+        const clip: TimelineClip = {
+          id: clipId,
+          trackId: selectedTrack.id,
+          name: data.audioFile.name,
+          start: currentPosition,
+          length: durationInBeats,
+          color: selectedTrack.color,
+          audioFileId,
+          waveform: data.waveformData,
+          durationSeconds: data.audioBuffer.duration,
+        };
+
+        newClips.push(clip);
+        currentPosition += durationInBeats;
+      }
+
+      setClips((prev) => [...prev, ...newClips]);
+
+      if (!selectedTrack.selected) {
+        setTracks((prev) =>
+          prev.map((track) => ({
+            ...track,
+            selected: track.id === selectedTrack.id,
+          }))
+        );
+      }
+    }
+  }, [importAudio, tracks, playheadPosition, tempo]);
+
+  const handleExportAudio = useCallback(async (format: 'wav' | 'mp3' | 'ogg') => {
+    console.log(`Export mixdown as ${format} - Not fully implemented yet`);
+  }, []);
+
+  const handleExportStems = useCallback(async (format: 'wav' | 'mp3' | 'ogg') => {
+    console.log(`Export stems as ${format} - Not fully implemented yet`);
+  }, []);
+
+  const handleExportProject = useCallback(async () => {
+    const project = {
+      name: 'My Project',
+      tempo,
+      tracks,
+      clips,
+    };
+    
+    await exportProject(project, audioFilesRef.current, true);
+  }, [exportProject, tempo, tracks, clips]);
+
+  const handleImportProject = useCallback(async (file: File) => {
+    const result = await importProject(file);
+    if (result.success && result.project) {
+      console.log('Project imported successfully', result.project);
+    }
+  }, [importProject]);
 
   const toggleTracksPanel = useCallback(() => {
     setTracksCollapsed((prev) => !prev);
@@ -569,6 +689,15 @@ function App() {
           width={sidePanelWidth}
           selectedTrackId={tracks.find(t => t.selected)?.id}
           audioEngine={audioEngine}
+          onImportAudio={handleImportAudio}
+          onImportProject={handleImportProject}
+          onExportProject={handleExportProject}
+          onExportAudio={handleExportAudio}
+          onExportStems={handleExportStems}
+          isProcessing={isImporting || isExporting}
+          progress={progress}
+          statusMessage={statusMessage}
+          errorMessage={errorMessage}
         />
       </main>
 
