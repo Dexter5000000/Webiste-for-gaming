@@ -37,7 +37,6 @@ export abstract class BaseEffect {
     this.parameters = new Map();
     
     // Create input/output nodes - to be overridden by subclasses
-    const ctx = audioContext as AudioContext;
     this.inputNode = ctx.createGain();
     this.outputNode = ctx.createGain();
     
