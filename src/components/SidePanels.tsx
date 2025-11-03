@@ -3,6 +3,8 @@ import type { CSSProperties } from 'react';
 import InstrumentPanel, { type TrackInstrumentState } from './InstrumentPanel';
 import type { InstrumentPreset } from '../audio/instruments/types';
 import { ImportExportPanel } from './ImportExportPanel';
+import EffectsPanel from './EffectsPanel';
+import type { AudioEngine } from '../audio/AudioEngine';
 import './ImportExportPanel.css';
 
 interface SidePanelsProps {
@@ -10,6 +12,7 @@ interface SidePanelsProps {
   width: number;
   selectedTrackId?: string;
   instrumentState?: TrackInstrumentState;
+  audioEngine?: AudioEngine;
   onInstrumentTypeChange?: (type: TrackInstrumentState['type']) => void;
   onPresetSelect?: (preset: InstrumentPreset) => void;
   onParamChange?: (param: string, value: number) => void;
@@ -22,13 +25,14 @@ interface SidePanelsProps {
   onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
 }
 
-type PanelTab = 'inspector' | 'instrument' | 'import-export';
+type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export';
 
 const SidePanels = memo(function SidePanels({
   collapsed,
   width,
   selectedTrackId,
   instrumentState,
+  audioEngine,
   onInstrumentTypeChange,
   onPresetSelect,
   onParamChange,
@@ -81,6 +85,17 @@ const SidePanels = memo(function SidePanels({
               onClick={() => setActiveTab('instrument')}
             >
               Instrument
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'effects'}
+              aria-controls="effects-panel"
+              id="effects-tab"
+              className={`side-panel-tab ${activeTab === 'effects' ? 'active' : ''}`}
+              onClick={() => setActiveTab('effects')}
+            >
+              Effects
             </button>
             <button
               type="button"
@@ -201,6 +216,21 @@ const SidePanels = memo(function SidePanels({
               onPreview={onPreviewInstrument}
               onSavePreset={onSavePreset}
             />
+          </div>
+
+          <div
+            id="effects-panel"
+            role="tabpanel"
+            aria-labelledby="effects-tab"
+            className="side-panel-content"
+            hidden={activeTab !== 'effects'}
+          >
+            {audioEngine && (
+              <EffectsPanel
+                audioEngine={audioEngine}
+                selectedTrackId={selectedTrackId}
+              />
+            )}
           </div>
 
           <div

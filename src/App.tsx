@@ -6,6 +6,7 @@ import TrackLane from './components/TrackLane';
 import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
+import { AudioEngine } from './audio/AudioEngine';
 
 const INITIAL_TEMPO = 120;
 const INITIAL_ZOOM = 1.0;
@@ -140,6 +141,9 @@ function App() {
   const [trackColumnWidth, setTrackColumnWidth] = useState(260);
   const [sidePanelWidth, setSidePanelWidth] = useState(320);
   const [mixerHeight, setMixerHeight] = useState(200);
+
+  // Initialize AudioEngine
+  const [audioEngine] = useState(() => new AudioEngine());
 
   const loopGuardRef = useRef(false);
 
@@ -564,6 +568,7 @@ function App() {
           collapsed={inspectorCollapsed} 
           width={sidePanelWidth}
           selectedTrackId={tracks.find(t => t.selected)?.id}
+          audioEngine={audioEngine}
         />
       </main>
 

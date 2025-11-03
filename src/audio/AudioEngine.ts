@@ -5,6 +5,7 @@ import {
   beatsToSeconds,
   secondsToBeats,
 } from './utils/tempo';
+import { EffectsManager } from './effects';
 
 export type TrackType = 'audio' | 'instrument';
 
@@ -255,6 +256,7 @@ class TrackGraph {
     private readonly masterBus: GainNodeLike,
     private readonly cueBus: GainNodeLike,
     private readonly emitter: TypedEventEmitter<AudioEngineEvents>,
+    private readonly effectsManager: EffectsManager,
     options: TrackConfig
   ) {
     this.id = options.id;
@@ -278,7 +280,23 @@ class TrackGraph {
     this.cueSend = context.createGain();
     this.cueSend.gain.value = options.cueLevel ?? 0;
 
-    this.outputNode.connect(this.masterBus);
+    // Get or create track effects chain
+    const trackEffects = this.effectsManager.getTrackChain(this.id) || 
+                       this.effectsManager.createTrackChain(this.id);
+
+    // Route through effects chain
+    if (this.panNode) {
+      this.panNode.pan.value = options.pan ?? 0;
+      this.panNode.connect(this.gainNode);
+      this.gainNode.connect(trackEffects.input);
+      trackEffects.output.connect(this.masterBus);
+      this.outputNode = this.gainNode;
+    } else {
+      this.gainNode.connect(trackEffects.input);
+      trackEffects.output.connect(this.masterBus);
+      this.outputNode = this.gainNode;
+    }
+
     this.outputNode.connect(this.cueSend);
     this.cueSend.connect(this.cueBus);
     
@@ -764,6 +782,7 @@ export class AudioEngine {
   private readonly sends = new Map<string, GainNodeLike>();
   private readonly metronome: Metronome;
   private readonly workletClock: WorkletClock;
+  public readonly effectsManager: EffectsManager;
   private storeSubscription: Unsubscribe | null = null;
   private stateStore: AudioStateStore | null = null;
   private readonly timeSignature: TimeSignature;
@@ -787,7 +806,7 @@ export class AudioEngine {
 
     this.masterGain = this.context.createGain();
     this.masterGain.gain.value = 1;
-    this.masterGain.connect(this.context.destination);
+    // Note: masterGain will be connected to master effects chain input later
 
     this.cueGain = this.context.createGain();
     this.cueGain.gain.value = 0;
@@ -798,6 +817,12 @@ export class AudioEngine {
     this.metronomeGain.connect(this.masterGain);
 
     this.bufferCache = new AudioBufferCache(this.context);
+
+    this.effectsManager = new EffectsManager(this.context as AudioContext);
+    
+    // Route master gain to master effects chain, then to destination
+    this.masterGain.connect(this.effectsManager.getMasterChain().input);
+    this.effectsManager.getMasterChain().output.connect(this.context.destination);
 
     this.scheduler = new LookaheadScheduler(this.context, {
       lookaheadSeconds: config.lookaheadSeconds,
@@ -908,11 +933,36 @@ export class AudioEngine {
     this.metronomeGain.gain.value = level;
   }
 
+  // Effects management methods
+  addEffectToTrack(trackId: string, effectType: string) {
+    return this.effectsManager.addEffectToTrack(trackId, effectType as any);
+  }
+
+  addEffectToMaster(effectType: string) {
+    return this.effectsManager.addEffectToMaster(effectType as any);
+  }
+
+  removeEffectFromTrack(trackId: string, effectId: string): void {
+    this.effectsManager.removeEffectFromTrack(trackId, effectId);
+  }
+
+  removeEffectFromMaster(effectId: string): void {
+    this.effectsManager.removeEffectFromMaster(effectId);
+  }
+
+  getTrackEffects(trackId: string) {
+    return this.effectsManager.getTrackChain(trackId);
+  }
+
+  getMasterEffects() {
+    return this.effectsManager.getMasterChain();
+  }
+
   createTrack(config: TrackConfig): TrackGraph {
     if (this.tracks.has(config.id)) {
       return this.tracks.get(config.id)!;
     }
-    const track = new TrackGraph(this.context, this.masterGain, this.cueGain, this.emitter, config);
+    const track = new TrackGraph(this.context, this.masterGain, this.cueGain, this.emitter, this.effectsManager, config);
     this.tracks.set(config.id, track);
     if (config.sends) {
       Object.entries(config.sends).forEach(([sendId, amount]) => {

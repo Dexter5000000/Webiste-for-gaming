@@ -1,0 +1,64 @@
+.effects-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface-1);
+}
+
+.effects-tabs {
+  display: flex;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--text-primary);
+  background: var(--surface-3);
+}
+
+.tab-button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--surface-1);
+}
+
+.tab-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tab-button:disabled:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.effects-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .effects-panel {
+    font-size: 14px;
+  }
+  
+  .tab-button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
