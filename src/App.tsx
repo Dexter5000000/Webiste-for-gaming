@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import type { Track, MixerChannel } from './types';
+import type { Track, MixerChannel, TimelineClip } from './types';
 import TransportBar from './components/TransportBar';
 import TrackLane from './components/TrackLane';
 import TimelineViewport from './components/TimelineViewport';
@@ -8,8 +8,22 @@ import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
+import { useAppStore, TrackType } from './state';
 
 const LOOP_LENGTH_BEATS = 64;
+
+// Constants
+const INITIAL_TEMPO = 120;
+const INITIAL_ZOOM = 1.0;
+
+// Track colors for mock data
+const trackColors = [
+  '#ff6b6b', // Red
+  '#4ecdc4', // Teal
+  '#45b7d1', // Blue
+  '#f9ca24', // Yellow
+  '#6c5ce7', // Purple
+];
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -30,122 +44,35 @@ const getMimeTypeForFormat = (format?: string) => {
   }
 };
 
-const createMockTracks = (): Track[] => [
-  {
-    id: 'track-1',
-    name: 'Kick',
-    type: 'audio',
-    color: trackColors[0],
-    volume: 0.82,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: true,
-  },
-  {
-    id: 'track-2',
-    name: 'Snare',
-    type: 'audio',
-    color: trackColors[1],
-    volume: 0.74,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-3',
-    name: 'Hi-Hat',
-    type: 'midi',
-    color: trackColors[2],
-    volume: 0.66,
-    pan: 8,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-4',
-    name: 'Bass',
-    type: 'instrument',
-    color: trackColors[3],
-    volume: 0.77,
-    pan: -6,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-  {
-    id: 'track-5',
-    name: 'Synth Lead',
-    type: 'instrument',
-    color: trackColors[4],
-    volume: 0.68,
-    pan: 0,
-    muted: false,
-    soloed: false,
-    armed: false,
-    selected: false,
-  },
-];
-
-const createMockClips = (): TimelineClip[] => [
-  {
-    id: 'clip-1',
-    trackId: 'track-1',
-    name: 'Kick Pattern',
-    start: 0,
-    length: 16,
-    color: trackColors[0],
-  },
-  {
-    id: 'clip-2',
-    trackId: 'track-2',
-    name: 'Snare Loop',
-    start: 4,
-    length: 12,
-    color: trackColors[1],
-  },
-  {
-    id: 'clip-3',
-    trackId: 'track-3',
-    name: 'Hat Rhythm',
-    start: 8,
-    length: 24,
-    color: trackColors[2],
-  },
-  {
-    id: 'clip-4',
-    trackId: 'track-4',
-    name: 'Bass Line',
-    start: 0,
-    length: 32,
-    color: trackColors[3],
-  },
-  {
-    id: 'clip-5',
-    trackId: 'track-5',
-    name: 'Lead Melody',
-    start: 16,
-    length: 16,
-    color: trackColors[4],
-  },
-];
-
 function App() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
-  const [metronomeEnabled, setMetronomeEnabled] = useState(false);
-  const [tempo, setTempo] = useState(INITIAL_TEMPO);
-  const [playheadPosition, setPlayheadPosition] = useState(0);
-  const [zoomLevel, setZoomLevel] = useState(INITIAL_ZOOM);
-  const [tracks, setTracks] = useState<Track[]>(createMockTracks);
-  const [clips, setClips] = useState<TimelineClip[]>(createMockClips);
+  // Store state
+  const {
+    project,
+    transport,
+    selection,
+    grid,
+    ui,
+    play,
+    stop,
+    togglePlayback,
+    toggleRecording,
+    toggleLoop,
+    toggleMetronome,
+    setCurrentTime,
+    setTempo,
+    setZoomHorizontal,
+    addTrack,
+    selectTrack,
+    setTrackMute,
+    setTrackSolo,
+    setTrackArm,
+    addClip,
+    moveClip,
+    resizeClip,
+    selectClip,
+  } = useAppStore();
+
+  // Local UI state
   const [tracksCollapsed, setTracksCollapsed] = useState(false);
   const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
   const [mixerCollapsed, setMixerCollapsed] = useState(false);
@@ -171,7 +98,6 @@ function App() {
   // Store audio buffers and file data
   const audioBuffersRef = useRef(new Map<string, AudioBuffer>());
   const audioFilesRef = useRef(new Map<string, Blob | ArrayBuffer>());
-  const nextClipIdRef = useRef(clips.length + 1);
   const nextAudioFileIdRef = useRef(1);
 
   const loopGuardRef = useRef(false);
@@ -200,22 +126,10 @@ function App() {
       const deltaSeconds = (time - lastTime) / 1000;
       lastTime = time;
 
-      setCurrentTime((prev) => {
-        const next = prev + deltaSeconds * beatsPerSecond;
+      setCurrentTime(transport.currentTime + deltaSeconds * beatsPerSecond);
 
-        if (transport.isLooping) {
-          return next % LOOP_LENGTH_BEATS;
-        }
-
-        if (next >= LOOP_LENGTH_BEATS) {
-          loopGuardRef.current = true;
-          return 0;
-        }
-
-        return next;
-      });
-
-      if (loopGuardRef.current) {
+      if (transport.currentTime >= LOOP_LENGTH_BEATS) {
+        loopGuardRef.current = true;
         stop();
         loopGuardRef.current = false;
         return;
@@ -229,7 +143,7 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [transport.isPlaying, project.tempo, transport.isLooping, setCurrentTime, stop]);
+  }, [transport.isPlaying, project.tempo, transport.isLooping, setCurrentTime, stop, transport.currentTime]);
 
   const handleTogglePlay = useCallback(() => {
     togglePlayback();
@@ -290,13 +204,12 @@ function App() {
       addTrack(TrackType.AUDIO);
       setTimeout(() => {
         // Add clip after track is created
-        const tracks = useAppStore.getState().project.tracks;
-        if (tracks.length > 0) {
-          const store = useAppStore.getState();
-          store.addClip({
+        const store = useAppStore.getState();
+        if (store.project.tracks.length > 0) {
+          addClip({
             name: 'Test Clip',
             type: 'audio' as any,
-            trackId: tracks[0].id,
+            trackId: store.project.tracks[0].id,
             startTime: 0,
             duration: 4,
             color: '#4a6a9a',
@@ -320,8 +233,7 @@ function App() {
       }, 100);
     } else {
       // Add clip to first track
-      const store = useAppStore.getState();
-      store.addClip({
+      addClip({
         name: 'Test Clip',
         type: 'audio' as any,
         trackId: project.tracks[0].id,
@@ -345,7 +257,7 @@ function App() {
         },
       });
     }
-  }, [addTrack, project.tracks]);
+  }, [addTrack, project.tracks, addClip]);
 
   // Clip handlers
   const handleClipMove = useCallback((clipId: string, newTrackId: string, newStartTime: number) => {
@@ -365,59 +277,61 @@ function App() {
     
     if (result.success && result.importedData) {
       const selectedTrack =
-        tracks.find((t) => t.selected && t.type === 'audio') ??
-        tracks.find((t) => t.selected) ??
-        tracks.find((t) => t.type === 'audio') ??
-        tracks[0];
+        project.tracks.find((t) => selection.selectedTrackIds.includes(t.id) && t.type === 'audio') ??
+        project.tracks.find((t) => selection.selectedTrackIds.includes(t.id)) ??
+        project.tracks.find((t) => t.type === 'audio') ??
+        project.tracks[0];
 
       if (!selectedTrack) {
         console.warn('No track available for audio import');
         return;
       }
 
-      const newClips: TimelineClip[] = [];
-      let currentPosition = Math.max(0, playheadPosition);
+      let currentPosition = Math.max(0, transport.currentTime);
 
       for (const data of result.importedData) {
         const audioFileId = `audio-file-${nextAudioFileIdRef.current++}`;
-        const clipId = `clip-${nextClipIdRef.current++}`;
 
         audioBuffersRef.current.set(audioFileId, data.audioBuffer);
         audioFilesRef.current.set(audioFileId, data.originalData);
 
         const durationInBeats = Math.max(
-          (data.audioBuffer.duration * tempo) / 60,
+          (data.audioBuffer.duration * project.tempo) / 60,
           0.25
         );
 
-        const clip: TimelineClip = {
-          id: clipId,
-          trackId: selectedTrack.id,
+        addClip({
           name: data.audioFile.name,
-          start: currentPosition,
-          length: durationInBeats,
+          type: 'audio' as any,
+          trackId: selectedTrack.id,
+          startTime: currentPosition,
+          duration: durationInBeats,
           color: selectedTrack.color,
           audioFileId,
-          waveform: data.waveformData,
-          durationSeconds: data.audioBuffer.duration,
-        };
+          sampleRate: data.audioBuffer.sampleRate,
+          bitDepth: 24,
+          channels: data.audioBuffer.numberOfChannels,
+          offset: 0,
+          gain: 1,
+          pan: 0,
+          muted: false,
+          solo: false,
+          fadeIn: 0,
+          fadeOut: 0,
+          warping: {
+            enabled: false,
+            algorithm: 'beats',
+          },
+        });
 
-        newClips.push(clip);
         currentPosition += durationInBeats;
       }
 
-      setClips((prev) => [...prev, ...newClips]);
-
-      if (!selectedTrack.selected) {
-        setTracks((prev) =>
-          prev.map((track) => ({
-            ...track,
-            selected: track.id === selectedTrack.id,
-          }))
-        );
+      if (!selection.selectedTrackIds.includes(selectedTrack.id)) {
+        selectTrack(selectedTrack.id);
       }
     }
-  }, [importAudio, tracks, playheadPosition, tempo]);
+  }, [importAudio, project.tracks, selection.selectedTrackIds, transport.currentTime, project.tempo, addClip, selectTrack]);
 
   const handleExportAudio = useCallback(async (format: 'wav' | 'mp3' | 'ogg') => {
     console.log(`Export mixdown as ${format} - Not fully implemented yet`);
@@ -428,15 +342,15 @@ function App() {
   }, []);
 
   const handleExportProject = useCallback(async () => {
-    const project = {
-      name: 'My Project',
-      tempo,
-      tracks,
-      clips,
+    const projectData = {
+      name: project.name,
+      tempo: project.tempo,
+      tracks: project.tracks,
+      clips: project.clips,
     };
     
-    await exportProject(project, audioFilesRef.current, true);
-  }, [exportProject, tempo, tracks, clips]);
+    await exportProject(projectData, audioFilesRef.current, true);
+  }, [exportProject, project]);
 
   const handleImportProject = useCallback(async (file: File) => {
     const result = await importProject(file);
@@ -455,8 +369,7 @@ function App() {
 
   const toggleMixerPanel = useCallback(() => {
     setMixerCollapsed((prev) => !prev);
-    toggleMixer(); // Also update store state
-  }, [toggleMixer]);
+  }, []);
 
   const handleTrackResizeStart = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -695,8 +608,8 @@ function App() {
                 −
               </button>
               <span className="text-xs text-muted">
-                {Math.round(zoomLevel * 100)}%
-              </span>
+                               {Math.round((grid.zoomHorizontal / 20) * 100)}%
+                             </span>
               <button
                 type="button"
                 className="button button-ghost button-icon-sm"
