@@ -1,0 +1,65 @@
+[
+  {
+    "id": "fm-epiano",
+    "name": "Electric Piano",
+    "instrumentType": "fm",
+    "author": "Built-in",
+    "description": "Classic FM electric piano",
+    "tags": ["keys", "electric"],
+    "params": {
+      "volume": 0.7,
+      "carrierType": "sine",
+      "modulatorType": "sine",
+      "carrierRatio": 1,
+      "modulatorRatio": 2,
+      "modulationIndex": 220,
+      "feedback": 0,
+      "attack": 0.01,
+      "decay": 0.6,
+      "sustain": 0.5,
+      "release": 0.7
+    }
+  },
+  {
+    "id": "fm-bell",
+    "name": "Crystal Bell",
+    "instrumentType": "fm",
+    "author": "Built-in",
+    "description": "Bright bell tone",
+    "tags": ["bell", "bright"],
+    "params": {
+      "volume": 0.6,
+      "carrierType": "sine",
+      "modulatorType": "sine",
+      "carrierRatio": 2,
+      "modulatorRatio": 7,
+      "modulationIndex": 480,
+      "feedback": 0,
+      "attack": 0.01,
+      "decay": 0.8,
+      "sustain": 0.2,
+      "release": 1.4
+    }
+  },
+  {
+    "id": "fm-bass",
+    "name": "FM Bass",
+    "instrumentType": "fm",
+    "author": "Built-in",
+    "description": "Punchy FM bass",
+    "tags": ["bass"],
+    "params": {
+      "volume": 0.8,
+      "carrierType": "sawtooth",
+      "modulatorType": "square",
+      "carrierRatio": 0.5,
+      "modulatorRatio": 1.5,
+      "modulationIndex": 150,
+      "feedback": 0.2,
+      "attack": 0.005,
+      "decay": 0.2,
+      "sustain": 0.4,
+      "release": 0.3
+    }
+  }
+]

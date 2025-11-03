@@ -32,3 +32,20 @@ export {
   DEFAULT_TIME_SIGNATURE,
 } from './utils/tempo';
 export type { TimeSignature } from './utils/tempo';
+
+export {
+  InstrumentFactory,
+} from './instruments/InstrumentFactory';
+export {
+  PresetLoader,
+} from './instruments/PresetLoader';
+export {
+  instrumentManager,
+  InstrumentManager,
+} from './instruments/InstrumentManager';
+export type {
+  Instrument,
+  InstrumentType,
+  InstrumentPreset,
+  InstrumentParams,
+} from './instruments';

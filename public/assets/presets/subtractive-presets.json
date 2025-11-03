@@ -1,0 +1,104 @@
+[
+  {
+    "id": "sub-bass-classic",
+    "name": "Classic Bass",
+    "instrumentType": "subtractive",
+    "author": "Built-in",
+    "description": "Deep subtractive bass with sawtooth oscillator",
+    "tags": ["bass", "classic"],
+    "params": {
+      "volume": 0.8,
+      "oscillatorType": "sawtooth",
+      "oscillator2Type": "square",
+      "oscillator2Detune": -12,
+      "oscillator2Mix": 0.2,
+      "filterType": "lowpass",
+      "filterFrequency": 800,
+      "filterQ": 2,
+      "filterEnvAmount": 1200,
+      "ampEnvelope": {
+        "attack": 0.01,
+        "decay": 0.2,
+        "sustain": 0.6,
+        "release": 0.4
+      },
+      "filterEnvelope": {
+        "attack": 0.01,
+        "decay": 0.3,
+        "sustain": 0.2,
+        "release": 0.6
+      },
+      "lfoRate": 4,
+      "lfoAmount": 0,
+      "lfoDestination": "filter"
+    }
+  },
+  {
+    "id": "sub-lead-bright",
+    "name": "Bright Lead",
+    "instrumentType": "subtractive",
+    "author": "Built-in",
+    "description": "Bright cutting lead sound",
+    "tags": ["lead", "bright"],
+    "params": {
+      "volume": 0.7,
+      "oscillatorType": "sawtooth",
+      "oscillator2Type": "sawtooth",
+      "oscillator2Detune": 7,
+      "oscillator2Mix": 0.5,
+      "filterType": "lowpass",
+      "filterFrequency": 3500,
+      "filterQ": 3,
+      "filterEnvAmount": 3000,
+      "ampEnvelope": {
+        "attack": 0.001,
+        "decay": 0.1,
+        "sustain": 0.8,
+        "release": 0.2
+      },
+      "filterEnvelope": {
+        "attack": 0.01,
+        "decay": 0.15,
+        "sustain": 0.5,
+        "release": 0.3
+      },
+      "lfoRate": 6,
+      "lfoAmount": 50,
+      "lfoDestination": "pitch"
+    }
+  },
+  {
+    "id": "sub-pad-lush",
+    "name": "Lush Pad",
+    "instrumentType": "subtractive",
+    "author": "Built-in",
+    "description": "Warm atmospheric pad",
+    "tags": ["pad", "ambient"],
+    "params": {
+      "volume": 0.6,
+      "oscillatorType": "sawtooth",
+      "oscillator2Type": "triangle",
+      "oscillator2Detune": 5,
+      "oscillator2Mix": 0.6,
+      "filterType": "lowpass",
+      "filterFrequency": 1200,
+      "filterQ": 1,
+      "filterEnvAmount": 800,
+      "ampEnvelope": {
+        "attack": 0.8,
+        "decay": 0.3,
+        "sustain": 0.7,
+        "release": 1.2
+      },
+      "filterEnvelope": {
+        "attack": 1.0,
+        "decay": 0.5,
+        "sustain": 0.4,
+        "release": 1.5
+      },
+      "lfoRate": 0.5,
+      "lfoAmount": 100,
+      "lfoDestination": "filter"
+    }
+  }
+]
