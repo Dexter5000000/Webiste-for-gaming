@@ -2,6 +2,8 @@ import { memo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import InstrumentPanel, { type TrackInstrumentState } from './InstrumentPanel';
 import type { InstrumentPreset } from '../audio/instruments/types';
+import { ImportExportPanel } from './ImportExportPanel';
+import './ImportExportPanel.css';
 
 interface SidePanelsProps {
   collapsed: boolean;
@@ -13,9 +15,14 @@ interface SidePanelsProps {
   onParamChange?: (param: string, value: number) => void;
   onPreviewInstrument?: () => void;
   onSavePreset?: (name: string) => void;
+  onImportAudio?: (files: File[]) => void;
+  onImportProject?: (file: File) => Promise<void> | void;
+  onExportProject?: () => Promise<void> | void;
+  onExportAudio?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
+  onExportStems?: (format: 'wav' | 'mp3' | 'ogg') => Promise<void> | void;
 }
 
-type PanelTab = 'inspector' | 'instrument';
+type PanelTab = 'inspector' | 'instrument' | 'import-export';
 
 const SidePanels = memo(function SidePanels({
   collapsed,
@@ -27,6 +34,11 @@ const SidePanels = memo(function SidePanels({
   onParamChange,
   onPreviewInstrument,
   onSavePreset,
+  onImportAudio,
+  onImportProject,
+  onExportProject,
+  onExportAudio,
+  onExportStems,
 }: SidePanelsProps) {
   const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
 
@@ -69,6 +81,17 @@ const SidePanels = memo(function SidePanels({
               onClick={() => setActiveTab('instrument')}
             >
               Instrument
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'import-export'}
+              aria-controls="import-export-panel"
+              id="import-export-tab"
+              className={`side-panel-tab ${activeTab === 'import-export' ? 'active' : ''}`}
+              onClick={() => setActiveTab('import-export')}
+            >
+              Import/Export
             </button>
           </nav>
 
@@ -177,6 +200,22 @@ const SidePanels = memo(function SidePanels({
               onParamChange={onParamChange}
               onPreview={onPreviewInstrument}
               onSavePreset={onSavePreset}
+            />
+          </div>
+
+          <div
+            id="import-export-panel"
+            role="tabpanel"
+            aria-labelledby="import-export-tab"
+            className="side-panel-content"
+            hidden={activeTab !== 'import-export'}
+          >
+            <ImportExportPanel
+              onImportAudio={onImportAudio}
+              onImportProject={onImportProject}
+              onExportProject={onExportProject}
+              onExportAudio={onExportAudio}
+              onExportStems={onExportStems}
             />
           </div>
         </>
