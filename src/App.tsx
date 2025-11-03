@@ -7,47 +7,145 @@ import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
-import { useAppStore } from './state/store';
-import { TrackType } from './state/models';
+import { useAudioImportExport } from './hooks/useAudioImportExport';
 
 const LOOP_LENGTH_BEATS = 64;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-function App() {
-  // Zustand store state
-  const {
-    project,
-    transport,
-    selection,
-    grid,
-    // Transport actions
-    stop,
-    togglePlayback,
-    toggleRecording,
-    toggleLoop,
-    toggleMetronome,
-    setCurrentTime,
-    setTempo,
-    // Track actions
-    addTrack,
-    setTrackMute,
-    setTrackSolo,
-    setTrackArm,
-    // Clip actions
-    moveClip,
-    resizeClip,
-    selectClip,
-    // Selection actions
-    selectTrack,
-    // Grid actions
-    setZoomHorizontal,
-    // UI actions
-    toggleMixer,
-  } = useAppStore();
+const getMimeTypeForFormat = (format?: string) => {
+  switch ((format ?? '').toLowerCase()) {
+    case 'wav':
+    case 'wave':
+      return 'audio/wav';
+    case 'mp3':
+      return 'audio/mpeg';
+    case 'ogg':
+      return 'audio/ogg';
+    case 'flac':
+      return 'audio/flac';
+    default:
+      return 'application/octet-stream';
+  }
+};
 
-  // Local UI state
+const createMockTracks = (): Track[] => [
+  {
+    id: 'track-1',
+    name: 'Kick',
+    type: 'audio',
+    color: trackColors[0],
+    volume: 0.82,
+    pan: 0,
+    muted: false,
+    soloed: false,
+    armed: false,
+    selected: true,
+  },
+  {
+    id: 'track-2',
+    name: 'Snare',
+    type: 'audio',
+    color: trackColors[1],
+    volume: 0.74,
+    pan: 0,
+    muted: false,
+    soloed: false,
+    armed: false,
+    selected: false,
+  },
+  {
+    id: 'track-3',
+    name: 'Hi-Hat',
+    type: 'midi',
+    color: trackColors[2],
+    volume: 0.66,
+    pan: 8,
+    muted: false,
+    soloed: false,
+    armed: false,
+    selected: false,
+  },
+  {
+    id: 'track-4',
+    name: 'Bass',
+    type: 'instrument',
+    color: trackColors[3],
+    volume: 0.77,
+    pan: -6,
+    muted: false,
+    soloed: false,
+    armed: false,
+    selected: false,
+  },
+  {
+    id: 'track-5',
+    name: 'Synth Lead',
+    type: 'instrument',
+    color: trackColors[4],
+    volume: 0.68,
+    pan: 0,
+    muted: false,
+    soloed: false,
+    armed: false,
+    selected: false,
+  },
+];
+
+const createMockClips = (): TimelineClip[] => [
+  {
+    id: 'clip-1',
+    trackId: 'track-1',
+    name: 'Kick Pattern',
+    start: 0,
+    length: 16,
+    color: trackColors[0],
+  },
+  {
+    id: 'clip-2',
+    trackId: 'track-2',
+    name: 'Snare Loop',
+    start: 4,
+    length: 12,
+    color: trackColors[1],
+  },
+  {
+    id: 'clip-3',
+    trackId: 'track-3',
+    name: 'Hat Rhythm',
+    start: 8,
+    length: 24,
+    color: trackColors[2],
+  },
+  {
+    id: 'clip-4',
+    trackId: 'track-4',
+    name: 'Bass Line',
+    start: 0,
+    length: 32,
+    color: trackColors[3],
+  },
+  {
+    id: 'clip-5',
+    trackId: 'track-5',
+    name: 'Lead Melody',
+    start: 16,
+    length: 16,
+    color: trackColors[4],
+  },
+];
+
+function App() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [metronomeEnabled, setMetronomeEnabled] = useState(false);
+  const [tempo, setTempo] = useState(INITIAL_TEMPO);
+  const [playheadPosition, setPlayheadPosition] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(INITIAL_ZOOM);
+  const [tracks, setTracks] = useState<Track[]>(createMockTracks);
+  const [clips, setClips] = useState<TimelineClip[]>(createMockClips);
   const [tracksCollapsed, setTracksCollapsed] = useState(false);
   const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
   const [mixerCollapsed, setMixerCollapsed] = useState(false);
@@ -57,6 +155,24 @@ function App() {
 
   // Initialize AudioEngine
   const [audioEngine] = useState(() => new AudioEngine());
+
+  // Audio import/export hook
+  const {
+    isImporting,
+    isExporting,
+    progress,
+    statusMessage,
+    errorMessage,
+    importAudio,
+    exportProject,
+    importProject,
+  } = useAudioImportExport();
+
+  // Store audio buffers and file data
+  const audioBuffersRef = useRef(new Map<string, AudioBuffer>());
+  const audioFilesRef = useRef(new Map<string, Blob | ArrayBuffer>());
+  const nextClipIdRef = useRef(clips.length + 1);
+  const nextAudioFileIdRef = useRef(1);
 
   const loopGuardRef = useRef(false);
 
@@ -243,6 +359,91 @@ function App() {
   const handleClipSelect = useCallback((clipId: string, multi?: boolean) => {
     selectClip(clipId, multi);
   }, [selectClip]);
+
+  const handleImportAudio = useCallback(async (files: File[]) => {
+    const result = await importAudio(files);
+    
+    if (result.success && result.importedData) {
+      const selectedTrack =
+        tracks.find((t) => t.selected && t.type === 'audio') ??
+        tracks.find((t) => t.selected) ??
+        tracks.find((t) => t.type === 'audio') ??
+        tracks[0];
+
+      if (!selectedTrack) {
+        console.warn('No track available for audio import');
+        return;
+      }
+
+      const newClips: TimelineClip[] = [];
+      let currentPosition = Math.max(0, playheadPosition);
+
+      for (const data of result.importedData) {
+        const audioFileId = `audio-file-${nextAudioFileIdRef.current++}`;
+        const clipId = `clip-${nextClipIdRef.current++}`;
+
+        audioBuffersRef.current.set(audioFileId, data.audioBuffer);
+        audioFilesRef.current.set(audioFileId, data.originalData);
+
+        const durationInBeats = Math.max(
+          (data.audioBuffer.duration * tempo) / 60,
+          0.25
+        );
+
+        const clip: TimelineClip = {
+          id: clipId,
+          trackId: selectedTrack.id,
+          name: data.audioFile.name,
+          start: currentPosition,
+          length: durationInBeats,
+          color: selectedTrack.color,
+          audioFileId,
+          waveform: data.waveformData,
+          durationSeconds: data.audioBuffer.duration,
+        };
+
+        newClips.push(clip);
+        currentPosition += durationInBeats;
+      }
+
+      setClips((prev) => [...prev, ...newClips]);
+
+      if (!selectedTrack.selected) {
+        setTracks((prev) =>
+          prev.map((track) => ({
+            ...track,
+            selected: track.id === selectedTrack.id,
+          }))
+        );
+      }
+    }
+  }, [importAudio, tracks, playheadPosition, tempo]);
+
+  const handleExportAudio = useCallback(async (format: 'wav' | 'mp3' | 'ogg') => {
+    console.log(`Export mixdown as ${format} - Not fully implemented yet`);
+  }, []);
+
+  const handleExportStems = useCallback(async (format: 'wav' | 'mp3' | 'ogg') => {
+    console.log(`Export stems as ${format} - Not fully implemented yet`);
+  }, []);
+
+  const handleExportProject = useCallback(async () => {
+    const project = {
+      name: 'My Project',
+      tempo,
+      tracks,
+      clips,
+    };
+    
+    await exportProject(project, audioFilesRef.current, true);
+  }, [exportProject, tempo, tracks, clips]);
+
+  const handleImportProject = useCallback(async (file: File) => {
+    const result = await importProject(file);
+    if (result.success && result.project) {
+      console.log('Project imported successfully', result.project);
+    }
+  }, [importProject]);
 
   const toggleTracksPanel = useCallback(() => {
     setTracksCollapsed((prev) => !prev);
@@ -591,6 +792,15 @@ function App() {
           width={sidePanelWidth}
           selectedTrackId={selection.selectedTrackIds[0]}
           audioEngine={audioEngine}
+          onImportAudio={handleImportAudio}
+          onImportProject={handleImportProject}
+          onExportProject={handleExportProject}
+          onExportAudio={handleExportAudio}
+          onExportStems={handleExportStems}
+          isProcessing={isImporting || isExporting}
+          progress={progress}
+          statusMessage={statusMessage}
+          errorMessage={errorMessage}
         />
       </main>
 

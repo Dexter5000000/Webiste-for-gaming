@@ -58,7 +58,7 @@ export class DistortionEffect extends BaseEffect {
     this.postGain.connect(this.mixGain);
   }
 
-    protected getEffectInput(): AudioNode {
+  protected getEffectInput(): AudioNode {
     return this.preGain;
   }
 
@@ -66,7 +66,8 @@ export class DistortionEffect extends BaseEffect {
     return this.mixGain;
   }
 
-  private initializeParameters(): void {
+  protected initializeParameters(): void {
+  get parameters(): EffectParameter[] {
     const params: EffectParameter[] = [
       {
         id: 'wetLevel',
@@ -200,7 +201,6 @@ export class DistortionEffect extends BaseEffect {
   private makeDistortionCurve(amount: number): void {
     const samples = 44100;
     const curve = new Float32Array(samples);
-    const deg = Math.PI / 180;
     const normalizedAmount = amount / 100;
 
     for (let i = 0; i < samples; i++) {

@@ -130,7 +130,7 @@ async function encodeMP3(audioBuffer: AudioBuffer, options: ExportOptions): Prom
   const rightChannel = numberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
 
   const sampleBlockSize = 1152;
-  const mp3Data: ArrayBuffer[] = [];
+  const mp3Data: BlobPart[] = [];
 
   for (let i = 0; i < audioBuffer.length; i += sampleBlockSize) {
     const leftChunk = convertFloat32ToInt16(leftChannel.subarray(i, i + sampleBlockSize));
@@ -138,8 +138,7 @@ async function encodeMP3(audioBuffer: AudioBuffer, options: ExportOptions): Prom
 
     const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
     if (mp3buf.length > 0) {
-      const arrayBuffer = mp3buf.buffer as ArrayBuffer;
-      mp3Data.push(arrayBuffer.slice(mp3buf.byteOffset, mp3buf.byteOffset + mp3buf.byteLength));
+      mp3Data.push(mp3buf.slice());
     }
 
     if (i % 10000 === 0) {
@@ -149,8 +148,7 @@ async function encodeMP3(audioBuffer: AudioBuffer, options: ExportOptions): Prom
 
   const mp3buf = mp3encoder.flush();
   if (mp3buf.length > 0) {
-    const arrayBuffer = mp3buf.buffer as ArrayBuffer;
-    mp3Data.push(arrayBuffer.slice(mp3buf.byteOffset, mp3buf.byteOffset + mp3buf.byteLength));
+    mp3Data.push(mp3buf.slice());
   }
 
   onProgress?.(0.9);
@@ -182,7 +180,7 @@ async function encodeOGG(audioBuffer: AudioBuffer, options: ExportOptions): Prom
   }
 
   const chunkSize = 4096;
-  const oggData: ArrayBuffer[] = [];
+  const oggData: BlobPart[] = [];
 
   for (let i = 0; i < audioBuffer.length; i += chunkSize) {
     const end = Math.min(i + chunkSize, audioBuffer.length);
@@ -190,8 +188,7 @@ async function encodeOGG(audioBuffer: AudioBuffer, options: ExportOptions): Prom
 
     const encoded = encoder.encode(chunkedChannels);
     if (encoded && encoded.length > 0) {
-      const uint8 = new Uint8Array(encoded);
-      oggData.push(uint8.buffer.slice(uint8.byteOffset, uint8.byteOffset + uint8.byteLength));
+      oggData.push(new Uint8Array(encoded));
     }
 
     if (i % 10000 === 0) {
@@ -201,8 +198,7 @@ async function encodeOGG(audioBuffer: AudioBuffer, options: ExportOptions): Prom
 
   const finalEncoded = encoder.finalize();
   if (finalEncoded && finalEncoded.length > 0) {
-    const uint8 = new Uint8Array(finalEncoded);
-    oggData.push(uint8.buffer.slice(uint8.byteOffset, uint8.byteOffset + uint8.byteLength));
+    oggData.push(new Uint8Array(finalEncoded));
   }
 
   onProgress?.(0.9);

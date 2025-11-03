@@ -1,0 +1,138 @@
+.midi-clip-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.midi-clip-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.midi-clip-editor-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.midi-clip-editor-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.zoom-controls button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #999;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.zoom-controls button:hover {
+  background: #e0e0e0;
+}
+
+.zoom-controls span {
+  font-size: 12px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.edit-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-controls select,
+.edit-controls button {
+  padding: 4px 8px;
+  border: 1px solid #999;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.edit-controls button:hover {
+  background: #e0e0e0;
+}
+
+.action-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.action-controls button {
+  padding: 6px 12px;
+  border: 1px solid #999;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.action-controls button.save-btn {
+  background: #007acc;
+  color: white;
+  border-color: #007acc;
+}
+
+.action-controls button.save-btn:hover {
+  background: #005a9e;
+}
+
+.action-controls button:hover {
+  background: #e0e0e0;
+}
+
+.midi-clip-editor-content {
+  flex: 1;
+  overflow: hidden;
+  background: #fff;
+}
+
+.midi-clip-editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  font-size: 12px;
+  color: #666;
+}
+
+.clip-info,
+.tempo-info {
+  display: flex;
+  gap: 16px;
+}
+
+.clip-info span,
+.tempo-info span {
+  padding: 2px 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+}

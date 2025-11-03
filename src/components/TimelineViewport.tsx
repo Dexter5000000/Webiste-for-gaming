@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback, useEffect } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import type { TimelineClip } from '../types';
 
 interface TimelineViewportProps {
@@ -26,6 +26,7 @@ const TimelineViewport = memo(function TimelineViewport({
   const pixelsPerBeat = 48 * zoomLevel;
   const totalBeats = TOTAL_BARS * BEATS_PER_BAR;
   const canvasWidth = Math.max(totalBeats * pixelsPerBeat, 960);
+  const waveformCanvasRefs = useRef(new Map<string, HTMLCanvasElement>());
 
   // Drag state
   const [dragState, setDragState] = useState<{
@@ -53,94 +54,68 @@ const TimelineViewport = memo(function TimelineViewport({
     }));
   }, [pixelsPerBeat]);
 
-  // Drag handlers
-  const handleClipMouseDown = useCallback((
-    event: React.MouseEvent,
-    clipId: string,
-    clip: TimelineClip,
-    type: 'move' | 'resize-left' | 'resize-right'
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    setDragState({
-      clipId,
-      type,
-      startX: event.clientX,
-      startY: event.clientY,
-      originalStartTime: clip.start,
-      originalDuration: clip.length,
-      originalTrackId: clip.trackId,
-    });
-
-    if (onClipSelect) {
-      onClipSelect(clipId, event.ctrlKey || event.metaKey);
-    }
-  }, [onClipSelect]);
-
-  const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (!dragState.clipId || !dragState.type) return;
-
-    const deltaX = event.clientX - dragState.startX;
-    const deltaBeats = deltaX / pixelsPerBeat;
-    
-    const clip = clips.find(c => c.id === dragState.clipId);
-    if (!clip) return;
-
-    if (dragState.type === 'move') {
-      // Calculate new track based on Y position
-      const trackHeight = 60; // pixels per track
-      const trackIndex = Math.floor(event.clientY / trackHeight);
-      const newTrackId = tracks[trackIndex]?.id || dragState.originalTrackId;
-      
-      const newStartTime = Math.max(0, dragState.originalStartTime + deltaBeats);
-      
-      if (onClipMove) {
-        onClipMove(dragState.clipId, newTrackId, newStartTime);
-      }
-    } else if (dragState.type === 'resize-left') {
-      const newStartTime = Math.min(
-        dragState.originalStartTime + deltaBeats,
-        dragState.originalStartTime + dragState.originalDuration - 0.25 // Minimum 1/4 beat
-      );
-      const newDuration = dragState.originalStartTime + dragState.originalDuration - newStartTime;
-      
-      if (onClipResize) {
-        onClipResize(dragState.clipId, newStartTime, newDuration);
-      }
-    } else if (dragState.type === 'resize-right') {
-      const newDuration = Math.max(0.25, dragState.originalDuration + deltaBeats); // Minimum 1/4 beat
-      
-      if (onClipResize) {
-        onClipResize(dragState.clipId, dragState.originalStartTime, newDuration);
-      }
-    }
-  }, [dragState, clips, tracks, pixelsPerBeat, onClipMove, onClipResize]);
-
-  const handleMouseUp = useCallback(() => {
-    setDragState({
-      clipId: null,
-      type: null,
-      startX: 0,
-      startY: 0,
-      originalStartTime: 0,
-      originalDuration: 0,
-      originalTrackId: '',
-    });
-  }, []);
-
-  // Global mouse event listeners
   useEffect(() => {
-    if (dragState.clipId) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [dragState.clipId, handleMouseMove, handleMouseUp]);
+    clips.forEach((clip) => {
+      if (!clip.waveform || clip.waveform.length === 0) {
+        return;
+      }
+
+      const canvas = waveformCanvasRefs.current.get(clip.id);
+      if (!canvas) {
+        return;
+      }
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return;
+      }
+
+      const width = Math.max(1, Math.round(clip.length * pixelsPerBeat));
+      const height = Math.max(
+        1,
+        Math.round(canvas.clientHeight || canvas.height || 48)
+      );
+
+      if (canvas.width !== width) {
+        canvas.width = width;
+      }
+      if (canvas.height !== height) {
+        canvas.height = height;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      const sampleCount = clip.waveform[0].length;
+      if (sampleCount === 0) {
+        return;
+      }
+
+      const centerY = height / 2;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+
+      for (let x = 0; x < width; x++) {
+        const sampleIndex = Math.min(
+          sampleCount - 1,
+          Math.floor((x / width) * sampleCount)
+        );
+
+        let amplitude = 0;
+        for (const channel of clip.waveform) {
+          const value = channel[sampleIndex] ?? 0;
+          amplitude = Math.max(amplitude, Math.abs(value));
+        }
+
+        const y = centerY - amplitude * centerY;
+        const y2 = centerY + amplitude * centerY;
+
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, y);
+        ctx.lineTo(x + 0.5, y2);
+        ctx.stroke();
+      }
+    });
+  }, [clips, pixelsPerBeat]);
 
   return (
     <section className="timeline-viewport" aria-label="Timeline viewport">
@@ -202,10 +177,26 @@ const TimelineViewport = memo(function TimelineViewport({
                     <span className="timeline-clip-name text-xs">
                       {clip.name}
                     </span>
-                    <div
-                      className="timeline-clip-resize-handle timeline-clip-resize-right"
-                      onMouseDown={(e) => handleClipMouseDown(e, clip.id, clip, 'resize-right')}
-                    />
+                    {clip.waveform && clip.waveform.length > 0 && (
+                      <canvas
+                        ref={(el) => {
+                          if (el) {
+                            waveformCanvasRefs.current.set(clip.id, el);
+                          } else {
+                            waveformCanvasRefs.current.delete(clip.id);
+                          }
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '24px',
+                          left: 0,
+                          width: '100%',
+                          height: 'calc(100% - 28px)',
+                          opacity: 0.6,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
               </div>

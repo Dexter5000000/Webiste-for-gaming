@@ -6,8 +6,10 @@ import {
   secondsToBeats,
 } from './utils/tempo';
 import { EffectsManager } from './effects';
+import { Instrument, InstrumentType } from './instruments';
+import { MidiPlaybackScheduler } from './MidiPlaybackScheduler';
 
-export type TrackType = 'audio' | 'instrument';
+export type TrackType = 'audio' | 'instrument' | 'midi';
 
 type EventHandler<T> = (payload: T) => void;
 
@@ -786,6 +788,8 @@ export class AudioEngine {
   private storeSubscription: Unsubscribe | null = null;
   private stateStore: AudioStateStore | null = null;
   private readonly timeSignature: TimeSignature;
+  private readonly instruments = new Map<string, Instrument>();
+  private readonly midiScheduler: MidiPlaybackScheduler;
 
   constructor(private readonly config: AudioEngineConfig = {}) {
     const globalScope = typeof window !== 'undefined' ? (window as Window & {
@@ -847,6 +851,9 @@ export class AudioEngine {
     this.metronome.setEnabled(Boolean(config.metronomeEnabled));
 
     this.workletClock = new WorkletClock(this.context);
+    
+    // Initialize MIDI scheduler
+    this.midiScheduler = new MidiPlaybackScheduler(this);
   }
 
   get audioContext(): AudioContextLike {
@@ -1069,6 +1076,11 @@ export class AudioEngine {
     this.workletClock.stop();
     this.tracks.forEach((track) => track.stopAll());
     this.tracks.clear();
+    
+    // Clean up instruments
+    this.instruments.forEach((instrument) => instrument.dispose());
+    this.instruments.clear();
+    
     this.detachStore();
     if (this.context.close) {
       void this.context.close();
@@ -1132,5 +1144,58 @@ export class AudioEngine {
     gain.connect(this.masterGain);
     this.sends.set(sendId, gain);
     return gain;
+  }
+
+  // Instrument management methods
+  createInstrument(trackId: string, instrumentType: InstrumentType): void {
+    // Import the instrument factory dynamically to avoid circular dependencies
+    import('./instruments').then(({ InstrumentFactory }) => {
+      const instrument = InstrumentFactory.create(instrumentType, this.context);
+      instrument.connect(this.masterGain);
+      this.instruments.set(trackId, instrument);
+    }).catch(error => {
+      console.error(`Failed to create instrument: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    });
+  }
+
+  getInstrument(trackId: string): Instrument | undefined {
+    return this.instruments.get(trackId);
+  }
+
+  getAllInstruments(): Instrument[] {
+    return Array.from(this.instruments.values());
+  }
+
+  removeInstrument(trackId: string): void {
+    const instrument = this.instruments.get(trackId);
+    if (instrument) {
+      instrument.dispose();
+      this.instruments.delete(trackId);
+    }
+  }
+
+  // MIDI scheduling methods
+  scheduleMidiClip(trackId: string, clipData: any, project: any, playbackStartTime: number): void {
+    this.midiScheduler.scheduleClip(clipData, project, playbackStartTime, playbackStartTime);
+  }
+
+  processMidiSchedule(currentTime: number, trackId: string): void {
+    this.midiScheduler.processSchedule(currentTime, trackId);
+  }
+
+  unscheduleMidiClip(clipId: string): void {
+    this.midiScheduler.unscheduleClip(clipId);
+  }
+
+  clearAllMidiSchedule(): void {
+    this.midiScheduler.clearAll();
+  }
+
+  previewMidiNote(trackId: string, pitch: number, velocity?: number): void {
+    this.midiScheduler.previewNote(trackId, pitch, velocity);
+  }
+
+  getCurrentTime(): number {
+    return this.context.currentTime;
   }
 }
