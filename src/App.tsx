@@ -10,8 +10,7 @@ import { AudioEngine } from './audio/AudioEngine';
 import { beatsToSeconds, secondsToBeats } from './audio/utils/tempo';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
 import { useAppStore, TrackType, ClipType } from './state';
-
-const LOOP_LENGTH_BEATS = 64;
+import type { AudioClip } from './state';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -23,6 +22,7 @@ function App() {
     transport,
     selection,
     grid,
+    play,
     stop,
     toggleRecording,
     toggleLoop,
