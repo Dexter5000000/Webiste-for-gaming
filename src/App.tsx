@@ -9,8 +9,9 @@ import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
 import { beatsToSeconds, secondsToBeats } from './audio/utils/tempo';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
-import { useAppStore, TrackType } from './state';
-import type { AudioClip } from './state/models';
+import { useAppStore, TrackType, ClipType } from './state';
+
+const LOOP_LENGTH_BEATS = 64;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -22,7 +23,6 @@ function App() {
     transport,
     selection,
     grid,
-    play,
     stop,
     toggleRecording,
     toggleLoop,
@@ -308,7 +308,7 @@ function App() {
         if (store.project.tracks.length > 0) {
           addClip({
             name: 'Test Clip',
-            type: 'audio' as any,
+            type: ClipType.AUDIO,
             trackId: store.project.tracks[0].id,
             startTime: 0,
             duration: 4,
@@ -335,7 +335,7 @@ function App() {
       // Add clip to first track
       addClip({
         name: 'Test Clip',
-        type: 'audio' as any,
+        type: ClipType.AUDIO,
         trackId: project.tracks[0].id,
         startTime: Math.random() * 8, // Random position
         duration: 2 + Math.random() * 4, // Random duration 2-6 beats
@@ -402,7 +402,7 @@ function App() {
 
         addClip({
           name: data.audioFile.name,
-          type: 'audio' as any,
+          type: ClipType.AUDIO,
           trackId: selectedTrack.id,
           startTime: currentPosition,
           duration: durationInBeats,
