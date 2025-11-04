@@ -7,6 +7,7 @@ import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
+import { beatsToSeconds, secondsToBeats } from './audio/utils/tempo';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
 import { useAppStore, TrackType, ClipType } from './state';
 
@@ -23,7 +24,6 @@ function App() {
     selection,
     grid,
     stop,
-    togglePlayback,
     toggleRecording,
     toggleLoop,
     toggleMetronome,
@@ -68,8 +68,19 @@ function App() {
   const audioBuffersRef = useRef(new Map<string, AudioBuffer>());
   const audioFilesRef = useRef(new Map<string, Blob | ArrayBuffer>());
   const nextAudioFileIdRef = useRef(1);
+  const engineTracksRef = useRef<Set<string>>(new Set());
+  const lastTransportBeatRef = useRef(0);
 
-  const loopGuardRef = useRef(false);
+  const mapTrackType = useCallback((type: TrackType): 'audio' | 'midi' | 'instrument' => {
+    switch (type) {
+      case TrackType.AUDIO:
+        return 'audio';
+      case TrackType.MIDI:
+        return 'midi';
+      default:
+        return 'instrument';
+    }
+  }, []);
 
   const timeSignature = `${project.timeSignature.numerator}/${project.timeSignature.denominator}`;
 
@@ -81,46 +92,166 @@ function App() {
     return `${bar.toString().padStart(2, '0')}.${beat}.${tick.toString().padStart(3, '0')}`;
   };
 
+  // Sync tracks to audio engine
   useEffect(() => {
-    if (!transport.isPlaying) {
-      loopGuardRef.current = false;
-      return undefined;
-    }
+    const currentTrackIds = new Set(project.tracks.map(t => t.id));
+    
+    // Remove tracks that no longer exist
+    engineTracksRef.current.forEach((trackId) => {
+      if (!currentTrackIds.has(trackId)) {
+        try {
+          audioEngine.removeTrack(trackId);
+        } catch (e) {
+          console.warn('Failed to remove track from audio engine:', e);
+        }
+        engineTracksRef.current.delete(trackId);
+      }
+    });
+    
+    // Create or update tracks
+    project.tracks.forEach((track) => {
+      const engineTrackType = mapTrackType(track.type);
+      
+      if (!engineTracksRef.current.has(track.id)) {
+        try {
+          audioEngine.createTrack({
+            id: track.id,
+            name: track.name,
+            type: engineTrackType,
+            volume: track.volume,
+            pan: track.pan,
+            muted: track.muted,
+            solo: track.solo,
+          });
+          engineTracksRef.current.add(track.id);
+        } catch (e) {
+          console.warn('Failed to create track in audio engine:', e);
+        }
+      } else {
+        try {
+          audioEngine.updateTrack(track.id, {
+            volume: track.volume,
+            pan: track.pan,
+            muted: track.muted,
+            solo: track.solo,
+          });
+        } catch (e) {
+          console.warn('Failed to update track in audio engine:', e);
+        }
+      }
+    });
+  }, [project.tracks, audioEngine, mapTrackType]);
 
-    let animationFrameId = 0;
-    let lastTime = performance.now();
-    const beatsPerSecond = project.tempo / 60;
+  // Sync transport parameters to audio engine
+  useEffect(() => {
+    audioEngine.setTempo(project.tempo);
+  }, [project.tempo, audioEngine]);
 
-    const step = (time: number) => {
-      const deltaSeconds = (time - lastTime) / 1000;
-      lastTime = time;
+  useEffect(() => {
+    audioEngine.enableMetronome(transport.isMetronomeEnabled);
+  }, [transport.isMetronomeEnabled, audioEngine]);
 
-      setCurrentTime(transport.currentTime + deltaSeconds * beatsPerSecond);
+  useEffect(() => {
+    const loopStartSeconds = beatsToSeconds(transport.loopStart, project.tempo);
+    const loopEndSeconds = beatsToSeconds(transport.loopEnd, project.tempo);
+    audioEngine.setLoop(transport.isLooping, loopStartSeconds, loopEndSeconds);
+  }, [audioEngine, transport.isLooping, transport.loopStart, transport.loopEnd, project.tempo]);
 
-      if (transport.currentTime >= LOOP_LENGTH_BEATS) {
-        loopGuardRef.current = true;
-        stop();
-        loopGuardRef.current = false;
+  // Schedule clips for playback
+  const scheduleClipsForPlayback = useCallback((startBeatOverride?: number) => {
+    const tempo = project.tempo;
+    const playbackStartBeat = startBeatOverride ?? transport.currentTime;
+    const audioClips = project.clips.filter((clip): clip is AudioClip => clip.type === 'audio');
+
+    audioClips.forEach((clip) => {
+      if (!clip.audioFileId) {
+        return;
+      }
+      const buffer = audioBuffersRef.current.get(clip.audioFileId);
+      if (!buffer) {
         return;
       }
 
-      animationFrameId = requestAnimationFrame(step);
-    };
+      const clipEndBeat = clip.startTime + clip.duration;
+      if (clipEndBeat <= playbackStartBeat) {
+        return;
+      }
 
-    animationFrameId = requestAnimationFrame(step);
+      const playbackStartWithinClip = Math.max(clip.startTime, playbackStartBeat);
+      const offsetBeats = Math.max(0, playbackStartBeat - clip.startTime);
+      const remainingBeats = clip.duration - offsetBeats;
+      if (remainingBeats <= 0) {
+        return;
+      }
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [transport.isPlaying, project.tempo, transport.isLooping, setCurrentTime, stop, transport.currentTime]);
+      const offsetSeconds = (clip.offset ?? 0) + beatsToSeconds(offsetBeats, tempo);
+      if (offsetSeconds >= buffer.duration) {
+        return;
+      }
 
-  const handleTogglePlay = useCallback(() => {
-    togglePlayback();
-  }, [togglePlayback]);
+      const durationSeconds = beatsToSeconds(remainingBeats, tempo);
+      const remainingBufferDuration = Math.max(0, buffer.duration - offsetSeconds);
+      const playbackDuration = Math.min(durationSeconds, remainingBufferDuration);
+
+      audioEngine.scheduleClip({
+        trackId: clip.trackId,
+        buffer,
+        startBeat: playbackStartWithinClip,
+        offset: offsetSeconds,
+        duration: playbackDuration > 0 ? playbackDuration : undefined,
+        loop: false,
+      });
+    });
+  }, [project.clips, project.tempo, transport.currentTime, audioEngine]);
+
+  // Listen to audio engine position updates
+  useEffect(() => {
+    const unsubscribe = audioEngine.on('transport:position', (payload) => {
+      const beats = secondsToBeats(payload.position, project.tempo);
+      setCurrentTime(beats);
+
+      const lastBeat = lastTransportBeatRef.current;
+      if (beats + 1e-3 < lastBeat) {
+        scheduleClipsForPlayback(beats);
+      }
+      lastTransportBeatRef.current = beats;
+    });
+    return unsubscribe;
+  }, [audioEngine, scheduleClipsForPlayback, setCurrentTime, project.tempo]);
+
+  const handleTogglePlay = useCallback(async () => {
+    if (transport.isPlaying) {
+      audioEngine.stop();
+      stop();
+      lastTransportBeatRef.current = 0;
+      return;
+    }
+
+    // Load audio buffers into engine cache if not already loaded
+    audioBuffersRef.current.forEach((buffer, audioFileId) => {
+      if (!audioEngine.buffers.has(audioFileId)) {
+        audioEngine.buffers.set(audioFileId, buffer);
+      }
+    });
+
+    // Seek audio engine to current position
+    const currentTimeSeconds = beatsToSeconds(transport.currentTime, project.tempo);
+    audioEngine.seek(currentTimeSeconds);
+
+    // Prepare clip scheduling
+    scheduleClipsForPlayback(transport.currentTime);
+    lastTransportBeatRef.current = transport.currentTime;
+
+    // Start playback
+    await audioEngine.play();
+    play();
+  }, [transport.isPlaying, transport.currentTime, project.tempo, audioEngine, stop, play, scheduleClipsForPlayback]);
 
   const handleStop = useCallback(() => {
+    audioEngine.stop();
     stop();
-  }, [stop]);
+    lastTransportBeatRef.current = 0;
+  }, [audioEngine, stop]);
 
   const handleZoomIn = useCallback(() => {
     setZoomHorizontal(grid.zoomHorizontal * 1.25);
