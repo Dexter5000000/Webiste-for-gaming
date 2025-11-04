@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import type { Track, MixerChannel, TimelineClip } from './types';
+import type { Track, MixerChannel } from './types';
 import TransportBar from './components/TransportBar';
 import TrackLane from './components/TrackLane';
 import TimelineViewport from './components/TimelineViewport';
@@ -8,41 +8,12 @@ import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
 import { AudioEngine } from './audio/AudioEngine';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
-import { useAppStore, TrackType } from './state';
+import { useAppStore, TrackType, ClipType } from './state';
 
 const LOOP_LENGTH_BEATS = 64;
 
-// Constants
-const INITIAL_TEMPO = 120;
-const INITIAL_ZOOM = 1.0;
-
-// Track colors for mock data
-const trackColors = [
-  '#ff6b6b', // Red
-  '#4ecdc4', // Teal
-  '#45b7d1', // Blue
-  '#f9ca24', // Yellow
-  '#6c5ce7', // Purple
-];
-
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
-
-const getMimeTypeForFormat = (format?: string) => {
-  switch ((format ?? '').toLowerCase()) {
-    case 'wav':
-    case 'wave':
-      return 'audio/wav';
-    case 'mp3':
-      return 'audio/mpeg';
-    case 'ogg':
-      return 'audio/ogg';
-    case 'flac':
-      return 'audio/flac';
-    default:
-      return 'application/octet-stream';
-  }
-};
 
 function App() {
   // Store state
@@ -51,8 +22,6 @@ function App() {
     transport,
     selection,
     grid,
-    ui,
-    play,
     stop,
     togglePlayback,
     toggleRecording,
@@ -208,7 +177,7 @@ function App() {
         if (store.project.tracks.length > 0) {
           addClip({
             name: 'Test Clip',
-            type: 'audio' as any,
+            type: ClipType.AUDIO,
             trackId: store.project.tracks[0].id,
             startTime: 0,
             duration: 4,
@@ -235,7 +204,7 @@ function App() {
       // Add clip to first track
       addClip({
         name: 'Test Clip',
-        type: 'audio' as any,
+        type: ClipType.AUDIO,
         trackId: project.tracks[0].id,
         startTime: Math.random() * 8, // Random position
         duration: 2 + Math.random() * 4, // Random duration 2-6 beats
@@ -302,7 +271,7 @@ function App() {
 
         addClip({
           name: data.audioFile.name,
-          type: 'audio' as any,
+          type: ClipType.AUDIO,
           trackId: selectedTrack.id,
           startTime: currentPosition,
           duration: durationInBeats,
