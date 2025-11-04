@@ -1,4 +1,5 @@
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import type { TimelineClip } from '../types';
 
 interface TimelineViewportProps {
@@ -53,6 +54,24 @@ const TimelineViewport = memo(function TimelineViewport({
       position: index * BEATS_PER_BAR * pixelsPerBeat,
     }));
   }, [pixelsPerBeat]);
+
+  const handleClipMouseDown = (
+    e: MouseEvent,
+    clipId: string,
+    clip: TimelineClip,
+    type: 'move' | 'resize-left' | 'resize-right'
+  ) => {
+    e.stopPropagation();
+    setDragState({
+      clipId,
+      type,
+      startX: e.clientX,
+      startY: e.clientY,
+      originalStartTime: clip.start,
+      originalDuration: clip.length,
+      originalTrackId: clip.trackId,
+    });
+  };
 
   useEffect(() => {
     clips.forEach((clip) => {
