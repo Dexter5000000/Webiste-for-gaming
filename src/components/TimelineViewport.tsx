@@ -61,17 +61,122 @@ const TimelineViewport = memo(function TimelineViewport({
     clip: TimelineClip,
     type: 'move' | 'resize-left' | 'resize-right'
   ) => {
+    e.preventDefault();
     e.stopPropagation();
+
+    const isMultiSelect = e.shiftKey || e.metaKey || e.ctrlKey;
+    if (onClipSelect) {
+      onClipSelect(clipId, isMultiSelect);
+    }
+
+    const originalStartTime = clip.start;
+    const originalDuration = clip.length;
+    const originalTrackId = clip.trackId;
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
+    const initialTrackIndex = tracks.findIndex(
+      (track) => track.id === originalTrackId
+    );
+
     setDragState({
       clipId,
       type,
-      startX: e.clientX,
-      startY: e.clientY,
-      originalStartTime: clip.start,
-      originalDuration: clip.length,
-      originalTrackId: clip.trackId,
+      startX: startClientX,
+      startY: startClientY,
+      originalStartTime,
+      originalDuration,
+      originalTrackId,
     });
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.min(Math.max(value, min), max);
+
+    const minDuration = 0.25;
+    const maxStartForMove = Math.max(0, totalBeats - originalDuration);
+    const rowHeight = (() => {
+      if (typeof window === 'undefined') {
+        return 88;
+      }
+      const rootStyles = window.getComputedStyle(document.documentElement);
+      const parsed = parseFloat(rootStyles.getPropertyValue('--timeline-row-height'));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 88;
+    })();
+
+    const handleMouseMove = (moveEvent: globalThis.MouseEvent) => {
+      moveEvent.preventDefault();
+
+      const deltaX = moveEvent.clientX - startClientX;
+      const deltaBeats = deltaX / pixelsPerBeat;
+
+      if (type === 'move') {
+        const proposedStart = originalStartTime + deltaBeats;
+        const newStartTime = clamp(proposedStart, 0, maxStartForMove);
+
+        let newTrackId = originalTrackId;
+        if (tracks.length > 0 && initialTrackIndex !== -1) {
+          const deltaY = moveEvent.clientY - startClientY;
+          const deltaTracks = Math.round(deltaY / rowHeight);
+          const targetIndex = clamp(
+            initialTrackIndex + deltaTracks,
+            0,
+            tracks.length - 1
+          );
+          newTrackId = tracks[targetIndex]?.id ?? originalTrackId;
+        }
+
+        onClipMove?.(clipId, newTrackId, newStartTime);
+      } else if (type === 'resize-left') {
+        const proposedStart = originalStartTime + deltaBeats;
+        const maxStart = Math.max(
+          0,
+          Math.min(
+            originalStartTime + originalDuration - minDuration,
+            totalBeats - minDuration
+          )
+        );
+        const newStartTime = clamp(proposedStart, 0, maxStart);
+        const actualDelta = newStartTime - originalStartTime;
+        const proposedDuration = originalDuration - actualDelta;
+        const maxDuration = totalBeats - newStartTime;
+        const newDuration = clamp(
+          proposedDuration,
+          minDuration,
+          Math.max(minDuration, maxDuration)
+        );
+
+        onClipResize?.(clipId, newStartTime, newDuration);
+      } else {
+        const proposedDuration = originalDuration + deltaBeats;
+        const maxDuration = totalBeats - originalStartTime;
+        const newDuration = clamp(
+          proposedDuration,
+          minDuration,
+          Math.max(minDuration, maxDuration)
+        );
+
+        onClipResize?.(clipId, originalStartTime, newDuration);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setDragState({
+        clipId: null,
+        type: null,
+        startX: 0,
+        startY: 0,
+        originalStartTime: 0,
+        originalDuration: 0,
+        originalTrackId: '',
+      });
+
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   };
+
 
   useEffect(() => {
     clips.forEach((clip) => {
@@ -192,6 +297,10 @@ const TimelineViewport = memo(function TimelineViewport({
                     <div
                       className="timeline-clip-resize-handle timeline-clip-resize-left"
                       onMouseDown={(e) => handleClipMouseDown(e, clip.id, clip, 'resize-left')}
+                    />
+                    <div
+                      className="timeline-clip-resize-handle timeline-clip-resize-right"
+                      onMouseDown={(e) => handleClipMouseDown(e, clip.id, clip, 'resize-right')}
                     />
                     <span className="timeline-clip-name text-xs">
                       {clip.name}
