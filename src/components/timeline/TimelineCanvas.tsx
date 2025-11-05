@@ -4,6 +4,7 @@ import { AudioClip, ClipInteraction } from '../../audio/clips';
 import { secondsToBeats, beatsToSeconds } from '../../audio/utils/tempo';
 import { generatePlaceholderWaveform } from './waveformGenerator';
 import { MidiClipEditor } from '../piano-roll';
+import { ClipType } from '../../state/models';
 
 interface TimelineCanvasProps {
   tempo: number;
@@ -553,11 +554,11 @@ export const TimelineCanvas: React.FC<TimelineCanvasProps> = ({
             clip={{
               id: editingMidiClip.id,
               name: editingMidiClip.name,
-              type: 'midi',
+              type: ClipType.MIDI,
               trackId: editingMidiClip.trackId,
               startTime: secondsToBeats(editingMidiClip.startTime, tempo),
               duration: secondsToBeats(editingMidiClip.duration, tempo),
-              color: editingMidiClip.color,
+              color: editingMidiClip.color || '#66d6b6',
               muted: false,
               solo: false,
               gain: 1,

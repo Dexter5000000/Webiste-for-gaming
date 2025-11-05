@@ -1,5 +1,5 @@
 import { Midi } from '@tonejs/midi';
-import { MidiClip, MidiNote, Project } from '../state/models';
+import { MidiClip, MidiNote, Project, ClipType } from '../state/models';
 
 /**
  * Convert a MidiClip to Tone.js MIDI format
@@ -9,7 +9,10 @@ export function midiClipToToneMidi(clip: MidiClip, project: Project): Midi {
   
   // Set tempo and time signature
   midi.header.setTempo(project.tempo);
-  midi.header.timeSignature = `${project.timeSignature.numerator}/${project.timeSignature.denominator}`;
+  const timeSignatures = midi.header.timeSignatures;
+  if (timeSignatures.length > 0) {
+    timeSignatures[0].timeSignature = [project.timeSignature.numerator, project.timeSignature.denominator];
+  }
   
   // Create a track for this clip
   const track = midi.addTrack();
@@ -78,7 +81,7 @@ export function toneMidiToMidiClip(midi: Midi, clipId: string, trackId: string):
   return {
     id: clipId,
     name: `Imported MIDI`,
-    type: 'midi' as const,
+    type: ClipType.MIDI,
     trackId,
     startTime: 0,
     duration: Math.ceil(lastNote), // Round up to nearest beat
@@ -114,7 +117,7 @@ export async function exportMidiFile(clip: MidiClip, project: Project): Promise<
   try {
     const midi = midiClipToToneMidi(clip, project);
     const arrayBuffer = midi.toArray();
-    return new Blob([arrayBuffer], { type: 'audio/midi' });
+    return new Blob([new Uint8Array(arrayBuffer)], { type: 'audio/midi' });
   } catch (error) {
     throw new Error(`Failed to export MIDI file: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

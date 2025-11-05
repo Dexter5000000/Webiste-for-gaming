@@ -80,7 +80,6 @@ class MockAudioContext implements AudioContextLike {
   currentTime = 0;
   sampleRate = 44100;
   destination = new MockAudioNode();
-  private suspended = false;
   
   createGain(): GainNodeLike {
     return new MockGainNode();
@@ -103,11 +102,11 @@ class MockAudioContext implements AudioContextLike {
   }
   
   async resume(): Promise<void> {
-    this.suspended = false;
+    // Mock resume
   }
   
   async suspend(): Promise<void> {
-    this.suspended = true;
+    // Mock suspend
   }
   
   async close(): Promise<void> {

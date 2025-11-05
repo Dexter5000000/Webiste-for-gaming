@@ -11,7 +11,6 @@ export class EffectsManager {
   private audioContext: AudioContextLike;
   private trackChains: Map<string, EffectChain> = new Map();
   private masterChain: EffectChain;
-  private nextChainId: number = 1;
 
   constructor(audioContext: AudioContextLike) {
     this.audioContext = audioContext;
@@ -140,7 +139,7 @@ export class EffectsManager {
     }
   }
 
-  public getEffectInfo(trackId?: string): {
+  public getEffectInfo(_trackId?: string): {
     trackId?: string;
     effects: EffectState[];
     chainLevel: number;

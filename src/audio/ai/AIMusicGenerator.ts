@@ -127,8 +127,8 @@ export class AIMusicGenerator {
   }
 
   private async generateWithReplicate(
-    request: GenerationRequest,
-    modelConfig: AIModelConfig
+    _request: GenerationRequest,
+    _modelConfig: AIModelConfig
   ): Promise<GenerationResult> {
     this.updateProgress('generating', 10, 'Connecting to Replicate API...');
 
@@ -139,8 +139,8 @@ export class AIMusicGenerator {
   }
 
   private async generateWithLocalInference(
-    request: GenerationRequest,
-    modelConfig: AIModelConfig
+    _request: GenerationRequest,
+    _modelConfig: AIModelConfig
   ): Promise<GenerationResult> {
     this.updateProgress('generating', 10, 'Starting local inference...');
 

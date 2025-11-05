@@ -3,7 +3,6 @@ import {
   openFileWithSystemAccess,
   isAudioFileSupported,
 } from '../utils/audioImport';
-import { importMidiFile, exportMidiFile } from '../utils/midiUtils';
 
 export interface ImportExportPanelProps {
   onImportAudio?: (files: File[]) => Promise<void> | void;
@@ -129,7 +128,7 @@ export function ImportExportPanel({
     input.type = 'file';
     input.accept = '.mid,.midi';
     input.multiple = false;
-    input.onchange = handleMidiFileChange;
+    input.onchange = (e) => handleMidiFileChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
     input.click();
   }, [handleMidiFileChange]);
 

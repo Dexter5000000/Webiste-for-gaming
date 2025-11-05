@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { MidiNote, MidiClip } from '../../state/models';
 import './PianoRollEditor.css';
 
@@ -14,12 +14,11 @@ interface PianoRollEditorProps {
 }
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const PITCHES = 128; // MIDI standard
 const BLACK_KEYS = [1, 3, 6, 8, 10]; // Black key positions in octave
 
 export const PianoRollEditor: React.FC<PianoRollEditorProps> = ({
   clip,
-  tempo,
+  tempo: _tempo,
   timeSignature,
   pixelsPerBeat,
   zoomVertical,
@@ -29,7 +28,7 @@ export const PianoRollEditor: React.FC<PianoRollEditorProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = useState({
+  const [viewport] = useState({
     startBeat: 0,
     endBeat: 16,
     startPitch: 60, // Middle C
@@ -301,7 +300,6 @@ export const PianoRollEditor: React.FC<PianoRollEditorProps> = ({
     if (!rect) return;
     
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
     
     if (dragState.type === 'draw') {
       const beat = pixelToBeat(dragState.startX);
@@ -330,7 +328,7 @@ export const PianoRollEditor: React.FC<PianoRollEditorProps> = ({
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoomVertical = Math.max(10, Math.min(100, zoomVertical * delta));
+      Math.max(10, Math.min(100, zoomVertical * delta));
       // TODO: Update zoomVertical through props
     }
   }, [zoomVertical]);
