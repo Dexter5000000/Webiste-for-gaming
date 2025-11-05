@@ -769,6 +769,7 @@ interface AudioEngineEvents {
   'track:updated': TrackSnapshot;
   'metronome:tick': { bar: number; beat: number; time: number };
   'engine:error': Error;
+  [key: string]: unknown;
 }
 
 export class AudioEngine {
@@ -791,8 +792,9 @@ export class AudioEngine {
   private readonly instruments = new Map<string, Instrument>();
   private readonly midiScheduler: MidiPlaybackScheduler;
 
-  constructor(private readonly config: AudioEngineConfig = {}) {
+  constructor(config: AudioEngineConfig = {}) {
     const globalScope = typeof window !== 'undefined' ? (window as Window & {
+      AudioContext?: typeof AudioContext;
       webkitAudioContext?: typeof AudioContext;
     }) : undefined;
     const NativeAudioContext = globalScope?.AudioContext ?? globalScope?.webkitAudioContext;
@@ -942,11 +944,11 @@ export class AudioEngine {
 
   // Effects management methods
   addEffectToTrack(trackId: string, effectType: string) {
-    return this.effectsManager.addEffectToTrack(trackId, effectType as any);
+    return this.effectsManager.addEffectToTrack(trackId, effectType as 'reverb' | 'delay' | 'eq' | 'compressor' | 'distortion' | 'filter');
   }
 
   addEffectToMaster(effectType: string) {
-    return this.effectsManager.addEffectToMaster(effectType as any);
+    return this.effectsManager.addEffectToMaster(effectType as 'reverb' | 'delay' | 'eq' | 'compressor' | 'distortion' | 'filter');
   }
 
   removeEffectFromTrack(trackId: string, effectId: string): void {
@@ -1158,8 +1160,8 @@ export class AudioEngine {
   createInstrument(trackId: string, instrumentType: InstrumentType): void {
     // Import the instrument factory dynamically to avoid circular dependencies
     import('./instruments').then(({ InstrumentFactory }) => {
-      const instrument = InstrumentFactory.create(instrumentType, this.context);
-      instrument.connect(this.masterGain);
+      const instrument = InstrumentFactory.create(instrumentType, this.context as unknown as AudioContext);
+      instrument.connect(this.masterGain as unknown as AudioNode);
       this.instruments.set(trackId, instrument);
     }).catch(error => {
       console.error(`Failed to create instrument: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -1183,8 +1185,8 @@ export class AudioEngine {
   }
 
   // MIDI scheduling methods
-  scheduleMidiClip(trackId: string, clipData: any, project: any, playbackStartTime: number): void {
-    this.midiScheduler.scheduleClip(clipData, project, playbackStartTime, playbackStartTime);
+  scheduleMidiClip(_trackId: string, clipData: unknown, project: unknown, playbackStartTime: number): void {
+    this.midiScheduler.scheduleClip(clipData as never, project as never, playbackStartTime, playbackStartTime);
   }
 
   processMidiSchedule(currentTime: number, trackId: string): void {

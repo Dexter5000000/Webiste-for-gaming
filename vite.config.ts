@@ -48,10 +48,5 @@ export default defineConfig({
         enabled: true
       }
     })
-  ],
-  test: {
-    environment: 'node',
-    globals: true,
-    clearMocks: true
-  }
+  ]
 })

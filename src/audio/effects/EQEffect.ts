@@ -245,7 +245,7 @@ export class EQEffect extends BaseEffect {
           this.highShelf.frequency.value = value;
         }
         break;
-      default:
+      default: {
         // Handle band parameters
         const bandMatch = id.match(/^band(\d+)(Gain|Freq|Q)$/);
         if (bandMatch) {
@@ -268,6 +268,7 @@ export class EQEffect extends BaseEffect {
           }
         }
         break;
+      }
     }
   }
 
