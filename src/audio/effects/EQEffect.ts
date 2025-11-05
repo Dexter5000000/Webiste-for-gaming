@@ -17,14 +17,33 @@ export class EQEffect extends BaseEffect {
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.inputSplitter = ctx.createChannelSplitter(2);
     this.outputMerger = ctx.createChannelMerger(2);
     this.lowShelf = ctx.createBiquadFilter();
     this.highShelf = ctx.createBiquadFilter();
+    
+    // Create parametric bands
+    const frequencies = [200, 800, 2400, 6000];
+    for (let i = 0; i < this.numberOfBands; i++) {
+      const frequency = ctx.createBiquadFilter();
+      frequency.type = 'peaking';
+      frequency.frequency.value = frequencies[i];
+      frequency.Q.value = 1;
+      frequency.gain.value = 0;
+      
+      const gain = ctx.createGain();
+      gain.gain.value = 1;
+      
+      this.bands.push({
+        frequency,
+        gain,
+        type: 'peaking'
+      });
+    }
+    
     this.initializeParameters();
-    this.setupEffectChain();
   }
 
   public get type(): string {
@@ -36,39 +55,16 @@ export class EQEffect extends BaseEffect {
   }
 
   protected setupEffectChain(): void {
-    // Create splitter and merger for stereo processing
-    this.inputSplitter = this.audioContext.createChannelSplitter(2);
-    this.outputMerger = this.audioContext.createChannelMerger(2);
+    // Nodes are already created in constructor, just configure and connect them
     
-    // Create shelf filters
-    this.lowShelf = this.audioContext.createBiquadFilter();
+    // Configure shelf filters
     this.lowShelf.type = 'lowshelf';
     this.lowShelf.frequency.value = 100;
     this.lowShelf.gain.value = 0;
     
-    this.highShelf = this.audioContext.createBiquadFilter();
     this.highShelf.type = 'highshelf';
     this.highShelf.frequency.value = 10000;
     this.highShelf.gain.value = 0;
-    
-    // Create parametric bands
-    const frequencies = [200, 800, 2400, 6000];
-    for (let i = 0; i < this.numberOfBands; i++) {
-      const frequency = this.audioContext.createBiquadFilter();
-      frequency.type = 'peaking';
-      frequency.frequency.value = frequencies[i];
-      frequency.Q.value = 1;
-      frequency.gain.value = 0;
-      
-      const gain = this.audioContext.createGain();
-      gain.gain.value = 1;
-      
-      this.bands.push({
-        frequency,
-        gain,
-        type: 'peaking'
-      });
-    }
   }
 
   protected getEffectInput(): AudioNode {

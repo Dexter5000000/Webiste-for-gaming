@@ -9,13 +9,12 @@ export class CompressorEffect extends BaseEffect {
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.compressor = ctx.createDynamicsCompressor();
     this.makeupGain = ctx.createGain();
     this.analyzer = ctx.createAnalyser();
     this.initializeParameters();
-    this.setupEffectChain();
     this.startGainReductionAnalysis();
   }
 
@@ -28,9 +27,7 @@ export class CompressorEffect extends BaseEffect {
   }
 
   protected setupEffectChain(): void {
-    this.compressor = this.audioContext.createDynamicsCompressor();
-    this.makeupGain = this.audioContext.createGain();
-    this.analyzer = this.audioContext.createAnalyser();
+    // Nodes are already created in constructor, just configure them
     
     // Configure analyzer for gain reduction measurement
     this.analyzer.fftSize = 2048;

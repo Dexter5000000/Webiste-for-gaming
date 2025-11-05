@@ -23,9 +23,16 @@ export interface LFOParams {
   destination: 'pitch' | 'filter' | 'amplitude';
 }
 
+export interface DrumPad {
+  note: number;
+  name: string;
+  sampleUrl?: string;
+  color?: string;
+}
+
 export interface InstrumentParams {
   volume: number;
-  [key: string]: number | string | boolean | ADSREnvelope | FilterParams | LFOParams;
+  [key: string]: number | string | boolean | ADSREnvelope | FilterParams | LFOParams | DrumPad[] | Record<number, number>;
 }
 
 export interface InstrumentPreset {
@@ -60,13 +67,6 @@ export interface Instrument {
   disconnect(): void;
   
   dispose(): void;
-}
-
-export interface DrumPad {
-  note: number;
-  name: string;
-  sampleUrl?: string;
-  color?: string;
 }
 
 export interface DrumPattern {

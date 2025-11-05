@@ -8,8 +8,8 @@ export class ReverbEffect extends BaseEffect {
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.convolver = ctx.createConvolver();
     this.preDelay = ctx.createDelay(2.0);
     this.filter = ctx.createBiquadFilter();
@@ -137,7 +137,7 @@ export class ReverbEffect extends BaseEffect {
       }
     }
     
-    this.convolver.buffer = impulse;
+    this.convolver.buffer = impulse as AudioBuffer;
   }
 
   protected disposeEffectNodes(): void {

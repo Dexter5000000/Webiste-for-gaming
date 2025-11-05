@@ -10,15 +10,14 @@ export class DelayEffect extends BaseEffect {
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.delayNode = ctx.createDelay(2.0);
     this.feedback = ctx.createGain();
     this.filter = ctx.createBiquadFilter();
     this.lfo = ctx.createOscillator();
     this.lfoGain = ctx.createGain();
     this.initializeParameters();
-    this.setupEffectChain();
     this.startLFO();
   }
 
@@ -31,11 +30,7 @@ export class DelayEffect extends BaseEffect {
   }
 
   protected setupEffectChain(): void {
-    this.delayNode = this.audioContext.createDelay(2.0);
-    this.feedback = this.audioContext.createGain();
-    this.filter = this.audioContext.createBiquadFilter();
-    this.lfo = this.audioContext.createOscillator();
-    this.lfoGain = this.audioContext.createGain();
+    // Nodes are already created in constructor, just configure them
     
     // Configure LFO for modulation
     this.lfo.type = 'sine';

@@ -1,4 +1,4 @@
-import type { AudioContextLike } from '../AudioEngine';
+import type { AudioContextLike, AudioNodeLike, GainNodeLike } from '../AudioEngine';
 
 export interface EffectParameter {
   id: string;
@@ -21,24 +21,24 @@ export interface EffectState {
 
 export abstract class BaseEffect {
   protected audioContext: AudioContextLike;
-  protected inputNode: AudioNode;
-  protected outputNode: AudioNode;
-  protected wetGain: GainNode;
-  protected dryGain: GainNode;
+  protected inputNode: AudioNodeLike;
+  protected outputNode: AudioNodeLike;
+  protected wetGain: GainNodeLike;
+  protected dryGain: GainNodeLike;
   protected enabled: boolean = true;
   protected parameters: Map<string, EffectParameter>;
 
   constructor(audioContext: AudioContextLike, public readonly id: string) {
     this.audioContext = audioContext;
-    // Cast to AudioContext for node creation since we need the real methods
-    const ctx = audioContext as AudioContext;
-    this.wetGain = ctx.createGain();
-    this.dryGain = ctx.createGain();
+    // Cast to unknown first for compatibility
+    const ctx = audioContext as unknown as AudioContext;
+    this.wetGain = ctx.createGain() as unknown as GainNodeLike;
+    this.dryGain = ctx.createGain() as unknown as GainNodeLike;
     this.parameters = new Map();
     
     // Create input/output nodes - to be overridden by subclasses
-    this.inputNode = ctx.createGain();
-    this.outputNode = ctx.createGain();
+    this.inputNode = ctx.createGain() as unknown as AudioNodeLike;
+    this.outputNode = ctx.createGain() as unknown as AudioNodeLike;
     
     // Default routing
     this.inputNode.connect(this.dryGain);
@@ -51,11 +51,11 @@ export abstract class BaseEffect {
   public abstract get name(): string;
 
   public get input(): AudioNode {
-    return this.inputNode;
+    return this.inputNode as unknown as AudioNode;
   }
 
   public get output(): AudioNode {
-    return this.outputNode;
+    return this.outputNode as unknown as AudioNode;
   }
 
   public setEnabled(enabled: boolean): void {
@@ -122,8 +122,8 @@ export abstract class BaseEffect {
     if (this.enabled) {
       // Route through effect
       this.inputNode.connect(this.dryGain);
-      this.inputNode.connect(this.getEffectInput());
-      this.getEffectOutput().connect(this.wetGain);
+      this.inputNode.connect(this.getEffectInput() as unknown as AudioNodeLike);
+      (this.getEffectOutput() as unknown as AudioNodeLike).connect(this.wetGain);
     } else {
       // Bypass effect - dry signal only
       this.inputNode.connect(this.dryGain);

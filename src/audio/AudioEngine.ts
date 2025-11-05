@@ -290,12 +290,12 @@ class TrackGraph {
     if (this.panNode) {
       this.panNode.pan.value = options.pan ?? 0;
       this.panNode.connect(this.gainNode);
-      this.gainNode.connect(trackEffects.input);
-      trackEffects.output.connect(this.masterBus);
+      this.gainNode.connect(trackEffects.input as unknown as AudioNodeLike);
+      (trackEffects.output as unknown as AudioNodeLike).connect(this.masterBus);
       this.outputNode = this.gainNode;
     } else {
-      this.gainNode.connect(trackEffects.input);
-      trackEffects.output.connect(this.masterBus);
+      this.gainNode.connect(trackEffects.input as unknown as AudioNodeLike);
+      (trackEffects.output as unknown as AudioNodeLike).connect(this.masterBus);
       this.outputNode = this.gainNode;
     }
 
@@ -822,11 +822,11 @@ export class AudioEngine {
 
     this.bufferCache = new AudioBufferCache(this.context);
 
-    this.effectsManager = new EffectsManager(this.context as AudioContext);
+    this.effectsManager = new EffectsManager(this.context);
     
     // Route master gain to master effects chain, then to destination
-    this.masterGain.connect(this.effectsManager.getMasterChain().input);
-    this.effectsManager.getMasterChain().output.connect(this.context.destination);
+    this.masterGain.connect(this.effectsManager.getMasterChain().input as unknown as AudioNodeLike);
+    (this.effectsManager.getMasterChain().output as unknown as AudioNodeLike).connect(this.context.destination);
 
     this.scheduler = new LookaheadScheduler(this.context, {
       lookaheadSeconds: config.lookaheadSeconds,
