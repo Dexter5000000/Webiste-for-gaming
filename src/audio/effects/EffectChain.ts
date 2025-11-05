@@ -16,8 +16,8 @@ export class EffectChain {
 
   constructor(audioContext: AudioContextLike, public readonly id: string) {
     this.audioContext = audioContext;
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.inputNode = ctx.createGain();
     this.outputNode = ctx.createGain();
     this.inputNode.gain.value = 1;

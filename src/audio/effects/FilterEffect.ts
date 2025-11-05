@@ -9,10 +9,10 @@ export class FilterEffect extends BaseEffect {
   private envelopeFollower: GainNode;
   private envelopeDetector: AnalyserNode;
 
-    constructor(audioContext: AudioContextLike, id: string) {
+  constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);
-    // Cast to AudioContext for node creation since we need to real methods
-    const ctx = audioContext as AudioContext;
+    // Cast to AudioContext for node creation since we need the real methods
+    const ctx = audioContext as unknown as AudioContext;
     this.filter = ctx.createBiquadFilter();
     this.resonance = ctx.createGain();
     this.lfo = ctx.createOscillator();
@@ -20,7 +20,6 @@ export class FilterEffect extends BaseEffect {
     this.envelopeFollower = ctx.createGain();
     this.envelopeDetector = ctx.createAnalyser();
     this.initializeParameters();
-    this.setupEffectChain();
     this.startLFO();
     this.startEnvelopeFollower();
   }
@@ -34,12 +33,7 @@ export class FilterEffect extends BaseEffect {
   }
 
   protected setupEffectChain(): void {
-    this.filter = this.audioContext.createBiquadFilter();
-    this.resonance = this.audioContext.createGain();
-    this.lfo = this.audioContext.createOscillator();
-    this.lfoGain = this.audioContext.createGain();
-    this.envelopeFollower = this.audioContext.createGain();
-    this.envelopeDetector = this.audioContext.createAnalyser();
+    // Nodes are already created in constructor, just configure them
     
     // Configure filter
     this.filter.type = 'lowpass';

@@ -290,12 +290,12 @@ class TrackGraph {
     if (this.panNode) {
       this.panNode.pan.value = options.pan ?? 0;
       this.panNode.connect(this.gainNode);
-      this.gainNode.connect(trackEffects.input);
-      trackEffects.output.connect(this.masterBus);
+      this.gainNode.connect(trackEffects.input as unknown as AudioNodeLike);
+      (trackEffects.output as unknown as AudioNodeLike).connect(this.masterBus);
       this.outputNode = this.gainNode;
     } else {
-      this.gainNode.connect(trackEffects.input);
-      trackEffects.output.connect(this.masterBus);
+      this.gainNode.connect(trackEffects.input as unknown as AudioNodeLike);
+      (trackEffects.output as unknown as AudioNodeLike).connect(this.masterBus);
       this.outputNode = this.gainNode;
     }
 
@@ -822,11 +822,11 @@ export class AudioEngine {
 
     this.bufferCache = new AudioBufferCache(this.context);
 
-    this.effectsManager = new EffectsManager(this.context as AudioContext);
+    this.effectsManager = new EffectsManager(this.context);
     
     // Route master gain to master effects chain, then to destination
-    this.masterGain.connect(this.effectsManager.getMasterChain().input);
-    this.effectsManager.getMasterChain().output.connect(this.context.destination);
+    this.masterGain.connect(this.effectsManager.getMasterChain().input as unknown as AudioNodeLike);
+    (this.effectsManager.getMasterChain().output as unknown as AudioNodeLike).connect(this.context.destination);
 
     this.scheduler = new LookaheadScheduler(this.context, {
       lookaheadSeconds: config.lookaheadSeconds,
@@ -1041,15 +1041,14 @@ export class AudioEngine {
       throw new Error(`Track with id ${clip.trackId} not found`);
     }
     
-    // Calculate when the clip should play relative to current position
-    const currentPosition = this.transport.getPosition();
-    const clipStartTime = beatsToSeconds(clip.startBeat, this.transport.getTempo());
-    const timeUntilClipStart = clipStartTime - currentPosition;
+    // Convert clip start beat to seconds for scheduling
+    const clipStartTimeSeconds = beatsToSeconds(clip.startBeat, this.transport.getTempo());
     
-    // Schedule at current time + time until clip (never in the past)
+    // Calculate the absolute context time when this clip should start
+    const startContextTime = this.transport.getStartContextTime();
     const scheduledTime = Math.max(
-      this.context.currentTime + 0.001, // Add small buffer to avoid timing issues
-      this.context.currentTime + timeUntilClipStart
+      this.context.currentTime + 0.001, // Ensure we don't schedule in the past
+      startContextTime + clipStartTimeSeconds
     );
     
     this.scheduler.schedule(scheduledTime, () => {
