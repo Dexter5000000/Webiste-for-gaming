@@ -177,7 +177,6 @@ function App() {
         return;
       }
 
-      const playbackStartWithinClip = Math.max(clip.startTime, playbackStartBeat);
       const offsetBeats = Math.max(0, playbackStartBeat - clip.startTime);
       const remainingBeats = clip.duration - offsetBeats;
       if (remainingBeats <= 0) {
@@ -196,7 +195,7 @@ function App() {
       audioEngine.scheduleClip({
         trackId: clip.trackId,
         buffer,
-        startBeat: playbackStartWithinClip,
+        startBeat: clip.startTime,
         offset: offsetSeconds,
         duration: playbackDuration > 0 ? playbackDuration : undefined,
         loop: false,
