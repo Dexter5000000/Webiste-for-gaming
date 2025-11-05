@@ -1040,9 +1040,18 @@ export class AudioEngine {
     if (!track) {
       throw new Error(`Track with id ${clip.trackId} not found`);
     }
-    const clipTime = beatsToSeconds(clip.startBeat, this.transport.getTempo());
-    const contextTime = this.transport.getStartContextTime() + clipTime;
-    const scheduledTime = contextTime;
+    
+    // Calculate when the clip should play relative to current position
+    const currentPosition = this.transport.getPosition();
+    const clipStartTime = beatsToSeconds(clip.startBeat, this.transport.getTempo());
+    const timeUntilClipStart = clipStartTime - currentPosition;
+    
+    // Schedule at current time + time until clip (never in the past)
+    const scheduledTime = Math.max(
+      this.context.currentTime + 0.001, // Add small buffer to avoid timing issues
+      this.context.currentTime + timeUntilClipStart
+    );
+    
     this.scheduler.schedule(scheduledTime, () => {
       track.scheduleClip(clip.buffer, scheduledTime, {
         startBeat: clip.startBeat,
