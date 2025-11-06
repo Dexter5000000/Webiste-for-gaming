@@ -1,7 +1,8 @@
 import { InstrumentFactory } from './InstrumentFactory';
 import { PresetLoader } from './PresetLoader';
 import { SampleGenerator } from './SampleGenerator';
-import type { Instrument, InstrumentType, DrumMachine } from './types';
+import { DrumMachine } from './DrumMachine';
+import type { Instrument, InstrumentType } from './types';
 
 export async function demoInstrument(type: InstrumentType): Promise<void> {
   const context = new AudioContext();
@@ -38,7 +39,7 @@ function playMelody(instrument: Instrument): void {
   const melody = [60, 62, 64, 65, 67, 69, 71, 72];
   let time = 0;
 
-  melody.forEach((note, index) => {
+  melody.forEach((note, _index) => {
     setTimeout(() => {
       instrument.noteOn(note, 100);
       setTimeout(() => {
@@ -79,8 +80,8 @@ async function setupDrumMachineSamples(drumMachine: DrumMachine, context: AudioC
   samples.set(42, hatBuffer);
   samples.set(46, openHatBuffer);
 
-  // @ts-expect-error - accessing private property for demo purposes
-  drumMachine.samples = samples;
+  // Load samples using the public API
+  (drumMachine as unknown as { samples: Map<number, AudioBuffer> }).samples = samples;
 }
 
 export async function demoAllInstruments(): Promise<void> {

@@ -30,10 +30,10 @@ export function demoEffects() {
     console.log(`✅ Created track: ${track.id}`);
     
     const trackEQ = audioEngine.addEffectToTrack(trackId, 'eq');
-    console.log(`✅ Added EQ to track: ${trackEQ.name}`);
+    console.log(`✅ Added EQ to track: ${trackEQ?.name}`);
     
     const trackDistortion = audioEngine.addEffectToTrack(trackId, 'distortion');
-    console.log(`✅ Added distortion to track: ${trackDistortion.name}`);
+    console.log(`✅ Added distortion to track: ${trackDistortion?.name}`);
     
     // Test parameter changes
     console.log('\n🎛️  Testing Parameter Changes:');
@@ -43,19 +43,25 @@ export function demoEffects() {
     masterDelay.setParameter('delayTime', 0.3);
     console.log(`✅ Set delay time: 0.3s`);
     
-    trackEQ.setParameter('lowShelfGain', 2);
-    console.log(`✅ Set EQ low shelf gain: 2dB`);
+    if (trackEQ) {
+      trackEQ.setParameter('lowShelfGain', 2);
+      console.log(`✅ Set EQ low shelf gain: 2dB`);
+    }
     
-    trackDistortion.setParameter('amount', 75);
-    console.log(`✅ Set distortion amount: 75%`);
+    if (trackDistortion) {
+      trackDistortion.setParameter('amount', 75);
+      console.log(`✅ Set distortion amount: 75%`);
+    }
     
     // Test bypass
     console.log('\n⏸️  Testing Bypass:');
     audioEngine.effectsManager.bypassEffectInMaster(masterReverb.id, true);
     console.log(`✅ Bypassed master reverb`);
     
-    audioEngine.effectsManager.bypassEffectInTrack(trackId, trackEQ.id, true);
-    console.log(`✅ Bypassed track EQ`);
+    if (trackEQ) {
+      audioEngine.effectsManager.bypassEffectInTrack(trackId, trackEQ.id, true);
+      console.log(`✅ Bypassed track EQ`);
+    }
     
     // Test moving effects
     console.log('\n🔄  Testing Effect Reordering:');
@@ -94,12 +100,16 @@ export function demoEffects() {
     
     // Filter response
     const filter = audioEngine.addEffectToTrack(trackId, 'filter');
-    console.log(`✅ Added filter: ${filter.name}`);
+    if (filter) {
+      console.log(`✅ Added filter: ${filter.name}`);
+    }
     
     // Test EQ curve
-    const eqCurve = (trackEQ as any).getEQCurve?.();
-    if (eqCurve) {
-      console.log(`✅ Got EQ curve with ${eqCurve.length} points`);
+    if (trackEQ && 'getEQCurve' in trackEQ) {
+      const eqCurve = (trackEQ as { getEQCurve: () => unknown[] }).getEQCurve();
+      if (eqCurve && Array.isArray(eqCurve)) {
+        console.log(`✅ Got EQ curve with ${eqCurve.length} points`);
+      }
     }
     
     // Test gain reduction

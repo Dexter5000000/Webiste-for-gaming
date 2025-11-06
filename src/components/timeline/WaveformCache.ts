@@ -53,7 +53,7 @@ export class WaveformCache {
         resolve(e.data.peaks);
       };
 
-      const handleError = (error: ErrorEvent) => {
+      const handleError = (_error: ErrorEvent) => {
         this.worker?.removeEventListener('error', handleError);
         this.computePeaksFallback(channelData, targetWidth).then(resolve).catch(reject);
       };

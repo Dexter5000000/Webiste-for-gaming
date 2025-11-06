@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AudioEngine, AudioContextLike, AudioNodeLike, GainNodeLike } from '../AudioEngine';
+import { 
+  AudioEngine, 
+  AudioContextLike, 
+  AudioNodeLike, 
+  GainNodeLike,
+  StereoPannerNodeLike,
+  AudioBufferSourceNodeLike,
+  AudioBufferLike
+} from '../AudioEngine';
 
 class MockAudioParam {
   value = 1;
@@ -26,6 +34,37 @@ class MockGainNode extends MockAudioNode implements GainNodeLike {
   gain = new MockAudioParam();
 }
 
+class MockStereoPannerNode extends MockAudioNode implements StereoPannerNodeLike {
+  pan = new MockAudioParam();
+}
+
+class MockAudioBufferSourceNode extends MockAudioNode implements AudioBufferSourceNodeLike {
+  buffer: AudioBufferLike | null = null;
+  loop = false;
+  loopStart = 0;
+  loopEnd = 0;
+  playbackRate = new MockAudioParam();
+  onended: (() => void) | null = null;
+  start(): void {}
+  stop(): void {}
+}
+
+class MockAudioBuffer implements AudioBufferLike {
+  constructor(
+    public readonly numberOfChannels: number,
+    public readonly length: number,
+    public readonly sampleRate: number
+  ) {}
+  
+  get duration(): number {
+    return this.length / this.sampleRate;
+  }
+  
+  getChannelData(): Float32Array {
+    return new Float32Array(this.length);
+  }
+}
+
 class MockAudioContext implements AudioContextLike {
   currentTime = 0;
   sampleRate = 44100;
@@ -35,20 +74,20 @@ class MockAudioContext implements AudioContextLike {
     return new MockGainNode();
   }
   
-  createStereoPanner() {
-    return new MockGainNode();
+  createStereoPanner(): StereoPannerNodeLike {
+    return new MockStereoPannerNode();
   }
   
-  createBufferSource(): unknown {
-    return new MockAudioNode();
+  createBufferSource(): AudioBufferSourceNodeLike {
+    return new MockAudioBufferSourceNode();
   }
   
-  createBuffer(): unknown {
-    return {};
+  createBuffer(numberOfChannels: number, length: number, sampleRate: number): AudioBufferLike {
+    return new MockAudioBuffer(numberOfChannels, length, sampleRate);
   }
   
-  async decodeAudioData(): Promise<unknown> {
-    return {};
+  async decodeAudioData(_audioData: ArrayBuffer): Promise<AudioBufferLike> {
+    return new MockAudioBuffer(2, 44100, 44100);
   }
   
   async resume(): Promise<void> {}

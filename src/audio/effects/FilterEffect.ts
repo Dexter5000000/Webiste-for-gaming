@@ -176,7 +176,7 @@ export class FilterEffect extends BaseEffect {
       case 'dryLevel':
         this.setMix(this.getParameter('wetLevel')?.value ?? 1, value);
         break;
-      case 'filterType':
+      case 'filterType': {
         if (this.filter) {
           const filterTypes: BiquadFilterType[] = [
             'lowpass', 'highpass', 'bandpass', 'lowshelf',
@@ -188,7 +188,8 @@ export class FilterEffect extends BaseEffect {
           }
         }
         break;
-      case 'frequency':
+      }
+      case 'frequency': {
         if (this.filter) {
           const baseFreq = value;
           const modDepth = this.getParameter('modDepth')?.value ?? 0;
@@ -196,6 +197,7 @@ export class FilterEffect extends BaseEffect {
           this.lfoGain.gain.value = modDepth;
         }
         break;
+      }
       case 'resonance':
         if (this.filter) {
           this.filter.Q.value = value;

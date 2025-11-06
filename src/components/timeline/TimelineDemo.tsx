@@ -8,7 +8,6 @@ export const TimelineDemo: React.FC = () => {
   const [tempo, setTempo] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playheadPosition, setPlayheadPosition] = useState(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
 
   const store = useMemo(() => new TimelineStateStore(), []);
 
@@ -16,7 +15,6 @@ export const TimelineDemo: React.FC = () => {
     if (isPlaying) {
       const startPos = playheadPosition;
       const start = performance.now();
-      setStartTime(start);
 
       const animate = () => {
         const now = performance.now();
@@ -45,7 +43,6 @@ export const TimelineDemo: React.FC = () => {
   const handleStop = () => {
     setIsPlaying(false);
     setPlayheadPosition(0);
-    setStartTime(null);
   };
 
   const formatTime = (seconds: number) => {

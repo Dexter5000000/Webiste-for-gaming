@@ -1,4 +1,4 @@
-import type { Instrument, InstrumentPreset, InstrumentParams, ADSREnvelope, FilterParams } from './types';
+import type { Instrument, InstrumentPreset, InstrumentParams, ADSREnvelope } from './types';
 
 interface SubtractiveSynthParams extends InstrumentParams {
   volume: number;

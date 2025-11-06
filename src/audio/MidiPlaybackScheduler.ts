@@ -1,5 +1,5 @@
 import { AudioEngine } from '../audio/AudioEngine';
-import { MidiClip, MidiNote, Project } from '../state/models';
+import { MidiClip, Project } from '../state/models';
 
 /**
  * Schedules MIDI note playback for clips
@@ -19,7 +19,7 @@ export class MidiPlaybackScheduler {
   scheduleClip(
     clip: MidiClip, 
     project: Project, 
-    playbackStartTime: number, 
+    _playbackStartTime: number, 
     clipStartTime: number
   ): void {
     // Clear any previously scheduled notes for this clip
@@ -36,7 +36,6 @@ export class MidiPlaybackScheduler {
       // Calculate note timing in seconds
       const noteStartTime = clipStartSeconds + (note.startTime * beatDuration);
       const noteDuration = note.duration * beatDuration;
-      const noteEndTime = noteStartTime + noteDuration;
 
       // Apply articulation modifications
       let adjustedDuration = noteDuration;
@@ -77,7 +76,7 @@ export class MidiPlaybackScheduler {
   processSchedule(currentTime: number, trackId: string): void {
     this.currentPlaybackTime = currentTime;
 
-    this.scheduledNotes.forEach((notes, clipId) => {
+    this.scheduledNotes.forEach((notes, _clipId) => {
       notes.forEach(note => {
         // Schedule note on
         if (!note.noteOnScheduled && note.startTime <= currentTime) {

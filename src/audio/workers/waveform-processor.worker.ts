@@ -56,7 +56,7 @@ self.onmessage = (e: MessageEvent<WaveformRequest>) => {
       peaks,
     };
     
-    self.postMessage(response, [peaks.min.buffer, peaks.max.buffer]);
+    self.postMessage(response, { transfer: [peaks.min.buffer, peaks.max.buffer] });
   }
 };
 
