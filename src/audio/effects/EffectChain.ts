@@ -22,6 +22,9 @@ export class EffectChain {
     this.outputNode = ctx.createGain();
     this.inputNode.gain.value = 1;
     this.outputNode.gain.value = 1;
+    
+    // Initialize routing - connect input directly to output when no effects
+    this.inputNode.connect(this.outputNode);
   }
 
   public get input(): AudioNode {
@@ -117,13 +120,14 @@ export class EffectChain {
   }
 
   private updateRouting(): void {
-    // Disconnect all existing connections
+    // Disconnect all existing connections EXCEPT outputNode's external connections
     this.inputNode.disconnect();
     this.effects.forEach(effect => {
       effect.input.disconnect();
       effect.output.disconnect();
     });
-    this.outputNode.disconnect();
+    // NOTE: We do NOT disconnect outputNode here because it may be connected
+    // to external nodes (like master bus). We only reconnect internally.
 
     if (this.effects.length === 0) {
       // Direct connection if no effects

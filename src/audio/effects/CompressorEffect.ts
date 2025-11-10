@@ -15,6 +15,7 @@ export class CompressorEffect extends BaseEffect {
     this.makeupGain = ctx.createGain();
     this.analyzer = ctx.createAnalyser();
     this.initializeParameters();
+    this.setupEffectChain();
     this.startGainReductionAnalysis();
   }
 

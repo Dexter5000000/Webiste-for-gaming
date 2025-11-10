@@ -42,7 +42,7 @@ export abstract class BaseEffect {
     
     // Default routing
     this.inputNode.connect(this.dryGain);
-    this.setupEffectChain();
+    // Note: setupEffectChain() must be called by subclass after creating nodes
   }
 
   protected abstract setupEffectChain(): void;

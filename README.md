@@ -1,5 +1,9 @@
 # Zenith DAW
 
+[![Build Status](https://travis-ci.com/Dexter5000000/Webiste-for-gaming.svg?branch=main)](https://travis-ci.com/Dexter5000000/Webiste-for-gaming)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+
 A professional digital audio workstation (DAW) built with modern web technologies, featuring a comprehensive timeline, mixer, and instrument system.
 
 ## Features

@@ -51,6 +51,19 @@ function App() {
 
   // Initialize AudioEngine
   const [audioEngine] = useState(() => new AudioEngine());
+  const [audioContextResumed, setAudioContextResumed] = useState(false);
+
+  // Resume audio context on user interaction
+  const resumeAudioContext = useCallback(async () => {
+    if (audioContextResumed) return;
+    
+    try {
+      await audioEngine.audioContext.resume();
+      setAudioContextResumed(true);
+    } catch (error) {
+      console.error('Failed to resume audio context:', error);
+    }
+  }, [audioEngine, audioContextResumed]);
 
   // Audio import/export hook
   const {
@@ -142,10 +155,28 @@ function App() {
     });
   }, [project.tracks, audioEngine, mapTrackType]);
 
-  // Sync transport parameters to audio engine
+  // Resume audio context on first user interaction
   useEffect(() => {
-    audioEngine.setTempo(project.tempo);
-  }, [project.tempo, audioEngine]);
+    if (audioContextResumed) return;
+
+    const handleUserInteraction = async () => {
+      await resumeAudioContext();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('keydown', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, [audioContextResumed, resumeAudioContext]);
 
   useEffect(() => {
     audioEngine.enableMetronome(transport.isMetronomeEnabled);
@@ -163,17 +194,22 @@ function App() {
     const playbackStartBeat = startBeatOverride ?? transport.currentTime;
     const audioClips = project.clips.filter((clip): clip is AudioClip => clip.type === 'audio');
 
+    console.log(`[CLIP SCHEDULING] Starting to schedule ${audioClips.length} clips at beat ${playbackStartBeat}`);
+
     audioClips.forEach((clip) => {
       if (!clip.audioFileId) {
+        console.warn(`Clip ${clip.id} has no audioFileId`);
         return;
       }
       const buffer = audioBuffersRef.current.get(clip.audioFileId);
       if (!buffer) {
+        console.warn(`No buffer found for audioFileId ${clip.audioFileId}`);
         return;
       }
 
       const clipEndBeat = clip.startTime + clip.duration;
       if (clipEndBeat <= playbackStartBeat) {
+        console.log(`[CLIP SCHEDULING] Skipping clip ${clip.id} - already finished (end: ${clipEndBeat}, current: ${playbackStartBeat})`);
         return;
       }
 
@@ -185,12 +221,22 @@ function App() {
 
       const offsetSeconds = (clip.offset ?? 0) + beatsToSeconds(offsetBeats, tempo);
       if (offsetSeconds >= buffer.duration) {
+        console.warn(`Clip ${clip.id} offset ${offsetSeconds}s >= buffer duration ${buffer.duration}s`);
         return;
       }
 
       const durationSeconds = beatsToSeconds(remainingBeats, tempo);
       const remainingBufferDuration = Math.max(0, buffer.duration - offsetSeconds);
       const playbackDuration = Math.min(durationSeconds, remainingBufferDuration);
+
+      console.log(`[CLIP SCHEDULING] Scheduling clip ${clip.id}:`, {
+        clipName: clip.name,
+        trackId: clip.trackId,
+        startTime: clip.startTime,
+        offsetSeconds,
+        playbackDuration,
+        bufferDuration: buffer.duration
+      });
 
       audioEngine.scheduleClip({
         trackId: clip.trackId,
@@ -201,6 +247,8 @@ function App() {
         loop: false,
       });
     });
+
+    console.log(`[CLIP SCHEDULING] Finished scheduling clips`);
   }, [project.clips, project.tempo, transport.currentTime, audioEngine]);
 
   // Listen to audio engine position updates
@@ -210,7 +258,9 @@ function App() {
       setCurrentTime(beats);
 
       const lastBeat = lastTransportBeatRef.current;
-      if (beats + 1e-3 < lastBeat) {
+      // Only reschedule clips if there's a significant backward jump (more than 0.25 beats)
+      // This prevents rescheduling due to minor timing variations during normal playback
+      if (beats + 0.25 < lastBeat) {
         scheduleClipsForPlayback(beats);
       }
       lastTransportBeatRef.current = beats;
@@ -219,12 +269,33 @@ function App() {
   }, [audioEngine, scheduleClipsForPlayback, setCurrentTime, project.tempo]);
 
   const handleTogglePlay = useCallback(async () => {
+    console.log(`[PLAYBACK] Toggle play called. Current state:`, {
+      isPlaying: transport.isPlaying,
+      currentTime: transport.currentTime,
+      audioContextResumed
+    });
+
+    // Resume audio context if not already resumed
+    if (!audioContextResumed) {
+      console.log('[PLAYBACK] Resuming audio context...');
+      await resumeAudioContext();
+      console.log('[PLAYBACK] Audio context resumed');
+    }
+
     if (transport.isPlaying) {
+      console.log('[PLAYBACK] Stopping playback');
       audioEngine.stop();
       stop();
       lastTransportBeatRef.current = 0;
       return;
     }
+
+    console.log('[PLAYBACK] Starting playback sequence...');
+
+    // Start playback FIRST to set up timing
+    await audioEngine.play();
+    play();
+    console.log('[PLAYBACK] Transport started');
 
     // Load audio buffers into engine cache if not already loaded
     audioBuffersRef.current.forEach((buffer, audioFileId) => {
@@ -232,19 +303,19 @@ function App() {
         audioEngine.buffers.set(audioFileId, buffer);
       }
     });
+    console.log(`[PLAYBACK] Loaded ${audioBuffersRef.current.size} audio buffers into engine`);
 
     // Seek audio engine to current position
     const currentTimeSeconds = beatsToSeconds(transport.currentTime, project.tempo);
     audioEngine.seek(currentTimeSeconds);
+    console.log(`[PLAYBACK] Seeked to ${currentTimeSeconds}s (${transport.currentTime} beats)`);
 
     // Prepare clip scheduling
     scheduleClipsForPlayback(transport.currentTime);
     lastTransportBeatRef.current = transport.currentTime;
-
-    // Start playback
-    await audioEngine.play();
-    play();
-  }, [transport.isPlaying, transport.currentTime, project.tempo, audioEngine, stop, play, scheduleClipsForPlayback]);
+    
+    console.log('[PLAYBACK] Playback started successfully');
+  }, [transport.isPlaying, transport.currentTime, project.tempo, audioEngine, stop, play, scheduleClipsForPlayback, audioContextResumed, resumeAudioContext]);
 
   const handleStop = useCallback(() => {
     audioEngine.stop();
@@ -296,6 +367,129 @@ function App() {
   const handleAddTrack = useCallback(() => {
     addTrack(TrackType.AUDIO);
   }, [addTrack]);
+
+  // Test audio function - plays a simple beep
+  const testAudio = useCallback(() => {
+    const ctx = audioEngine.audioContext as AudioContext;
+    console.log('[AUDIO TEST] Starting test beep. Context state:', ctx.state);
+    
+    // Resume context if needed
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        console.log('[AUDIO TEST] Context resumed');
+        playTestBeep();
+      });
+    } else {
+      playTestBeep();
+    }
+    
+    function playTestBeep() {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.frequency.value = 440; // A4 note
+      gain.gain.value = 0.3;
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      console.log('[AUDIO TEST] Playing beep directly to destination');
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+      
+      osc.onended = () => {
+        console.log('[AUDIO TEST] Beep finished');
+      };
+    }
+  }, [audioEngine]);
+
+  // Test playing imported audio directly to destination
+  const testDirectPlayback = useCallback(() => {
+    const ctx = audioEngine.audioContext as AudioContext;
+    console.log('[DIRECT TEST] Testing direct audio buffer playback');
+    
+    // Stop any existing playback first
+    audioEngine.stop();
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => playDirect());
+    } else {
+      playDirect();
+    }
+    
+    function playDirect() {
+      const buffer = audioBuffersRef.current.values().next().value;
+      if (!buffer) {
+        console.log('[DIRECT TEST] No audio buffer available');
+        return;
+      }
+      
+      console.log('[DIRECT TEST] Playing audio buffer directly to destination', {
+        duration: buffer.duration,
+        channels: buffer.numberOfChannels,
+        sampleRate: buffer.sampleRate
+      });
+      
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      
+      source.buffer = buffer;
+      gain.gain.value = 0.5;
+      
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      
+      source.start(ctx.currentTime);
+      source.stop(ctx.currentTime + 3); // Only play 3 seconds
+      
+      source.onended = () => {
+        console.log('[DIRECT TEST] Direct playback finished');
+      };
+    }
+  }, [audioEngine]);
+
+  // Test playing through the master gain (to test routing)
+  const testMasterGainPlayback = useCallback(() => {
+    const ctx = audioEngine.audioContext as AudioContext;
+    console.log('[MASTER TEST] Testing playback through master gain');
+    
+    // Stop any existing playback first
+    audioEngine.stop();
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => playThroughMaster());
+    } else {
+      playThroughMaster();
+    }
+    
+    function playThroughMaster() {
+      const buffer = audioBuffersRef.current.values().next().value;
+      if (!buffer) {
+        console.log('[MASTER TEST] No audio buffer available');
+        return;
+      }
+      
+      console.log('[MASTER TEST] Playing through master gain chain');
+      
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      
+      // Get the master gain from the audio engine
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const masterGain = (audioEngine as any).masterGain;
+      console.log('[MASTER TEST] Master gain value:', masterGain?.gain?.value);
+      
+      // Connect directly to master gain
+      source.connect(masterGain);
+      
+      source.start(ctx.currentTime);
+      source.stop(ctx.currentTime + 3); // Only play 3 seconds
+      
+      source.onended = () => {
+        console.log('[MASTER TEST] Master gain playback finished');
+      };
+    }
+  }, [audioEngine]);
 
   const handleAddTestClip = useCallback(() => {
     if (project.tracks.length === 0) {
@@ -695,6 +889,36 @@ function App() {
                 🎵
               </button>
               <span className="text-xs text-muted">Add Clip</span>
+              <button
+                type="button"
+                className="button button-ghost button-icon-sm"
+                aria-label="Test audio"
+                onClick={testAudio}
+                style={{ marginLeft: '16px', background: '#4a6a9a', color: 'white' }}
+              >
+                🔊
+              </button>
+              <span className="text-xs text-muted">Test Audio</span>
+              <button
+                type="button"
+                className="button button-ghost button-icon-sm"
+                aria-label="Test direct playback"
+                onClick={testDirectPlayback}
+                style={{ marginLeft: '8px', background: '#6a9a4a', color: 'white' }}
+              >
+                🎧
+              </button>
+              <span className="text-xs text-muted">Test Direct</span>
+              <button
+                type="button"
+                className="button button-ghost button-icon-sm"
+                aria-label="Test master gain"
+                onClick={testMasterGainPlayback}
+                style={{ marginLeft: '8px', background: '#9a4a6a', color: 'white' }}
+              >
+                🎚️
+              </button>
+              <span className="text-xs text-muted">Test Master</span>
             </div>
             <div className="flex-1" />
             <div className="zoom-control">

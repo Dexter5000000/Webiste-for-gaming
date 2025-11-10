@@ -20,6 +20,7 @@ export class FilterEffect extends BaseEffect {
     this.envelopeFollower = ctx.createGain();
     this.envelopeDetector = ctx.createAnalyser();
     this.initializeParameters();
+    this.setupEffectChain();
     this.startLFO();
     this.startEnvelopeFollower();
   }
@@ -277,10 +278,11 @@ export class FilterEffect extends BaseEffect {
         case 'highpass':
           magnitude = 1 / Math.sqrt(1 + Math.pow(q * (filterFreq / freq - freq / filterFreq), 2));
           break;
-        case 'bandpass':
+        case 'bandpass': {
           const normalizedFreq = freq / filterFreq;
           magnitude = 1 / Math.sqrt(1 + Math.pow(q * (normalizedFreq - 1/normalizedFreq), 2));
           break;
+        }
         default:
           magnitude = 1;
       }

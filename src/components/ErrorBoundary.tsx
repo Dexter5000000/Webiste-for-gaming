@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import honeybadger from '../utils/honeybadger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -21,6 +22,15 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by ErrorBoundary', error, errorInfo);
+    
+    // Report to Honeybadger
+    honeybadger.notify(error, {
+      context: {
+        componentStack: errorInfo.componentStack,
+        category: 'react-error-boundary',
+      },
+    });
+    
     this.setState({ errorInfo });
   }
 

@@ -44,6 +44,7 @@ export class EQEffect extends BaseEffect {
     }
     
     this.initializeParameters();
+    this.setupEffectChain();
   }
 
   public get type(): string {

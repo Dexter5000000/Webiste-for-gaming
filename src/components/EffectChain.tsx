@@ -60,6 +60,7 @@ const EffectChain: React.FC<EffectChainProps> = ({
   }, [draggedEffect, effects, onMoveEffect]);
 
   const handleAddEffect = useCallback((effectType: EffectType) => {
+    console.log('[EFFECTS] Adding effect:', effectType);
     onAddEffect(effectType);
     setIsAddingEffect(false);
   }, [onAddEffect]);
@@ -114,19 +115,25 @@ const EffectChain: React.FC<EffectChainProps> = ({
               </button>
             </div>
             <div className="effect-list">
-              {AVAILABLE_EFFECTS.map((effect) => (
-                <button
-                  key={effect.type}
-                  type="button"
-                  className="effect-item"
-                  onClick={() => handleAddEffect(effect.type)}
-                >
-                  <div className="effect-item-info">
-                    <span className="effect-item-name">{effect.name}</span>
-                    <span className="effect-item-description">{effect.description}</span>
-                  </div>
-                </button>
-              ))}
+              {AVAILABLE_EFFECTS.map((effect) => {
+                console.log('[EFFECTS] Rendering effect option:', effect);
+                return (
+                  <button
+                    key={effect.type}
+                    type="button"
+                    className="effect-item"
+                    onClick={() => {
+                      console.log('[EFFECTS] Effect button clicked:', effect.type);
+                      handleAddEffect(effect.type);
+                    }}
+                  >
+                    <div className="effect-item-info">
+                      <span className="effect-item-name">{effect.name}</span>
+                      <span className="effect-item-description">{effect.description}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

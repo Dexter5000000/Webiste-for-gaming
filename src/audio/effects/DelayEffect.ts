@@ -18,6 +18,7 @@ export class DelayEffect extends BaseEffect {
     this.lfo = ctx.createOscillator();
     this.lfoGain = ctx.createGain();
     this.initializeParameters();
+    this.setupEffectChain();
     this.startLFO();
   }
 

@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/Webiste-for-gaming/',
   plugins: [
     react(),
     VitePWA({
@@ -45,7 +46,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
       devOptions: {
-        enabled: true
+        enabled: false // Disable ServiceWorker in development to prevent errors
       }
     })
   ]

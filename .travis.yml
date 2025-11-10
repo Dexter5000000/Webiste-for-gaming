@@ -1,0 +1,98 @@
+language: node_js
+
+# Node.js versions to test against
+node_js:
+  - '18'
+  - '20'
+  - 'lts/*'
+
+# Cache dependencies for faster builds
+cache:
+  npm: true
+  directories:
+    - node_modules
+    - ~/.npm
+
+# Only build these branches
+branches:
+  only:
+    - main
+    - develop
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/  # Tags like v1.0.0
+
+# Environment setup
+before_install:
+  - echo "Node version:" && node --version
+  - echo "NPM version:" && npm --version
+
+# Install dependencies
+install:
+  - npm ci
+
+# Build and test
+script:
+  - npm run lint
+  - npm run build
+  - npm test
+
+# Generate build artifacts
+after_success:
+  - echo "Build successful!"
+  - ls -la dist/
+
+# Optional: Deploy to GitHub Pages (only on main branch with Node 20)
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  local_dir: dist
+  keep_history: true
+  on:
+    branch: main
+    node: '20'
+  target_branch: gh-pages
+  fqdn: your-custom-domain.com  # Optional: add your custom domain
+
+# Build status notifications
+notifications:
+  email:
+    recipients:
+      - your-email@example.com
+    on_success: change
+    on_failure: always
+
+# Job settings
+jobs:
+  include:
+    # Fast build check
+    - stage: build
+      name: "Quick Build Check"
+      node_js: '20'
+      script:
+        - npm run build
+    
+    # Full test suite
+    - stage: test
+      name: "Unit Tests"
+      node_js: '20'
+      script:
+        - npm test
+    
+    # Lint check
+    - stage: test
+      name: "Lint Check"
+      node_js: '20'
+      script:
+        - npm run lint
+  
+  # Allow fast finish
+  fast_finish: true
+
+# Build stages
+stages:
+  - build
+  - test
+
+# Environment variables
+# Set these in Travis CI repository settings:
+# - GITHUB_TOKEN: GitHub personal access token for deployment

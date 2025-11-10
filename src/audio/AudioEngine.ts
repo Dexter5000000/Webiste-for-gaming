@@ -8,6 +8,7 @@ import {
 import { EffectsManager } from './effects';
 import { Instrument, InstrumentType } from './instruments';
 import { MidiPlaybackScheduler } from './MidiPlaybackScheduler';
+import { trackAudioError } from '../utils/honeybadger';
 
 export type TrackType = 'audio' | 'instrument' | 'midi';
 
@@ -57,6 +58,7 @@ export interface AudioContextLike {
   currentTime: number;
   sampleRate: number;
   destination: AudioNodeLike;
+  state?: string;
   createGain(): GainNodeLike;
   createStereoPanner?(): StereoPannerNodeLike;
   createBufferSource(): AudioBufferSourceNodeLike;
@@ -250,8 +252,8 @@ class TrackGraph {
   private readonly cueSend: GainNodeLike;
   private readonly activeSources = new Set<AudioBufferSourceNodeLike>();
   private baseVolume: number;
-  private muted = false;
-  private solo = false;
+  muted = false;
+  solo = false;
 
   constructor(
     private readonly context: AudioContextLike,
@@ -366,16 +368,22 @@ class TrackGraph {
     source.loop = Boolean(options.loop);
     source.loopStart = options.loop ? options.offset ?? 0 : 0;
     source.loopEnd = options.loop && options.duration ? (options.offset ?? 0) + options.duration : 0;
+    
     source.onended = () => {
       this.activeSources.delete(source);
     };
+    
     if (options.playbackRate !== undefined) {
       source.playbackRate.value = options.playbackRate;
     }
+    
     const target = this.panNode ?? this.gainNode;
     source.connect(target);
+    
+    const actualStartTime = Math.max(contextTime, this.context.currentTime + 0.01);
+    
     source.start(
-      contextTime,
+      actualStartTime,
       options.offset ?? 0,
       options.duration
     );
@@ -566,7 +574,6 @@ class TransportController {
 
   async play(): Promise<void> {
     if (this.state.isPlaying) return;
-    await this.context.resume();
     this.state.isPlaying = true;
     this.state.startTime = this.context.currentTime - this.state.position;
     this.startPositionTimer();
@@ -575,7 +582,6 @@ class TransportController {
 
   async pause(): Promise<void> {
     if (!this.state.isPlaying) return;
-    await this.context.suspend();
     this.state.position = this.getPosition();
     this.state.isPlaying = false;
     this.stopPositionTimer();
@@ -875,30 +881,62 @@ export class AudioEngine {
   }
 
   async play(): Promise<void> {
-    await this.transport.play();
-    this.scheduler.start();
-    this.metronome.reset(
-      this.transport.getStartContextTime(),
-      this.transport.getPosition(),
-      this.transport.getSecondsPerBeat()
-    );
-    await this.workletClock.start(() => {
-      // Force scheduler tick to align with clock updates.
-      this.scheduler.flush();
-    });
+    try {
+      // Resume the audio context if it's suspended
+      if (this.context.state === 'suspended') {
+        await this.context.resume();
+      }
+      
+      await this.transport.play();
+      this.scheduler.start();
+      this.metronome.reset(
+        this.transport.getStartContextTime(),
+        this.transport.getPosition(),
+        this.transport.getSecondsPerBeat()
+      );
+      await this.workletClock.start(() => {
+        // Force scheduler tick to align with clock updates.
+        this.scheduler.flush();
+      });
+    } catch (error) {
+      trackAudioError(error as Error, {
+        method: 'AudioEngine.play',
+        contextState: this.context.state,
+        transportPosition: this.transport.getPosition(),
+      });
+      throw error;
+    }
   }
 
   async pause(): Promise<void> {
-    await this.transport.pause();
-    this.scheduler.stop();
-    this.workletClock.stop();
+    try {
+      await this.context.suspend();
+      await this.transport.pause();
+      this.scheduler.stop();
+      this.workletClock.stop();
+    } catch (error) {
+      trackAudioError(error as Error, {
+        method: 'AudioEngine.pause',
+        contextState: this.context.state,
+      });
+      throw error;
+    }
   }
 
   stop(): void {
-    this.transport.stop();
-    this.scheduler.stop();
-    this.workletClock.stop();
-    this.tracks.forEach((track) => track.stopAll());
+    try {
+      this.context.suspend();
+      this.transport.stop();
+      this.scheduler.stop();
+      this.workletClock.stop();
+      this.tracks.forEach((track) => track.stopAll());
+    } catch (error) {
+      trackAudioError(error as Error, {
+        method: 'AudioEngine.stop',
+        contextState: this.context.state,
+      });
+      throw error;
+    }
   }
 
   setTempo(tempo: number): void {
@@ -1040,6 +1078,7 @@ export class AudioEngine {
   scheduleClip(clip: ClipSchedule): void {
     const track = this.tracks.get(clip.trackId);
     if (!track) {
+      console.error(`Track with id ${clip.trackId} not found. Available tracks:`, Array.from(this.tracks.keys()));
       throw new Error(`Track with id ${clip.trackId} not found`);
     }
     
@@ -1049,7 +1088,7 @@ export class AudioEngine {
     // Calculate the absolute context time when this clip should start
     const startContextTime = this.transport.getStartContextTime();
     const scheduledTime = Math.max(
-      this.context.currentTime + 0.001, // Ensure we don't schedule in the past
+      this.context.currentTime + 0.01,
       startContextTime + clipStartTimeSeconds
     );
     

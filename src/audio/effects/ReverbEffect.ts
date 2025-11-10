@@ -14,6 +14,7 @@ export class ReverbEffect extends BaseEffect {
     this.preDelay = ctx.createDelay(2.0);
     this.filter = ctx.createBiquadFilter();
     this.initializeParameters();
+    this.setupEffectChain();
     this.createImpulseResponse();
   }
 
