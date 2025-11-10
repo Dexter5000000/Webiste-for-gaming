@@ -1276,7 +1276,7 @@ class x extends v {
   }
 }
 ne();
-ce([{"revision":null,"url":"assets/index-CxlbSR-M.js"},{"revision":null,"url":"assets/index-DqsJzgpS.css"},{"revision":"8f8ac0c6b5453aa6098525ca5e2e5f0e","url":"favicon.svg"},{"revision":"a9dbff43f295ab1cf628aade6afcaa32","url":"index.html"},{"revision":"277642ce3c60a785f29f9651a6c4a474","url":"pwa-192x192.svg"},{"revision":"30bccd65649ffe69fe3aa40d01b2169e","url":"pwa-512x512.svg"},{"revision":"ad8de580a47e81e67460cc48f2cebe68","url":"registerSW.js"},{"revision":"277642ce3c60a785f29f9651a6c4a474","url":"pwa-192x192.svg"},{"revision":"30bccd65649ffe69fe3aa40d01b2169e","url":"pwa-512x512.svg"},{"revision":"559e3f201b0a16dd66742b2c015f6a11","url":"manifest.webmanifest"}]);
+ce([{"revision":null,"url":"assets/index-BTn5ERwb.js"},{"revision":null,"url":"assets/index-DqsJzgpS.css"},{"revision":"8f8ac0c6b5453aa6098525ca5e2e5f0e","url":"favicon.svg"},{"revision":"8a66df4a14bda9c026c8608c0b96d508","url":"index.html"},{"revision":"277642ce3c60a785f29f9651a6c4a474","url":"pwa-192x192.svg"},{"revision":"30bccd65649ffe69fe3aa40d01b2169e","url":"pwa-512x512.svg"},{"revision":"1872c500de691dce40960bb85481de07","url":"registerSW.js"},{"revision":"277642ce3c60a785f29f9651a6c4a474","url":"pwa-192x192.svg"},{"revision":"30bccd65649ffe69fe3aa40d01b2169e","url":"pwa-512x512.svg"},{"revision":"559e3f201b0a16dd66742b2c015f6a11","url":"manifest.webmanifest"}]);
 b(
   ({ request: a }) => a.destination === "script" || a.destination === "style" || a.destination === "image",
   new x({
