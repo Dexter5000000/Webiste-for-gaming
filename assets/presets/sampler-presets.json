@@ -1,0 +1,48 @@
+[
+  {
+    "id": "sampler-piano",
+    "name": "Acoustic Piano",
+    "instrumentType": "sampler",
+    "author": "Built-in",
+    "description": "Multi-sampled acoustic piano",
+    "tags": ["piano", "acoustic"],
+    "params": {
+      "volume": 0.8,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.7,
+      "release": 0.5,
+      "filterFrequency": 20000,
+      "filterQ": 1,
+      "filterType": "lowpass",
+      "playbackRate": 1,
+      "rootNote": 60,
+      "loopStart": 0,
+      "loopEnd": 0,
+      "loopEnabled": false
+    }
+  },
+  {
+    "id": "sampler-strings",
+    "name": "String Ensemble",
+    "instrumentType": "sampler",
+    "author": "Built-in",
+    "description": "Orchestral string section",
+    "tags": ["strings", "orchestral"],
+    "params": {
+      "volume": 0.7,
+      "attack": 0.2,
+      "decay": 0.3,
+      "sustain": 0.8,
+      "release": 0.8,
+      "filterFrequency": 8000,
+      "filterQ": 1,
+      "filterType": "lowpass",
+      "playbackRate": 1,
+      "rootNote": 60,
+      "loopStart": 0.5,
+      "loopEnd": 2.0,
+      "loopEnabled": true
+    }
+  }
+]
