@@ -4,6 +4,7 @@ import InstrumentPanel, { type TrackInstrumentState } from './InstrumentPanel';
 import type { InstrumentPreset } from '../audio/instruments/types';
 import { ImportExportPanel } from './ImportExportPanel';
 import EffectsPanel from './EffectsPanel';
+import EffectEditorPanel from './EffectEditorPanel';
 import AIMusicPanel from './AIMusicPanel';
 import AutoMixPanel from './AutoMixPanel';
 import type { AudioEngine } from '../audio/AudioEngine';
@@ -36,7 +37,7 @@ interface SidePanelsProps {
   onTabChange?: (tab: PanelTab) => void;
 }
 
-type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music' | 'auto-mix';
+type PanelTab = 'inspector' | 'instrument' | 'effects' | 'effect-editor' | 'import-export' | 'ai-music' | 'auto-mix';
 
 const SidePanels = memo(function SidePanels({
   collapsed,
@@ -122,6 +123,17 @@ const SidePanels = memo(function SidePanels({
               onClick={() => handleTabChange('effects')}
             >
               Effects
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentTab === 'effect-editor'}
+              aria-controls="effect-editor-panel"
+              id="effect-editor-tab"
+              className={`side-panel-tab ${currentTab === 'effect-editor' ? 'active' : ''}`}
+              onClick={() => handleTabChange('effect-editor')}
+            >
+              Edit Effects
             </button>
             <button
               type="button"
@@ -275,6 +287,21 @@ const SidePanels = memo(function SidePanels({
           >
             {audioEngine && (
               <EffectsPanel
+                audioEngine={audioEngine}
+                selectedTrackId={selectedTrackId}
+              />
+            )}
+          </div>
+
+          <div
+            id="effect-editor-panel"
+            role="tabpanel"
+            aria-labelledby="effect-editor-tab"
+            className="side-panel-content"
+            hidden={currentTab !== 'effect-editor'}
+          >
+            {audioEngine && (
+              <EffectEditorPanel
                 audioEngine={audioEngine}
                 selectedTrackId={selectedTrackId}
               />

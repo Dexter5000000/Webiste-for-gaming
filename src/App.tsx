@@ -49,7 +49,7 @@ function App() {
   const [trackColumnWidth, setTrackColumnWidth] = useState(260);
   const [sidePanelWidth, setSidePanelWidth] = useState(320);
   const [mixerHeight, setMixerHeight] = useState(200);
-  const [activeSidePanelTab, setActiveSidePanelTab] = useState<'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music' | 'auto-mix'>('inspector');
+  const [activeSidePanelTab, setActiveSidePanelTab] = useState<'inspector' | 'instrument' | 'effects' | 'effect-editor' | 'import-export' | 'ai-music' | 'auto-mix'>('inspector');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Initialize AudioEngine
