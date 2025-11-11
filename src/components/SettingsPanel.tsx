@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { AudioSettings, ProjectSettings } from '../types';
+import { getHuggingFaceToken, saveHuggingFaceToken, clearHuggingFaceToken } from '../utils/storage';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -18,12 +19,39 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onAudioSettingsChange,
   onProjectSettingsChange,
 }) => {
-  const handleAudioSettingChange = (key: keyof AudioSettings, value: any) => {
+  const [hfToken, setHfToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [tokenSaved, setTokenSaved] = useState(false);
+
+  useEffect(() => {
+    // Load token from localStorage on mount
+    const savedToken = getHuggingFaceToken();
+    if (savedToken) {
+      setHfToken(savedToken);
+      setTokenSaved(true);
+    }
+  }, []);
+
+  const handleAudioSettingChange = (key: keyof AudioSettings, value: number) => {
     onAudioSettingsChange({ ...audioSettings, [key]: value });
   };
 
-  const handleProjectSettingChange = (key: keyof ProjectSettings, value: any) => {
+  const handleProjectSettingChange = (key: keyof ProjectSettings, value: string | number) => {
     onProjectSettingsChange({ ...projectSettings, [key]: value });
+  };
+
+  const handleSaveToken = () => {
+    if (hfToken.trim()) {
+      saveHuggingFaceToken(hfToken);
+      setTokenSaved(true);
+      setTimeout(() => setTokenSaved(false), 3000);
+    }
+  };
+
+  const handleClearToken = () => {
+    clearHuggingFaceToken();
+    setHfToken('');
+    setTokenSaved(false);
   };
 
   if (!isOpen) return null;
@@ -128,6 +156,79 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <input type="radio" name="theme" value="auto" />
               Auto (System)
             </label>
+          </div>
+
+          <div className="setting-group">
+            <h3>🤗 HuggingFace API Token</h3>
+            <p style={{ fontSize: '0.85em', marginBottom: '12px', color: 'var(--color-text-muted, #888)' }}>
+              Enter your free HuggingFace token to use high-quality AI music models. 
+              Your token is stored locally in your browser only and never sent to our servers.
+            </p>
+            <label>
+              API Token
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type={showToken ? 'text' : 'password'}
+                  value={hfToken}
+                  onChange={(e) => setHfToken(e.target.value)}
+                  placeholder="hf_..."
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  style={{ padding: '8px 12px', minWidth: 'auto' }}
+                  title={showToken ? 'Hide token' : 'Show token'}
+                >
+                  {showToken ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+              <button
+                type="button"
+                onClick={handleSaveToken}
+                disabled={!hfToken.trim()}
+                style={{ flex: 1 }}
+              >
+                💾 Save Token
+              </button>
+              <button
+                type="button"
+                onClick={handleClearToken}
+                style={{ flex: 1 }}
+              >
+                🗑️ Clear Token
+              </button>
+            </div>
+            {tokenSaved && (
+              <div style={{ 
+                marginTop: '8px', 
+                padding: '8px', 
+                background: 'rgba(34, 197, 94, 0.1)', 
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                borderRadius: '4px',
+                fontSize: '0.85em',
+                color: '#22c55e'
+              }}>
+                ✅ Token saved! Reload the AI Music panel to use high-quality models.
+              </div>
+            )}
+            <div style={{ 
+              marginTop: '12px', 
+              padding: '8px', 
+              background: 'var(--color-bg-elevated, #f5f5f5)', 
+              borderRadius: '4px',
+              fontSize: '0.8em'
+            }}>
+              <strong>How to get a free token:</strong>
+              <ol style={{ margin: '8px 0 0 16px', padding: 0 }}>
+                <li>Visit <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer">huggingface.co/settings/tokens</a></li>
+                <li>Create a new token with "Read" access</li>
+                <li>Copy the token (starts with hf_...)</li>
+                <li>Paste it above and click Save</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { memo, useState, useCallback, useRef } from 'react';
 import { aiMusicGenerator } from '../audio/ai/AIMusicGenerator';
 import { AI_MODELS, GENRE_ROUTING } from '../audio/ai/models';
 import type { AIModelType, MusicGenre, GenerationProgress } from '../audio/ai/types';
+import { getHuggingFaceToken } from '../utils/storage';
 
 interface AIMusicPanelProps {
   onAudioGenerated?: (audioBuffer: AudioBuffer, name: string, blob?: Blob) => void;
@@ -35,9 +36,12 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
   const lastGeneratedBlob = useRef<Blob | null>(null);
 
   const modelConfig = AI_MODELS[selectedModel];
-  const hfToken = import.meta.env?.VITE_HUGGINGFACE_TOKEN as string | undefined;
+  
+  // Check for token using centralized utility
+  const hfToken = getHuggingFaceToken();
+  
   const isHuggingFaceSelected = modelConfig.provider === 'huggingface';
-  const willFallbackProcedural = isHuggingFaceSelected && (!hfToken || hfToken === 'your_huggingface_token_here');
+  const willFallbackProcedural = isHuggingFaceSelected && !hfToken;
 
   const handleGenreChange = useCallback((genre: MusicGenre) => {
     setSelectedGenre(genre);
@@ -167,8 +171,12 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               {modelConfig.description}
             </p>
             {willFallbackProcedural && (
-              <div className="text-xs" style={{ marginTop: '8px', color: 'var(--color-warning, #b58900)' }}>
-                No HuggingFace token detected. We will automatically use <strong>Procedural (No API Key)</strong> as a fallback.
+              <div className="text-xs" style={{ marginTop: '8px', padding: '8px', background: 'rgba(181, 137, 0, 0.1)', border: '1px solid rgba(181, 137, 0, 0.3)', borderRadius: '4px' }}>
+                ⚠️ No HuggingFace token detected. We will automatically use <strong>Procedural (No API Key)</strong> as a fallback.
+                <br />
+                <span style={{ fontSize: '0.9em', marginTop: '4px', display: 'inline-block' }}>
+                  💡 Want high-quality AI models? Go to <strong>Settings ⚙️</strong> and add your free HuggingFace token!
+                </span>
               </div>
             )}
             <div

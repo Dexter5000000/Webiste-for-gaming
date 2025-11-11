@@ -3,11 +3,24 @@
 ## Overview
 Studio-quality free AI music generation integration for the Zenith DAW using multiple open-source AI models. This feature provides unlimited, high-fidelity music generation at 44.1kHz+ stereo.
 
-## Setup (Required)
+## Setup (Optional for Higher Quality)
 
-### Get Your Free HuggingFace API Token
+### Option 1: In-App Settings (Recommended for End Users)
 
-HuggingFace now requires authentication for their Inference API. Getting a token is **free and takes 2 minutes**:
+The easiest way for users to add their HuggingFace token:
+
+1. **Open Settings**: Click the ⚙️ Settings button in the DAW
+2. **Scroll to HuggingFace Section**: Find "🤗 HuggingFace API Token"
+3. **Get Your Token**:
+   - Visit [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+   - Create a new token with "Read" access (takes 30 seconds)
+   - Copy the token (starts with `hf_...`)
+4. **Save in Settings**: Paste token and click "💾 Save Token"
+5. **Done!** Token is stored in your browser's localStorage (never sent to servers)
+
+### Option 2: Environment Variable (For Developers)
+
+If you're running the source code locally:
 
 1. **Create Account**: Go to [huggingface.co](https://huggingface.co/) and sign up (free)
 2. **Generate Token**: Visit [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
@@ -25,12 +38,16 @@ VITE_HUGGINGFACE_TOKEN=hf_abcdefghijklmnopqrstuvwxyz123456
 ```
 
 ✅ **Benefits of using a token:**
+* Access to high-quality AI models (Stable Audio Open, MusicGen, etc.)
 * No "Failed to fetch" errors
 * Faster model loading
 * Higher rate limits
 * More reliable generations
 
-⚠️ **Important:** Never commit `.env.local` to Git (it's already in `.gitignore`)
+⚠️ **Privacy & Security:**
+* **In-App (localStorage)**: Token stored only in your browser, never sent to our servers
+* **Environment Variable**: Token stays in your local `.env.local` file (already in `.gitignore`)
+* Your token is only used to authenticate with HuggingFace's API directly from your browser
 
 ### Tokenless Fallback (Automatic)
 

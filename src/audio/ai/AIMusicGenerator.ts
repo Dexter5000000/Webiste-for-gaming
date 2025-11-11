@@ -6,6 +6,7 @@ import type {
   AIModelConfig,
 } from './types';
 import { AI_MODELS } from './models';
+import { getHuggingFaceToken } from '../../utils/storage';
 
 export class AIMusicGenerator {
   private progressCallback?: (progress: GenerationProgress) => void;
@@ -307,15 +308,15 @@ export class AIMusicGenerator {
     try {
       this.updateProgress('generating', 30, 'Sending generation request...');
 
-      // Get HuggingFace token from environment (optional - improves reliability)
-      const hfToken = import.meta.env.VITE_HUGGINGFACE_TOKEN;
+      // Get HuggingFace token from localStorage (user-entered) or environment (developer)
+      const hfToken = getHuggingFaceToken();
       
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
       
       // Add authorization if token is available
-      if (hfToken && hfToken !== 'your_token_here') {
+      if (hfToken) {
         headers['Authorization'] = `Bearer ${hfToken}`;
       }
 
