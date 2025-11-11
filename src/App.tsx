@@ -6,6 +6,7 @@ import TrackLane from './components/TrackLane';
 import TimelineViewport from './components/TimelineViewport';
 import SidePanels from './components/SidePanels';
 import MixerDock from './components/MixerDock';
+import SettingsPanel from './components/SettingsPanel';
 import { AudioEngine } from './audio/AudioEngine';
 import { beatsToSeconds, secondsToBeats } from './audio/utils/tempo';
 import { useAudioImportExport } from './hooks/useAudioImportExport';
@@ -48,6 +49,8 @@ function App() {
   const [trackColumnWidth, setTrackColumnWidth] = useState(260);
   const [sidePanelWidth, setSidePanelWidth] = useState(320);
   const [mixerHeight, setMixerHeight] = useState(200);
+  const [activeSidePanelTab, setActiveSidePanelTab] = useState<'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music' | 'auto-mix'>('inspector');
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Initialize AudioEngine
   const [audioEngine] = useState(() => new AudioEngine());
@@ -368,128 +371,32 @@ function App() {
     addTrack(TrackType.AUDIO);
   }, [addTrack]);
 
-  // Test audio function - plays a simple beep
-  const testAudio = useCallback(() => {
-    const ctx = audioEngine.audioContext as AudioContext;
-    console.log('[AUDIO TEST] Starting test beep. Context state:', ctx.state);
-    
-    // Resume context if needed
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(() => {
-        console.log('[AUDIO TEST] Context resumed');
-        playTestBeep();
-      });
-    } else {
-      playTestBeep();
-    }
-    
-    function playTestBeep() {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.frequency.value = 440; // A4 note
-      gain.gain.value = 0.3;
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      console.log('[AUDIO TEST] Playing beep directly to destination');
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.5);
-      
-      osc.onended = () => {
-        console.log('[AUDIO TEST] Beep finished');
-      };
-    }
-  }, [audioEngine]);
+  // Handle AI panel open events from top toolbar buttons
+  useEffect(() => {
+    const handleOpenAIMusic = () => {
+      setInspectorCollapsed(false);
+      setActiveSidePanelTab('ai-music');
+    };
 
-  // Test playing imported audio directly to destination
-  const testDirectPlayback = useCallback(() => {
-    const ctx = audioEngine.audioContext as AudioContext;
-    console.log('[DIRECT TEST] Testing direct audio buffer playback');
-    
-    // Stop any existing playback first
-    audioEngine.stop();
-    
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(() => playDirect());
-    } else {
-      playDirect();
-    }
-    
-    function playDirect() {
-      const buffer = audioBuffersRef.current.values().next().value;
-      if (!buffer) {
-        console.log('[DIRECT TEST] No audio buffer available');
-        return;
-      }
-      
-      console.log('[DIRECT TEST] Playing audio buffer directly to destination', {
-        duration: buffer.duration,
-        channels: buffer.numberOfChannels,
-        sampleRate: buffer.sampleRate
-      });
-      
-      const source = ctx.createBufferSource();
-      const gain = ctx.createGain();
-      
-      source.buffer = buffer;
-      gain.gain.value = 0.5;
-      
-      source.connect(gain);
-      gain.connect(ctx.destination);
-      
-      source.start(ctx.currentTime);
-      source.stop(ctx.currentTime + 3); // Only play 3 seconds
-      
-      source.onended = () => {
-        console.log('[DIRECT TEST] Direct playback finished');
-      };
-    }
-  }, [audioEngine]);
+    const handleOpenAutoMix = () => {
+      setInspectorCollapsed(false);
+      setActiveSidePanelTab('auto-mix');
+    };
 
-  // Test playing through the master gain (to test routing)
-  const testMasterGainPlayback = useCallback(() => {
-    const ctx = audioEngine.audioContext as AudioContext;
-    console.log('[MASTER TEST] Testing playback through master gain');
-    
-    // Stop any existing playback first
-    audioEngine.stop();
-    
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(() => playThroughMaster());
-    } else {
-      playThroughMaster();
-    }
-    
-    function playThroughMaster() {
-      const buffer = audioBuffersRef.current.values().next().value;
-      if (!buffer) {
-        console.log('[MASTER TEST] No audio buffer available');
-        return;
-      }
-      
-      console.log('[MASTER TEST] Playing through master gain chain');
-      
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      
-      // Get the master gain from the audio engine
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const masterGain = (audioEngine as any).masterGain;
-      console.log('[MASTER TEST] Master gain value:', masterGain?.gain?.value);
-      
-      // Connect directly to master gain
-      source.connect(masterGain);
-      
-      source.start(ctx.currentTime);
-      source.stop(ctx.currentTime + 3); // Only play 3 seconds
-      
-      source.onended = () => {
-        console.log('[MASTER TEST] Master gain playback finished');
-      };
-    }
-  }, [audioEngine]);
+    const handleOpenSettings = () => {
+      setSettingsOpen(true);
+    };
+
+    window.addEventListener('openAIMusicPanel', handleOpenAIMusic);
+    window.addEventListener('openAutoMixPanel', handleOpenAutoMix);
+    window.addEventListener('openSettings', handleOpenSettings);
+
+    return () => {
+      window.removeEventListener('openAIMusicPanel', handleOpenAIMusic);
+      window.removeEventListener('openAutoMixPanel', handleOpenAutoMix);
+      window.removeEventListener('openSettings', handleOpenSettings);
+    };
+  }, []);
 
   const handleAddTestClip = useCallback(() => {
     if (project.tracks.length === 0) {
@@ -892,33 +799,33 @@ function App() {
               <button
                 type="button"
                 className="button button-ghost button-icon-sm"
-                aria-label="Test audio"
-                onClick={testAudio}
-                style={{ marginLeft: '16px', background: '#4a6a9a', color: 'white' }}
+                aria-label="Generate AI music"
+                onClick={() => window.dispatchEvent(new CustomEvent('openAIMusicPanel'))}
+                style={{ marginLeft: '16px', background: '#9b59b6', color: 'white' }}
               >
-                🔊
+                🤖
               </button>
-              <span className="text-xs text-muted">Test Audio</span>
+              <span className="text-xs text-muted">AI Music</span>
               <button
                 type="button"
                 className="button button-ghost button-icon-sm"
-                aria-label="Test direct playback"
-                onClick={testDirectPlayback}
-                style={{ marginLeft: '8px', background: '#6a9a4a', color: 'white' }}
+                aria-label="Auto-mix tracks"
+                onClick={() => window.dispatchEvent(new CustomEvent('openAutoMixPanel'))}
+                style={{ marginLeft: '8px', background: '#e74c3c', color: 'white' }}
               >
-                🎧
+                �️
               </button>
-              <span className="text-xs text-muted">Test Direct</span>
+              <span className="text-xs text-muted">Auto-Mix</span>
               <button
                 type="button"
                 className="button button-ghost button-icon-sm"
-                aria-label="Test master gain"
-                onClick={testMasterGainPlayback}
-                style={{ marginLeft: '8px', background: '#9a4a6a', color: 'white' }}
+                aria-label="Settings"
+                onClick={() => window.dispatchEvent(new CustomEvent('openSettings'))}
+                style={{ marginLeft: '8px', background: '#3498db', color: 'white' }}
               >
-                🎚️
+                ⚙️
               </button>
-              <span className="text-xs text-muted">Test Master</span>
+              <span className="text-xs text-muted">Settings</span>
             </div>
             <div className="flex-1" />
             <div className="zoom-control">
@@ -1037,6 +944,8 @@ function App() {
           progress={progress}
           statusMessage={statusMessage}
           errorMessage={errorMessage}
+          activeTab={activeSidePanelTab}
+          onTabChange={setActiveSidePanelTab}
         />
       </main>
 
@@ -1053,6 +962,15 @@ function App() {
         collapsed={mixerCollapsed}
         height={mixerHeight}
         onToggleCollapse={toggleMixerPanel}
+      />
+
+      <SettingsPanel
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        audioSettings={{ sampleRate: project.sampleRate, bufferSize: project.buffer }}
+        projectSettings={{ name: project.name, tempo: project.tempo, timeSignature: `${project.timeSignature.numerator}/${project.timeSignature.denominator}`, sampleRate: project.sampleRate }}
+        onAudioSettingsChange={() => {}}
+        onProjectSettingsChange={() => {}}
       />
     </div>
   );

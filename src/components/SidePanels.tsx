@@ -32,6 +32,8 @@ interface SidePanelsProps {
   errorMessage?: string;
   onExportMidi?: () => Promise<void> | void;
   onAiMusicGenerated?: (audioBuffer: AudioBuffer, name: string, blob?: Blob) => void;
+  activeTab?: PanelTab;
+  onTabChange?: (tab: PanelTab) => void;
 }
 
 type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music' | 'auto-mix';
@@ -59,8 +61,16 @@ const SidePanels = memo(function SidePanels({
   errorMessage,
   onExportMidi,
   onAiMusicGenerated,
+  activeTab,
+  onTabChange: _onTabChange,
 }: SidePanelsProps) {
-  const [activeTab, setActiveTab] = useState<PanelTab>('inspector');
+  const [internalTab, setInternalTab] = useState<PanelTab>('inspector');
+  const currentTab = activeTab ?? internalTab;
+
+  const handleTabChange = (tab: PanelTab) => {
+    setInternalTab(tab);
+    _onTabChange?.(tab);
+  };
 
   const panelStyle = {
     '--side-panel-width': collapsed ? '0px' : `${width}px`,
@@ -83,66 +93,66 @@ const SidePanels = memo(function SidePanels({
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'inspector'}
+              aria-selected={currentTab === 'inspector'}
               aria-controls="inspector-panel"
               id="inspector-tab"
-              className={`side-panel-tab ${activeTab === 'inspector' ? 'active' : ''}`}
-              onClick={() => setActiveTab('inspector')}
+              className={`side-panel-tab ${currentTab === 'inspector' ? 'active' : ''}`}
+              onClick={() => handleTabChange('inspector')}
             >
               Inspector
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'instrument'}
+              aria-selected={currentTab === 'instrument'}
               aria-controls="instrument-panel"
               id="instrument-tab"
-              className={`side-panel-tab ${activeTab === 'instrument' ? 'active' : ''}`}
-              onClick={() => setActiveTab('instrument')}
+              className={`side-panel-tab ${currentTab === 'instrument' ? 'active' : ''}`}
+              onClick={() => handleTabChange('instrument')}
             >
               Instrument
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'effects'}
+              aria-selected={currentTab === 'effects'}
               aria-controls="effects-panel"
               id="effects-tab"
-              className={`side-panel-tab ${activeTab === 'effects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('effects')}
+              className={`side-panel-tab ${currentTab === 'effects' ? 'active' : ''}`}
+              onClick={() => handleTabChange('effects')}
             >
               Effects
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'import-export'}
+              aria-selected={currentTab === 'import-export'}
               aria-controls="import-export-panel"
               id="import-export-tab"
-              className={`side-panel-tab ${activeTab === 'import-export' ? 'active' : ''}`}
-              onClick={() => setActiveTab('import-export')}
+              className={`side-panel-tab ${currentTab === 'import-export' ? 'active' : ''}`}
+              onClick={() => handleTabChange('import-export')}
             >
               Import/Export
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'ai-music'}
+              aria-selected={currentTab === 'ai-music'}
               aria-controls="ai-music-panel"
               id="ai-music-tab"
-              className={`side-panel-tab ${activeTab === 'ai-music' ? 'active' : ''}`}
-              onClick={() => setActiveTab('ai-music')}
+              className={`side-panel-tab ${currentTab === 'ai-music' ? 'active' : ''}`}
+              onClick={() => handleTabChange('ai-music')}
             >
               AI Music
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={activeTab === 'auto-mix'}
+              aria-selected={currentTab === 'auto-mix'}
               aria-controls="auto-mix-panel"
               id="auto-mix-tab"
-              className={`side-panel-tab ${activeTab === 'auto-mix' ? 'active' : ''}`}
-              onClick={() => setActiveTab('auto-mix')}
+              className={`side-panel-tab ${currentTab === 'auto-mix' ? 'active' : ''}`}
+              onClick={() => handleTabChange('auto-mix')}
             >
               Auto-Mix
             </button>
@@ -153,7 +163,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="inspector-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'inspector'}
+            hidden={currentTab !== 'inspector'}
           >
             <section className="panel">
               <div className="panel-header">
@@ -243,7 +253,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="instrument-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'instrument'}
+            hidden={currentTab !== 'instrument'}
           >
             <InstrumentPanel
               trackId={selectedTrackId}
@@ -261,7 +271,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="effects-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'effects'}
+            hidden={currentTab !== 'effects'}
           >
             {audioEngine && (
               <EffectsPanel
@@ -276,7 +286,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="import-export-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'import-export'}
+            hidden={currentTab !== 'import-export'}
           >
             <ImportExportPanel
               onImportAudio={onImportAudio}
@@ -298,7 +308,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="ai-music-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'ai-music'}
+            hidden={currentTab !== 'ai-music'}
           >
             <AIMusicPanel onAudioGenerated={onAiMusicGenerated} />
           </div>
@@ -308,7 +318,7 @@ const SidePanels = memo(function SidePanels({
             role="tabpanel"
             aria-labelledby="auto-mix-tab"
             className="side-panel-content"
-            hidden={activeTab !== 'auto-mix'}
+            hidden={currentTab !== 'auto-mix'}
           >
             <AutoMixPanel />
           </div>
