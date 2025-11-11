@@ -1,7 +1,36 @@
 # AI Music Generation Feature
 
 ## Overview
-Studio-quality free AI music generation integration for the Zenith DAW using multiple open-source AI models. This feature provides unlimited, high-fidelity music generation at 44.1kHz+ stereo with no API keys required.
+Studio-quality free AI music generation integration for the Zenith DAW using multiple open-source AI models. This feature provides unlimited, high-fidelity music generation at 44.1kHz+ stereo.
+
+## Setup (Required)
+
+### Get Your Free HuggingFace API Token
+
+HuggingFace now requires authentication for their Inference API. Getting a token is **free and takes 2 minutes**:
+
+1. **Create Account**: Go to [huggingface.co](https://huggingface.co/) and sign up (free)
+2. **Generate Token**: Visit [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+3. **Create New Token**: Click "New token" → Name it (e.g., "Zenith DAW") → Role: "Read" → Create
+4. **Copy Token**: Copy your token (starts with `hf_...`)
+5. **Add to Project**:
+   - Create a file named `.env.local` in your project root (next to `package.json`)
+   - Add this line: `VITE_HUGGINGFACE_TOKEN=hf_your_token_here`
+   - Replace `hf_your_token_here` with your actual token
+6. **Restart Dev Server**: Stop and restart `npm run dev` to load the new token
+
+**Example `.env.local` file:**
+```bash
+VITE_HUGGINGFACE_TOKEN=hf_abcdefghijklmnopqrstuvwxyz123456
+```
+
+✅ **Benefits of using a token:**
+- No "Failed to fetch" errors
+- Faster model loading
+- Higher rate limits
+- More reliable generations
+
+⚠️ **Important:** Never commit `.env.local` to Git (it's already in `.gitignore`)
 
 ## Features
 

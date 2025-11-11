@@ -77,14 +77,25 @@ export class AIMusicGenerator {
     try {
       this.updateProgress('generating', 30, 'Sending generation request...');
 
+      // Get HuggingFace token from environment (optional - improves reliability)
+      const hfToken = import.meta.env.VITE_HUGGINGFACE_TOKEN;
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add authorization if token is available
+      if (hfToken && hfToken !== 'your_token_here') {
+        headers['Authorization'] = `Bearer ${hfToken}`;
+      }
+
+      // HuggingFace Inference API endpoint
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${modelConfig.modelId}`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(inputs),
+          headers,
+          body: JSON.stringify({ inputs: request.prompt, parameters: inputs }),
         }
       );
 
@@ -92,12 +103,34 @@ export class AIMusicGenerator {
 
       if (!response.ok) {
         const errorText = await response.text();
+        
         if (response.status === 503) {
           throw new Error(
-            'Model is loading. Please try again in a few moments. HuggingFace free tier may take 1-2 minutes to load models.'
+            'Model is loading (cold start). This can take 1-2 minutes. Please try again shortly.'
           );
         }
-        throw new Error(`HuggingFace API error: ${errorText}`);
+        
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            'HuggingFace API token required. Get a free token at https://huggingface.co/settings/tokens and add to .env.local as VITE_HUGGINGFACE_TOKEN'
+          );
+        }
+        
+        if (response.status === 429) {
+          throw new Error(
+            'Rate limit exceeded. Please wait a moment and try again.'
+          );
+        }
+        
+        throw new Error(`API error (${response.status}): ${errorText || response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      
+      // Check if response is audio
+      if (!contentType?.includes('audio')) {
+        const responseText = await response.text();
+        throw new Error(`Unexpected response format: ${responseText.substring(0, 200)}`);
       }
 
       const audioBlob = await response.blob();
@@ -122,7 +155,8 @@ export class AIMusicGenerator {
         },
       };
     } catch (error) {
-      throw new Error(`HuggingFace generation failed: ${(error as Error).message}`);
+      const errorMessage = (error as Error).message;
+      throw new Error(`HuggingFace generation failed: ${errorMessage}`);
     }
   }
 

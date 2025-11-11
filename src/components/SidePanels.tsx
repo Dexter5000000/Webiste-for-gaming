@@ -5,6 +5,7 @@ import type { InstrumentPreset } from '../audio/instruments/types';
 import { ImportExportPanel } from './ImportExportPanel';
 import EffectsPanel from './EffectsPanel';
 import AIMusicPanel from './AIMusicPanel';
+import AutoMixPanel from './AutoMixPanel';
 import type { AudioEngine } from '../audio/AudioEngine';
 import './ImportExportPanel.css';
 
@@ -33,7 +34,7 @@ interface SidePanelsProps {
   onAiMusicGenerated?: (audioBuffer: AudioBuffer, name: string, blob?: Blob) => void;
 }
 
-type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music';
+type PanelTab = 'inspector' | 'instrument' | 'effects' | 'import-export' | 'ai-music' | 'auto-mix';
 
 const SidePanels = memo(function SidePanels({
   collapsed,
@@ -133,6 +134,17 @@ const SidePanels = memo(function SidePanels({
               onClick={() => setActiveTab('ai-music')}
             >
               AI Music
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'auto-mix'}
+              aria-controls="auto-mix-panel"
+              id="auto-mix-tab"
+              className={`side-panel-tab ${activeTab === 'auto-mix' ? 'active' : ''}`}
+              onClick={() => setActiveTab('auto-mix')}
+            >
+              Auto-Mix
             </button>
           </nav>
 
@@ -289,6 +301,16 @@ const SidePanels = memo(function SidePanels({
             hidden={activeTab !== 'ai-music'}
           >
             <AIMusicPanel onAudioGenerated={onAiMusicGenerated} />
+          </div>
+
+          <div
+            id="auto-mix-panel"
+            role="tabpanel"
+            aria-labelledby="auto-mix-tab"
+            className="side-panel-content"
+            hidden={activeTab !== 'auto-mix'}
+          >
+            <AutoMixPanel />
           </div>
         </>
       )}
