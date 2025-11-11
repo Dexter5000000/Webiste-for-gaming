@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useAppStore } from '../state/store';
 import { autoMix, applyAutoMixSettings } from '../audio/ai/AutoMixer';
-import '../EffectsPanel.css'; // Reuse existing panel styles
+import './EffectsPanel.css'; // Reuse existing panel styles
 
 interface AutoMixPanelProps {
   onClose?: () => void;
