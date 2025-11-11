@@ -88,28 +88,51 @@ export class AIMusicGenerator {
     const totalFrames = Math.ceil(duration * sampleRate);
     const offline = new OfflineAudioContext(2, totalFrames, sampleRate);
 
-    // Interpreting prompt to influence style
+    // Interpreting prompt to influence style - more granular analysis
     const prompt = request.prompt.toLowerCase();
-    const isAmbient = /ambient|pad|atmospheric|space|calm|relax|drone/.test(prompt);
-    const isDance = /dance|edm|club|house|techno|trance|party|beat/.test(prompt);
-    const isDark = /dark|ominous|minor|moody|sad|melancholic/.test(prompt);
-    const isHappy = /happy|bright|uplift|joy|cheer/.test(prompt);
+    
+    // Genre detection
+    const isAmbient = /ambient|pad|atmospheric|space|calm|relax|drone|zen|meditation|sleep/.test(prompt);
+    const isDance = /dance|edm|club|house|techno|trance|party|beat|electronic|synth|disco/.test(prompt);
+    const isDark = /dark|ominous|minor|moody|sad|melancholic|goth|industrial|metal|horror/.test(prompt);
+    const isHappy = /happy|bright|uplift|joy|cheer|funk|pop|upbeat|energetic|playful/.test(prompt);
+    const isJazz = /jazz|swing|smooth|cool|sophisticated/.test(prompt);
+    const isClassical = /classical|orchestral|symphon|baroque|romantic/.test(prompt);
+    const isBlues = /blues|bluesy|jazz|swing/.test(prompt);
+    const isMinimal = /minimal|simple|sparse|empty|quiet/.test(prompt);
+    const isComplex = /complex|intricate|complicated|layered|rich|dense/.test(prompt);
+    
+    // Use prompt hash for deterministic but unique randomness per prompt
+    const promptHash = this.hashString(request.prompt);
+    const seededRandom = this.seededRandom(promptHash);
 
     // Tempo heuristic from prompt
-    let tempo = isAmbient ? 80 : isDance ? 128 : 100;
+    let tempo = isAmbient ? 60 + seededRandom() * 20 : isDance ? 120 + seededRandom() * 30 : 90 + seededRandom() * 20;
     if (/\b(\d{2,3})\s?bpm\b/.test(prompt)) {
       const match = prompt.match(/\b(\d{2,3})\s?bpm\b/);
       if (match) tempo = Math.min(180, Math.max(60, parseInt(match[1], 10)));
     }
 
-    // Scale & root note selection
+    // Key & scale selection - more variety
     const pentatonicMinor = [0, 3, 5, 7, 10];
     const major = [0, 2, 4, 5, 7, 9, 11];
-    const scale = isDark ? pentatonicMinor : isHappy ? major : pentatonicMinor;
-    const root = isHappy ? 60 : isDark ? 48 : 54; // MIDI-ish base reference
+    const harmonic = [0, 2, 3, 5, 7, 8, 11];
+    const dorian = [0, 2, 3, 5, 7, 9, 10];
+    const blues = [0, 3, 5, 6, 7, 10];
+    
+    let scale: number[];
+    if (isDark) scale = harmonic;
+    else if (isJazz) scale = dorian;
+    else if (isBlues) scale = blues;
+    else if (isHappy) scale = major;
+    else scale = pentatonicMinor;
+
+    const roots = [48, 50, 52, 54, 55, 57, 59, 60];
+    const rootIndex = Math.floor(seededRandom() * roots.length);
+    const root = roots[rootIndex];
 
     // Utility: create envelope
-  const applyEnvelope = (_ctx: BaseAudioContext, node: GainNode, time: number, a: number, d: number, s: number, r: number, peak = 1) => {
+    const applyEnvelope = (_ctx: BaseAudioContext, node: GainNode, time: number, a: number, d: number, s: number, r: number, peak = 1) => {
       node.gain.cancelScheduledValues(time);
       node.gain.setValueAtTime(0, time);
       node.gain.linearRampToValueAtTime(peak, time + a);
@@ -117,123 +140,160 @@ export class AIMusicGenerator {
       node.gain.setValueAtTime(peak * s, time + a + d + Math.max(0.001, r));
     };
 
-    // Drum layer: simple kick + hat pattern
-    const drumGain = offline.createGain();
-    drumGain.gain.value = isAmbient ? 0.15 : 0.35;
-    drumGain.connect(offline.destination);
-
     const secondsPerBeat = 60 / tempo;
     const beats = Math.ceil((duration / secondsPerBeat));
 
-    for (let beat = 0; beat < beats; beat++) {
+    // Choose drum pattern based on genre
+    const drumPattern = this.generateDrumPattern(beats, isDance, isJazz, isDark, seededRandom);
+    
+    // Drum layer
+    const drumGain = offline.createGain();
+    drumGain.gain.value = isAmbient ? 0 : isMinimal ? 0.2 : isDance ? 0.4 : 0.3;
+    drumGain.connect(offline.destination);
+
+    // Apply drum pattern
+    drumPattern.kicks.forEach(beat => {
       const t = beat * secondsPerBeat;
-      // Kick on quarter notes
-      if (beat % 1 === 0 && !isAmbient) {
-        const osc = offline.createOscillator();
-        osc.type = 'sine';
-        const gain = offline.createGain();
-        gain.gain.value = 0;
-        osc.frequency.setValueAtTime(120, t);
-        osc.frequency.exponentialRampToValueAtTime(40, t + 0.12);
-        osc.connect(gain).connect(drumGain);
-        gain.gain.setValueAtTime(0.001, t);
-        gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-        osc.start(t);
-        osc.stop(t + 0.3);
-      }
-      // Hats every 1/2 beat
-      if (beat % 0.5 === 0 && !isAmbient) {
-        const bufferSize = 256;
+      const osc = offline.createOscillator();
+      osc.type = 'sine';
+      const gain = offline.createGain();
+      gain.gain.value = 0;
+      const kickPitch = 80 + seededRandom() * 60;
+      const kickDecay = 0.15 + seededRandom() * 0.15;
+      osc.frequency.setValueAtTime(kickPitch, t);
+      osc.frequency.exponentialRampToValueAtTime(30, t + kickDecay);
+      osc.connect(gain).connect(drumGain);
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.exponentialRampToValueAtTime(0.8, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + (kickDecay + 0.1));
+      osc.start(t);
+      osc.stop(t + kickDecay + 0.1);
+    });
+
+    drumPattern.hats.forEach(beat => {
+      const t = beat * secondsPerBeat;
+      const bufferSize = 256;
+      const noiseBuffer = offline.createBuffer(1, bufferSize, sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = offline.createBufferSource();
+      noise.buffer = noiseBuffer;
+      const bandpass = offline.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.value = 8000 + seededRandom() * 4000;
+      const gain = offline.createGain();
+      gain.gain.setValueAtTime(0.0, t);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+      noise.connect(bandpass).connect(gain).connect(drumGain);
+      noise.start(t);
+      noise.stop(t + 0.08);
+    });
+
+    // Snare layer
+    if (drumPattern.snares.length > 0 && !isAmbient) {
+      drumPattern.snares.forEach(beat => {
+        const t = beat * secondsPerBeat;
+        const bufferSize = 512;
         const noiseBuffer = offline.createBuffer(1, bufferSize, sampleRate);
         const data = noiseBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
         const noise = offline.createBufferSource();
         noise.buffer = noiseBuffer;
-        const bandpass = offline.createBiquadFilter();
-        bandpass.type = 'bandpass';
-        bandpass.frequency.value = 8000;
+        const hpf = offline.createBiquadFilter();
+        hpf.type = 'highpass';
+        hpf.frequency.value = 200;
         const gain = offline.createGain();
         gain.gain.setValueAtTime(0.0, t);
-        gain.gain.linearRampToValueAtTime(0.4, t + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-        noise.connect(bandpass).connect(gain).connect(drumGain);
+        gain.gain.linearRampToValueAtTime(0.5, t + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+        noise.connect(hpf).connect(gain).connect(drumGain);
         noise.start(t);
-        noise.stop(t + 0.1);
-      }
+        noise.stop(t + 0.15);
+      });
     }
 
-    // Bass layer: step sequence
+    // Bass layer: varied patterns
     const bassGain = offline.createGain();
-    bassGain.gain.value = isAmbient ? 0.2 : 0.3;
+    bassGain.gain.value = isAmbient ? 0 : isMinimal ? 0.1 : isDance ? 0.35 : 0.25;
     bassGain.connect(offline.destination);
+    
     const bassOsc = offline.createOscillator();
-    bassOsc.type = 'sawtooth';
+    bassOsc.type = isDance ? 'square' : isJazz ? 'sine' : 'sawtooth';
     const bassEnv = offline.createGain();
     bassEnv.gain.value = 0;
     bassOsc.connect(bassEnv).connect(bassGain);
     bassOsc.start(0);
-    const bassBeats = beats;
-    for (let i = 0; i < bassBeats; i += 2) {
-      const t = i * secondsPerBeat;
-      const pitchIndex = scale[Math.floor(Math.random() * scale.length)];
-      const freq = 440 * Math.pow(2, (root + pitchIndex - 69) / 12);
+    
+    const bassPattern = this.generateBassPattern(beats, isDance, isJazz, scale, root, seededRandom);
+    bassPattern.forEach(({ beat, note }) => {
+      const t = beat * secondsPerBeat;
+      const freq = 440 * Math.pow(2, (note - 69) / 12);
       bassOsc.frequency.setValueAtTime(freq, t);
-      applyEnvelope(offline, bassEnv, t, 0.005, 0.08, 0.3, 0.25, 0.8);
-    }
+      const attackTime = isDance ? 0.01 : 0.05;
+      applyEnvelope(offline, bassEnv, t, attackTime, 0.1, 0.4, 0.2, 0.9);
+    });
     bassOsc.stop(duration);
 
-    // Melody layer (skips if ambient -> pads instead)
+    // Melody/Pad layer
     const melodyGain = offline.createGain();
-    melodyGain.gain.value = isAmbient ? 0.15 : 0.25;
+    melodyGain.gain.value = isAmbient ? 0.25 : isMinimal ? 0.05 : isDance ? 0.15 : 0.2;
     melodyGain.connect(offline.destination);
-    if (!isAmbient) {
+    
+    if (isAmbient || isMinimal) {
+      // Pad/ambient layer
+      const padOsc = offline.createOscillator();
+      padOsc.type = 'sine';
+      const padEnv = offline.createGain();
+      padEnv.gain.setValueAtTime(0.0001, 0);
+      padEnv.gain.exponentialRampToValueAtTime(0.3, 3);
+      padEnv.gain.setValueAtTime(0.3, Math.max(3, duration - 3));
+      padEnv.gain.exponentialRampToValueAtTime(0.0001, duration);
+      padOsc.connect(padEnv).connect(melodyGain);
+      
+      const padNotes = this.generatePadSequence(duration, scale, root, seededRandom);
+      padNotes.forEach(({ time, note }) => {
+        const freq = 440 * Math.pow(2, (note - 69) / 12);
+        padOsc.frequency.linearRampToValueAtTime(freq, time);
+      });
+      padOsc.start(0);
+      padOsc.stop(duration);
+    } else {
+      // Melody layer
       const melOsc = offline.createOscillator();
-      melOsc.type = 'triangle';
+      melOsc.type = isJazz ? 'sine' : isClassical ? 'sine' : 'triangle';
       const melEnv = offline.createGain();
       melEnv.gain.value = 0;
       melOsc.connect(melEnv).connect(melodyGain);
       melOsc.start(0);
-      for (let i = 0; i < beats; i += 1) {
-        const t = i * secondsPerBeat + (Math.random() * secondsPerBeat * 0.2);
-        if (t + 0.5 > duration) break;
-        const pitchIndex = scale[Math.floor(Math.random() * scale.length)];
-        const freq = 440 * Math.pow(2, (root + pitchIndex + 12 - 69) / 12);
+      
+      const melodyPattern = this.generateMelodyPattern(beats, scale, root, isDance, isJazz, seededRandom);
+      melodyPattern.forEach(({ beat, note, duration: noteDuration }) => {
+        const t = beat * secondsPerBeat;
+        if (t + noteDuration > duration) return;
+        const freq = 440 * Math.pow(2, (note - 69) / 12);
         melOsc.frequency.setValueAtTime(freq, t);
-        applyEnvelope(offline, melEnv, t, 0.01, 0.12, 0.4, 0.2, 0.6);
-      }
+        const attackTime = isJazz ? 0.02 : isDance ? 0.01 : 0.03;
+        applyEnvelope(offline, melEnv, t, attackTime, 0.15, 0.5, 0.15, 0.7);
+      });
       melOsc.stop(duration);
-    } else {
-      // Ambient pad: slow evolving noise filtered
-      const padSrc = offline.createOscillator();
-      padSrc.type = 'sine';
-      const padGain = offline.createGain();
-      padGain.gain.setValueAtTime(0.001, 0);
-      padGain.gain.exponentialRampToValueAtTime(0.25, 2);
-      padGain.gain.setValueAtTime(0.25, duration - 2);
-      padGain.gain.exponentialRampToValueAtTime(0.001, duration);
-      padSrc.connect(padGain).connect(melodyGain);
-      for (let i = 0; i < duration; i += 4) {
-        const freq = 220 * Math.pow(2, (Math.random() * 4) / 12);
-        padSrc.frequency.linearRampToValueAtTime(freq, i + 2);
-      }
-      padSrc.start(0);
-      padSrc.stop(duration);
     }
 
-    // Light stereo widening
-    const splitter = offline.createChannelSplitter(2);
-    const merger = offline.createChannelMerger(2);
-    melodyGain.connect(splitter);
-    const leftGain = offline.createGain();
-    const rightGain = offline.createGain();
-    leftGain.gain.value = 0.9;
-    rightGain.gain.value = 1.1;
-    splitter.connect(leftGain, 0);
-    splitter.connect(rightGain, 1);
-    leftGain.connect(merger, 0, 0);
-    rightGain.connect(merger, 0, 1);
-    merger.connect(offline.destination);
+    // Reverb/Echo layer for depth
+    if (isComplex || !isMinimal) {
+      const delayTime = secondsPerBeat * (seededRandom() > 0.5 ? 2 : 1);
+      const dryGain = offline.createGain();
+      const wetGain = offline.createGain();
+      dryGain.gain.value = 0.8;
+      wetGain.gain.value = isAmbient ? 0.3 : 0.15;
+      
+      melodyGain.connect(dryGain).connect(offline.destination);
+      const delay = offline.createDelay(delayTime);
+      delay.delayTime.value = delayTime;
+      melodyGain.connect(delay).connect(wetGain).connect(offline.destination);
+    } else {
+      melodyGain.connect(offline.destination);
+    }
 
     this.updateProgress('generating', 40, 'Synthesizing layers...');
     const buffer = await offline.startRendering();
@@ -444,6 +504,204 @@ export class AIMusicGenerator {
     };
 
     return genreModels[genre.toLowerCase()] ?? 'stable-audio-open';
+  }
+
+  // Helper: Hash string to seed random generator
+  private hashString(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  // Helper: Seeded random number generator (0-1)
+  private seededRandom(seed: number): () => number {
+    return () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+  }
+
+  // Helper: Generate drum patterns based on genre
+  private generateDrumPattern(
+    beats: number,
+    isDance: boolean,
+    isJazz: boolean,
+    isDark: boolean,
+    random: () => number
+  ): { kicks: number[]; hats: number[]; snares: number[] } {
+    const kicks: number[] = [];
+    const hats: number[] = [];
+    const snares: number[] = [];
+
+    if (isDance) {
+      // 4 on the floor kick pattern
+      for (let i = 0; i < beats; i += 4) kicks.push(i);
+      // Hats every 8th
+      for (let i = 0; i < beats; i += 2) hats.push(i);
+      // Snares on 2 and 4
+      for (let i = 8; i < beats; i += 8) {
+        snares.push(i);
+        if (i + 8 < beats) snares.push(i + 8);
+      }
+    } else if (isJazz) {
+      // Swing pattern - kick on beats 1 and 3
+      for (let i = 0; i < beats; i += 8) {
+        kicks.push(i);
+        if (i + 8 < beats) kicks.push(i + 8);
+      }
+      // Swung hats
+      for (let i = 0; i < beats; i += 3) hats.push(i);
+      // Snares on swing beats
+      for (let i = 4; i < beats; i += 8) snares.push(i);
+    } else if (isDark) {
+      // Sparse, syncopated pattern
+      for (let i = 0; i < beats; i += 6 + Math.floor(random() * 4)) {
+        kicks.push(i);
+      }
+      for (let i = 1; i < beats; i += 5 + Math.floor(random() * 3)) {
+        hats.push(i);
+      }
+      for (let i = 3; i < beats; i += 7 + Math.floor(random() * 4)) {
+        snares.push(i);
+      }
+    } else {
+      // Standard pattern
+      for (let i = 0; i < beats; i += 4) kicks.push(i);
+      for (let i = 0; i < beats; i += 2) hats.push(i);
+      for (let i = 4; i < beats; i += 8) snares.push(i);
+    }
+
+    return { kicks, hats, snares };
+  }
+
+  // Helper: Generate bass line patterns
+  private generateBassPattern(
+    beats: number,
+    isDance: boolean,
+    isJazz: boolean,
+    scale: number[],
+    root: number,
+    random: () => number
+  ): Array<{ beat: number; note: number }> {
+    const pattern: Array<{ beat: number; note: number }> = [];
+
+    if (isDance) {
+      // Hypnotic repeating bass pattern
+      const bassNotes = [0, 5, 7, 5];
+      for (let i = 0; i < beats; i += 2) {
+        const noteIndex = Math.floor((i / 2) % bassNotes.length);
+        pattern.push({
+          beat: i,
+          note: root + scale[noteIndex % scale.length],
+        });
+      }
+    } else if (isJazz) {
+      // Walking bass pattern
+      for (let i = 0; i < beats; i += 2) {
+        const scaleIdx = Math.floor(random() * scale.length);
+        const octaveOffset = Math.floor(random() * 2) * 12;
+        pattern.push({
+          beat: i,
+          note: root + scale[scaleIdx] + octaveOffset,
+        });
+      }
+    } else {
+      // Varied bass pattern
+      for (let i = 0; i < beats; i += 4 - Math.floor(random() * 2)) {
+        if (i < beats) {
+          const scaleIdx = Math.floor(random() * Math.max(1, scale.length - 2));
+          pattern.push({
+            beat: i,
+            note: root + scale[scaleIdx],
+          });
+        }
+      }
+    }
+
+    return pattern;
+  }
+
+  // Helper: Generate melody patterns
+  private generateMelodyPattern(
+    beats: number,
+    scale: number[],
+    root: number,
+    isDance: boolean,
+    isJazz: boolean,
+    random: () => number
+  ): Array<{ beat: number; note: number; duration: number }> {
+    const pattern: Array<{ beat: number; note: number; duration: number }> = [];
+
+    if (isDance) {
+      // Repetitive arpeggio pattern
+      const arpNotes = [0, 2, 4, 2];
+      for (let i = 0; i < beats; i += 1) {
+        if (i % 2 === 0) {
+          const noteIndex = Math.floor((i / 2) % arpNotes.length);
+          const scaleIdx = arpNotes[noteIndex] % scale.length;
+          pattern.push({
+            beat: i,
+            note: root + 12 + scale[scaleIdx],
+            duration: 0.5,
+          });
+        }
+      }
+    } else if (isJazz) {
+      // Syncopated jazzy melody
+      let i = 0;
+      while (i < beats) {
+        const scaleIdx = Math.floor(random() * scale.length);
+        const octave = Math.floor(random() * 3) * 12;
+        const duration = 0.5 + random() * 1.5;
+        pattern.push({
+          beat: i,
+          note: root + 12 + octave + scale[scaleIdx],
+          duration,
+        });
+        i += duration + random() * 0.5;
+      }
+    } else {
+      // Varied melodic line
+      let i = 0;
+      while (i < beats) {
+        const scaleIdx = Math.floor(random() * scale.length);
+        const duration = 0.5 + random() * 1.2;
+        const octave = (Math.random() > 0.7 ? 1 : 0) * 12;
+        pattern.push({
+          beat: i,
+          note: root + 12 + octave + scale[scaleIdx],
+          duration,
+        });
+        i += duration;
+      }
+    }
+
+    return pattern;
+  }
+
+  // Helper: Generate pad/ambient sequences
+  private generatePadSequence(
+    duration: number,
+    scale: number[],
+    root: number,
+    random: () => number
+  ): Array<{ time: number; note: number }> {
+    const sequence: Array<{ time: number; note: number }> = [];
+
+    for (let t = 0; t < duration; t += 2 + random() * 3) {
+      const scaleIdx = Math.floor(random() * scale.length);
+      const octave = Math.floor(random() * 2) * 12;
+      sequence.push({
+        time: t,
+        note: root + octave + scale[scaleIdx],
+      });
+    }
+
+    return sequence;
   }
 }
 
