@@ -47,6 +47,7 @@ const EffectEditorPanel: React.FC<EffectEditorPanelProps> = ({ audioEngine, sele
       setTrackEffects([]);
       setActiveTab('master');
     }
+    setSelectedEffectId(null);
   }, [selectedTrackId, audioEngine]);
 
   // Update master effects
@@ -61,11 +62,23 @@ const EffectEditorPanel: React.FC<EffectEditorPanelProps> = ({ audioEngine, sele
   const handleParameterChange = useCallback((paramId: string, value: number) => {
     if (selectedEffect) {
       selectedEffect.setParameter(paramId, value);
+      // Update the parameter objects to reflect the change
+      const updatedEffects = activeTab === 'master' ? [...masterEffects] : [...trackEffects];
+      const effectIdx = updatedEffects.findIndex(e => e.id === selectedEffectId);
+      if (effectIdx !== -1) {
+        const param = updatedEffects[effectIdx].getParameter(paramId);
+        if (param) {
+          param.value = value;
+        }
+      }
       // Force re-render
-      setMasterEffects([...masterEffects]);
-      setTrackEffects([...trackEffects]);
+      if (activeTab === 'master') {
+        setMasterEffects(updatedEffects);
+      } else {
+        setTrackEffects(updatedEffects);
+      }
     }
-  }, [selectedEffect, masterEffects, trackEffects]);
+  }, [selectedEffect, activeTab, masterEffects, trackEffects, selectedEffectId]);
 
   const handleSavePreset = useCallback(() => {
     if (!selectedEffect || !presetName.trim()) return;
@@ -89,14 +102,22 @@ const EffectEditorPanel: React.FC<EffectEditorPanelProps> = ({ audioEngine, sele
 
   const handleApplyPreset = useCallback((preset: EffectPreset) => {
     if (selectedEffect && selectedEffect.type === preset.type) {
+      // Apply each parameter from the preset
       Object.entries(preset.parameters).forEach(([paramId, value]) => {
-        selectedEffect.setParameter(paramId, value);
+        const param = selectedEffect.getParameter(paramId);
+        if (param) {
+          selectedEffect.setParameter(paramId, value);
+        }
       });
-      // Force re-render
-      setMasterEffects([...masterEffects]);
-      setTrackEffects([...trackEffects]);
+      // Force re-render with fresh parameter data
+      const updatedEffects = activeTab === 'master' ? [...masterEffects] : [...trackEffects];
+      if (activeTab === 'master') {
+        setMasterEffects(updatedEffects);
+      } else {
+        setTrackEffects(updatedEffects);
+      }
     }
-  }, [selectedEffect, masterEffects, trackEffects]);
+  }, [selectedEffect, activeTab, masterEffects, trackEffects]);
 
   const handleDeletePreset = useCallback((presetId: string) => {
     const updated = customPresets.filter(p => p.id !== presetId);
@@ -112,21 +133,21 @@ const EffectEditorPanel: React.FC<EffectEditorPanelProps> = ({ audioEngine, sele
           name: 'Vocal Glue',
           type: 'compressor',
           description: 'Smooth compression for vocals',
-          parameters: { threshold: -20, ratio: 4, attack: 0.005, release: 0.1, makeup: 5 },
+          parameters: { threshold: -20, ratio: 4, attack: 0.005, release: 0.1, makeupGain: 5 },
         },
         {
           id: 'comp-drum',
           name: 'Drum Punch',
           type: 'compressor',
           description: 'Fast compression for drums',
-          parameters: { threshold: -10, ratio: 8, attack: 0.001, release: 0.05, makeup: 8 },
+          parameters: { threshold: -10, ratio: 8, attack: 0.001, release: 0.05, makeupGain: 8 },
         },
         {
           id: 'comp-bass',
           name: 'Bass Control',
           type: 'compressor',
           description: 'Tight bass compression',
-          parameters: { threshold: -15, ratio: 6, attack: 0.003, release: 0.15, makeup: 6 },
+          parameters: { threshold: -15, ratio: 6, attack: 0.003, release: 0.15, makeupGain: 6 },
         },
       ],
       'reverb': [
@@ -237,9 +258,14 @@ const EffectEditorPanel: React.FC<EffectEditorPanelProps> = ({ audioEngine, sele
     selectedEffect.getAllParameters().forEach(param => {
       selectedEffect.setParameter(param.id, param.default);
     });
-    setMasterEffects([...masterEffects]);
-    setTrackEffects([...trackEffects]);
-  }, [selectedEffect, masterEffects, trackEffects]);
+    // Force re-render with fresh parameter data
+    const updatedEffects = activeTab === 'master' ? [...masterEffects] : [...trackEffects];
+    if (activeTab === 'master') {
+      setMasterEffects(updatedEffects);
+    } else {
+      setTrackEffects(updatedEffects);
+    }
+  }, [selectedEffect, activeTab, masterEffects, trackEffects]);
 
   return (
     <div className="effect-editor-panel">
