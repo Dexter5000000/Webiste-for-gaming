@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/Webiste-for-gaming/',
+  base: '/', // Using custom domain apexdaw.tech
   plugins: [
     react(),
     VitePWA({

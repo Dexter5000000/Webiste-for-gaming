@@ -2,9 +2,9 @@ import { BaseEffect, EffectParameter } from './BaseEffect';
 import type { AudioContextLike } from '../AudioEngine';
 
 export class ReverbEffect extends BaseEffect {
-  private convolver: ConvolverNode;
-  private preDelay: DelayNode;
-  private filter: BiquadFilterNode;
+  private readonly convolver: ConvolverNode;
+  private readonly preDelay: DelayNode;
+  private readonly filter: BiquadFilterNode;
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);

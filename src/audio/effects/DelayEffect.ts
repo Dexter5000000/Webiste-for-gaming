@@ -2,11 +2,11 @@ import { BaseEffect, EffectParameter } from './BaseEffect';
 import type { AudioContextLike } from '../AudioEngine';
 
 export class DelayEffect extends BaseEffect {
-  private delayNode: DelayNode;
-  private feedback: GainNode;
-  private filter: BiquadFilterNode;
-  private lfo: OscillatorNode;
-  private lfoGain: GainNode;
+  private readonly delayNode: DelayNode;
+  private readonly feedback: GainNode;
+  private readonly filter: BiquadFilterNode;
+  private readonly lfo: OscillatorNode;
+  private readonly lfoGain: GainNode;
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);

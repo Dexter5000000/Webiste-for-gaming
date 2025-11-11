@@ -9,9 +9,9 @@ import type { AudioContextLike } from '../AudioEngine';
 
 export class EffectChain {
   private effects: BaseEffect[] = [];
-  private inputNode: GainNode;
-  private outputNode: GainNode;
-  private audioContext: AudioContextLike;
+  private readonly inputNode: GainNode;
+  private readonly outputNode: GainNode;
+  private readonly audioContext: AudioContextLike;
   private nextEffectId: number = 1;
 
   constructor(audioContext: AudioContextLike, public readonly id: string) {

@@ -8,12 +8,12 @@ interface EQBand {
 }
 
 export class EQEffect extends BaseEffect {
-  private inputSplitter: ChannelSplitterNode;
-  private outputMerger: ChannelMergerNode;
-  private lowShelf: BiquadFilterNode;
-  private highShelf: BiquadFilterNode;
-  private bands: EQBand[] = [];
-  private numberOfBands: number = 4;
+  private readonly inputSplitter: ChannelSplitterNode;
+  private readonly outputMerger: ChannelMergerNode;
+  private readonly lowShelf: BiquadFilterNode;
+  private readonly highShelf: BiquadFilterNode;
+  private readonly bands: EQBand[] = [];
+  private readonly numberOfBands: number = 4;
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);

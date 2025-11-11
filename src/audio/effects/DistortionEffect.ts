@@ -2,12 +2,12 @@ import { BaseEffect, EffectParameter } from './BaseEffect';
 import type { AudioContextLike } from '../AudioEngine';
 
 export class DistortionEffect extends BaseEffect {
-  private waveshaper: WaveShaperNode;
-  private preGain: GainNode;
-  private postGain: GainNode;
-  private filter: BiquadFilterNode;
-  private tone: BiquadFilterNode;
-  private mixGain: GainNode;
+  private readonly waveshaper: WaveShaperNode;
+  private readonly preGain: GainNode;
+  private readonly postGain: GainNode;
+  private readonly filter: BiquadFilterNode;
+  private readonly tone: BiquadFilterNode;
+  private readonly mixGain: GainNode;
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);

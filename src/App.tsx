@@ -521,7 +521,7 @@ function App() {
               enabled: false,
               algorithm: 'beats',
             },
-          });
+          } as Omit<AudioClip, 'id'>);
         }
       }, 100);
     } else {
@@ -548,7 +548,7 @@ function App() {
           enabled: false,
           algorithm: 'beats',
         },
-      });
+      } as Omit<AudioClip, 'id'>);
     }
   }, [addTrack, project.tracks, addClip]);
 
@@ -615,7 +615,7 @@ function App() {
             enabled: false,
             algorithm: 'beats',
           },
-        });
+        } as Omit<AudioClip, 'id'>);
 
         currentPosition += durationInBeats;
       }

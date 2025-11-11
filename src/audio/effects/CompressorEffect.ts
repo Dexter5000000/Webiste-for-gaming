@@ -2,9 +2,9 @@ import { BaseEffect, EffectParameter } from './BaseEffect';
 import type { AudioContextLike } from '../AudioEngine';
 
 export class CompressorEffect extends BaseEffect {
-  private compressor: DynamicsCompressorNode;
-  private makeupGain: GainNode;
-  private analyzer: AnalyserNode;
+  private readonly compressor: DynamicsCompressorNode;
+  private readonly makeupGain: GainNode;
+  private readonly analyzer: AnalyserNode;
   private gainReduction: number = 0;
 
   constructor(audioContext: AudioContextLike, id: string) {

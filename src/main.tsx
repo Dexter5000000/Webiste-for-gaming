@@ -23,6 +23,19 @@ window.addEventListener('error', (event) => {
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
+  
+  // Suppress known SSL/ServiceWorker errors that don't affect functionality
+  if (
+    event.reason instanceof Error &&
+    (event.reason.message.includes('Failed to register a ServiceWorker') ||
+      event.reason.message.includes('SSL certificate error') ||
+      event.reason.message.includes('SecurityError'))
+  ) {
+    console.warn('ServiceWorker registration failed (expected in some environments):', event.reason.message);
+    event.preventDefault();
+    return;
+  }
+  
   honeybadger.notify(event.reason instanceof Error ? event.reason : new Error(String(event.reason)), {
     context: {
       category: 'unhandled-promise-rejection',

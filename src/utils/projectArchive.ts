@@ -6,12 +6,24 @@ export interface ProjectArchiveOptions {
   onError?: (error: Error) => void;
 }
 
+interface ProjectWithMetadata {
+  metadata?: Record<string, unknown>;
+  audioFiles?: Array<{ id: string; path: string }>;
+}
+
+interface ProjectWithMetadata {
+  metadata?: Record<string, unknown>;
+  audioFiles?: Array<{ id: string; path: string }>;
+}
+
 export interface ProjectArchiveData<TProject = Record<string, unknown>> {
   project: TProject;
   audioFiles: Map<string, ArrayBuffer>;
 }
 
-export async function exportProjectArchive<TProject = Record<string, unknown>>(
+export async function exportProjectArchive<
+  TProject extends ProjectWithMetadata = ProjectWithMetadata
+>(
   project: TProject,
   audioFiles: Map<string, Blob | ArrayBuffer>,
   options: ProjectArchiveOptions = {}
@@ -23,12 +35,16 @@ export async function exportProjectArchive<TProject = Record<string, unknown>>(
 
     const zip = new JSZip();
 
-    const projectData: any = {
-      ...project,
-      metadata: {
-        ...(project as any).metadata,
-        exportedAt: new Date(),
-      },
+    const exportedMetadata: Record<string, unknown> = {
+      ...(project.metadata ?? {}),
+      exportedAt: new Date().toISOString(),
+    };
+
+    const projectData: Omit<TProject, 'metadata'> & {
+      metadata: Record<string, unknown>;
+    } = {
+      ...(project as Omit<TProject, 'metadata'>),
+      metadata: exportedMetadata,
     };
 
     zip.file('project.json', JSON.stringify(projectData, null, 2));
@@ -43,8 +59,8 @@ export async function exportProjectArchive<TProject = Record<string, unknown>>(
         const total = audioFiles.size;
 
         for (const [fileId, fileData] of audioFiles.entries()) {
-          const audioFilesList = (project as any).audioFiles as Array<{ id: string; path: string }>;
-          const audioFile = audioFilesList?.find((f) => f.id === fileId);
+          const audioFilesList = project.audioFiles ?? [];
+          const audioFile = audioFilesList.find((f) => f.id === fileId);
           if (audioFile) {
             const buffer =
               fileData instanceof Blob ? await fileData.arrayBuffer() : fileData;
@@ -77,7 +93,9 @@ export async function exportProjectArchive<TProject = Record<string, unknown>>(
   }
 }
 
-export async function importProjectArchive<TProject = Record<string, unknown>>(
+export async function importProjectArchive<
+  TProject extends ProjectWithMetadata = ProjectWithMetadata
+>(
   archiveBlob: Blob,
   options: ProjectArchiveOptions = {}
 ): Promise<ProjectArchiveData<TProject>> {
@@ -115,8 +133,8 @@ export async function importProjectArchive<TProject = Record<string, unknown>>(
         const file = zip.file(filePath);
         if (file) {
           const assetName = filePath.replace('assets/', '');
-          const audioFilesList = (project as any).audioFiles as Array<{ id: string; path: string }>;
-          const audioFile = audioFilesList?.find((f) => f.path === assetName);
+          const audioFilesList = (project as ProjectWithMetadata).audioFiles ?? [];
+          const audioFile = audioFilesList.find((f) => f.path === assetName);
 
           if (audioFile) {
             const buffer = await file.async('arraybuffer');
@@ -142,15 +160,19 @@ export async function importProjectArchive<TProject = Record<string, unknown>>(
   }
 }
 
-export async function exportProjectJSON<TProject = Record<string, unknown>>(
-  project: TProject
-): Promise<Blob> {
-  const projectData: any = {
-    ...project,
-    metadata: {
-      ...(project as any).metadata,
-      exportedAt: new Date(),
-    },
+export async function exportProjectJSON<
+  TProject extends ProjectWithMetadata = ProjectWithMetadata
+>(project: TProject): Promise<Blob> {
+  const exportedMetadata: Record<string, unknown> = {
+    ...(project.metadata ?? {}),
+    exportedAt: new Date().toISOString(),
+  };
+
+  const projectData: Omit<TProject, 'metadata'> & {
+    metadata: Record<string, unknown>;
+  } = {
+    ...(project as Omit<TProject, 'metadata'>),
+    metadata: exportedMetadata,
   };
 
   const jsonString = JSON.stringify(projectData, null, 2);

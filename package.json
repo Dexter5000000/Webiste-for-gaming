@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:secure": "doppler run -- npm run dev",
     "build": "tsc && vite build",
+    "build:secure": "doppler run -- npm run build",
     "preview": "vite preview",
+    "preview:secure": "doppler run -- npm run preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "test": "vitest run",

@@ -10,6 +10,7 @@ import {
   ClipType,
   EffectType,
 } from './models';
+import { generateUUID } from '../utils/uuid';
 
 // Serialization version for future compatibility
 export const SERIALIZATION_VERSION = '1.0.0';
@@ -28,10 +29,10 @@ interface SerializedProject {
     sampleRate: number;
     bitDepth: number;
     buffer: number;
-    tracks: any[];
-    clips: any[];
-    effectChains: any[];
-    audioFiles: any[];
+    tracks: Record<string, unknown>[];
+    clips: Record<string, unknown>[];
+    effectChains: Record<string, unknown>[];
+    audioFiles: Record<string, unknown>[];
     metadata: {
       createdAt: string;
       modifiedAt: string;
@@ -90,6 +91,10 @@ export const serializeProject = (project: Project): string => {
       version: SERIALIZATION_VERSION,
       project: {
         ...project,
+        tracks: project.tracks as unknown as Record<string, unknown>[],
+        clips: project.clips as unknown as Record<string, unknown>[],
+        effectChains: project.effectChains as unknown as Record<string, unknown>[],
+        audioFiles: project.audioFiles as unknown as Record<string, unknown>[],
         metadata: {
           ...project.metadata,
           createdAt: project.metadata.createdAt.toISOString(),
@@ -145,6 +150,10 @@ export const serializeAppState = (appState: AppState): string => {
       version: SERIALIZATION_VERSION,
       project: {
         ...appState.project,
+        tracks: appState.project.tracks as unknown as Record<string, unknown>[],
+        clips: appState.project.clips as unknown as Record<string, unknown>[],
+        effectChains: appState.project.effectChains as unknown as Record<string, unknown>[],
+        audioFiles: appState.project.audioFiles as unknown as Record<string, unknown>[],
         metadata: {
           ...appState.project.metadata,
           createdAt: appState.project.metadata.createdAt.toISOString(),
@@ -194,14 +203,14 @@ export const rehydrateProject = (jsonString: string): Project => {
       ...projectData,
       metadata,
       // Ensure arrays are properly typed
-      tracks: projectData.tracks.map((track: any) =>
+      tracks: projectData.tracks.map((track: Record<string, unknown>) =>
         validateAndFixTrack(track)
       ),
-      clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),
-      effectChains: projectData.effectChains.map((chain: any) =>
+      clips: projectData.clips.map((clip: Record<string, unknown>) => validateAndFixClip(clip)),
+      effectChains: projectData.effectChains.map((chain: Record<string, unknown>) =>
         validateAndFixEffectChain(chain)
       ),
-      audioFiles: projectData.audioFiles.map((file: any) =>
+      audioFiles: projectData.audioFiles.map((file: Record<string, unknown>) =>
         validateAndFixAudioFile(file)
       ),
     };
@@ -241,14 +250,14 @@ export const rehydrateAppState = (jsonString: string): AppState => {
     const project: Project = {
       ...projectData,
       metadata,
-      tracks: projectData.tracks.map((track: any) =>
+      tracks: projectData.tracks.map((track: Record<string, unknown>) =>
         validateAndFixTrack(track)
       ),
-      clips: projectData.clips.map((clip: any) => validateAndFixClip(clip)),
-      effectChains: projectData.effectChains.map((chain: any) =>
+      clips: projectData.clips.map((clip: Record<string, unknown>) => validateAndFixClip(clip)),
+      effectChains: projectData.effectChains.map((chain: Record<string, unknown>) =>
         validateAndFixEffectChain(chain)
       ),
-      audioFiles: projectData.audioFiles.map((file: any) =>
+      audioFiles: projectData.audioFiles.map((file: Record<string, unknown>) =>
         validateAndFixAudioFile(file)
       ),
     };
@@ -283,23 +292,23 @@ export const rehydrateAppState = (jsonString: string): AppState => {
 /**
  * Validates and fixes track data during deserialization
  */
-const validateAndFixTrack = (track: any): Track => {
+const validateAndFixTrack = (track: Record<string, unknown>): Track => {
   const baseTrack = {
-    id: track.id || crypto.randomUUID(),
-    name: track.name || 'Unknown Track',
-    type: Object.values(TrackType).includes(track.type)
-      ? track.type
+    id: (track.id as string) || generateUUID(),
+    name: (track.name as string) || 'Unknown Track',
+    type: Object.values(TrackType).includes(track.type as TrackType)
+      ? (track.type as TrackType)
       : TrackType.AUDIO,
-    color: track.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
+    color: (track.color as string) || `hsl(${Math.random() * 360}, 70%, 50%)`,
     muted: Boolean(track.muted),
     solo: Boolean(track.solo),
     armed: Boolean(track.armed),
     volume: Math.max(0, Math.min(2, Number(track.volume) || 1)),
     pan: Math.max(-1, Math.min(1, Number(track.pan) || 0)),
     height: Math.max(20, Math.min(200, Number(track.height) || 60)),
-    visible: track.visible !== false,
+    visible: (track.visible as boolean) !== false,
     locked: Boolean(track.locked),
-    effectChainId: track.effectChainId || crypto.randomUUID(),
+    effectChainId: (track.effectChainId as string) || generateUUID(),
   };
 
   switch (track.type) {
@@ -307,29 +316,31 @@ const validateAndFixTrack = (track: any): Track => {
       return {
         ...baseTrack,
         type: TrackType.AUDIO,
-        inputDevice: track.inputDevice,
-        outputDevice: track.outputDevice,
+        inputDevice: track.inputDevice as string | undefined,
+        outputDevice: track.outputDevice as string | undefined,
         monitoring: Boolean(track.monitoring),
         inputGain: Math.max(0, Math.min(2, Number(track.inputGain) || 1)),
         recordEnabled: Boolean(track.recordEnabled),
       } as Track;
 
-    case TrackType.MIDI:
+    case TrackType.MIDI: {
+      const instrumentData = track.instrument as Record<string, unknown> | undefined;
       return {
         ...baseTrack,
         type: TrackType.MIDI,
-        inputDevice: track.inputDevice,
-        outputDevice: track.outputDevice,
+        inputDevice: track.inputDevice as string | undefined,
+        outputDevice: track.outputDevice as string | undefined,
         instrument: {
-          type: track.instrument?.type || 'vsti',
-          pluginId: track.instrument?.pluginId,
+          type: (instrumentData?.type as string) || 'vsti',
+          pluginId: instrumentData?.pluginId as string | undefined,
           midiChannel: Math.max(
             0,
-            Math.min(15, Number(track.instrument?.midiChannel) || 0)
+            Math.min(15, Number(instrumentData?.midiChannel) || 0)
           ),
         },
         midiThru: Boolean(track.midiThru),
       } as Track;
+    }
 
     case TrackType.EFFECT:
       return {
@@ -345,22 +356,24 @@ const validateAndFixTrack = (track: any): Track => {
         receives: Array.isArray(track.receives) ? track.receives : [],
       } as Track;
 
-    case TrackType.MASTER:
+    case TrackType.MASTER: {
+      const limiterData = track.limiter as Record<string, unknown> | undefined;
       return {
         ...baseTrack,
         type: TrackType.MASTER,
         limiter: {
-          enabled: track.limiter?.enabled !== false,
+          enabled: (limiterData?.enabled as boolean) !== false,
           ceiling: Math.max(
             -20,
-            Math.min(0, Number(track.limiter?.ceiling) || -0.1)
+            Math.min(0, Number(limiterData?.ceiling) || -0.1)
           ),
           release: Math.max(
             1,
-            Math.min(1000, Number(track.limiter?.release) || 10)
+            Math.min(1000, Number(limiterData?.release) || 10)
           ),
         },
       } as Track;
+    }
 
     default:
       return baseTrack as Track;
@@ -370,59 +383,60 @@ const validateAndFixTrack = (track: any): Track => {
 /**
  * Validates and fixes clip data during deserialization
  */
-const validateAndFixClip = (clip: any): Clip => {
+const validateAndFixClip = (clip: Record<string, unknown>): Clip => {
   const baseClip = {
-    id: clip.id || crypto.randomUUID(),
-    name: clip.name || 'Unknown Clip',
-    type: Object.values(ClipType).includes(clip.type)
-      ? clip.type
+    id: (clip.id as string) || generateUUID(),
+    name: (clip.name as string) || 'Unknown Clip',
+    type: Object.values(ClipType).includes(clip.type as ClipType)
+      ? (clip.type as ClipType)
       : ClipType.AUDIO,
-    trackId: clip.trackId || '',
+    trackId: (clip.trackId as string) || '',
     startTime: Math.max(0, Number(clip.startTime) || 0),
     duration: Math.max(
       0.01,
       Number(clip.duration) >= 0 ? Number(clip.duration) : 1
     ),
-    color: clip.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
+    color: (clip.color as string) || `hsl(${Math.random() * 360}, 70%, 50%)`,
     muted: Boolean(clip.muted),
     solo: Boolean(clip.solo),
     gain: Math.max(0, Math.min(2, Number(clip.gain) || 1)),
     pan: Math.max(-1, Math.min(1, Number(clip.pan) || 0)),
   };
 
-  if (clip.type === ClipType.AUDIO) {
+  if (baseClip.type === ClipType.AUDIO) {
+    const warpingData = clip.warping as Record<string, unknown> | undefined;
     return {
       ...baseClip,
       type: ClipType.AUDIO,
-      audioFileId: clip.audioFileId || '',
+      audioFileId: (clip.audioFileId as string) || '',
       sampleRate: Math.max(
         8000,
         Math.min(192000, Number(clip.sampleRate) || 44100)
       ),
-      bitDepth: [16, 24, 32].includes(clip.bitDepth) ? clip.bitDepth : 24,
+      bitDepth: [16, 24, 32].includes(clip.bitDepth as number) ? (clip.bitDepth as number) : 24,
       channels: Math.max(1, Math.min(32, Number(clip.channels) || 2)),
       offset: Math.max(0, Number(clip.offset) || 0),
       fadeIn: Math.max(0, Number(clip.fadeIn) || 0),
       fadeOut: Math.max(0, Number(clip.fadeOut) || 0),
       warping: {
-        enabled: Boolean(clip.warping?.enabled),
+        enabled: Boolean(warpingData?.enabled),
         algorithm: [
           'beats',
           'tones',
           'complex',
           'complexpro',
           're-pitch',
-        ].includes(clip.warping?.algorithm)
-          ? clip.warping.algorithm
+        ].includes(warpingData?.algorithm as string)
+          ? (warpingData?.algorithm as 'beats' | 'tones' | 'complex' | 'complexpro' | 're-pitch')
           : 'beats',
       },
     } as Clip;
-  } else if (clip.type === ClipType.MIDI) {
+  } else if (baseClip.type === ClipType.MIDI) {
     return {
       ...baseClip,
       type: ClipType.MIDI,
       notes: Array.isArray(clip.notes)
-        ? clip.notes.map(validateAndFixMidiNote)
+        ? (clip.notes as Record<string, unknown>[]).map(validateAndFixMidiNote)
         : [],
       velocity: Math.max(0, Math.min(127, Number(clip.velocity) || 100)),
       quantize: Math.max(1, Number(clip.quantize) || 4),
@@ -436,8 +450,8 @@ const validateAndFixClip = (clip: any): Clip => {
 /**
  * Validates and fixes MIDI note data during deserialization
  */
-const validateAndFixMidiNote = (note: any) => ({
-  id: note.id || crypto.randomUUID(),
+const validateAndFixMidiNote = (note: Record<string, unknown>) => ({
+  id: (note.id as string) || generateUUID(),
   pitch: Math.max(0, Math.min(127, Number(note.pitch) || 60)),
   velocity: Math.max(0, Math.min(127, Number(note.velocity) || 100)),
   startTime: Math.max(0, Number(note.startTime) || 0),
@@ -447,28 +461,28 @@ const validateAndFixMidiNote = (note: any) => ({
 /**
  * Validates and fixes effect chain data during deserialization
  */
-const validateAndFixEffectChain = (chain: any): EffectChain => ({
-  id: chain.id || crypto.randomUUID(),
-  trackId: chain.trackId || '',
+const validateAndFixEffectChain = (chain: Record<string, unknown>): EffectChain => ({
+  id: (chain.id as string) || generateUUID(),
+  trackId: (chain.trackId as string) || '',
   effects: Array.isArray(chain.effects)
-    ? chain.effects.map((effect: any) => validateAndFixEffect(effect))
+    ? (chain.effects as Record<string, unknown>[]).map(validateAndFixEffect)
     : [],
 });
 
 /**
  * Validates and fixes effect data during deserialization
  */
-const validateAndFixEffect = (effect: any): Effect => ({
-  id: effect.id || crypto.randomUUID(),
-  name: effect.name || 'Unknown Effect',
-  type: Object.values(EffectType).includes(effect.type)
-    ? effect.type
+const validateAndFixEffect = (effect: Record<string, unknown>): Effect => ({
+  id: (effect.id as string) || generateUUID(),
+  name: (effect.name as string) || 'Unknown Effect',
+  type: Object.values(EffectType).includes(effect.type as EffectType)
+    ? (effect.type as EffectType)
     : EffectType.REVERB,
-  enabled: effect.enabled !== false,
+  enabled: (effect.enabled as boolean) !== false,
   bypassed: Boolean(effect.bypassed),
   parameters:
     typeof effect.parameters === 'object' && effect.parameters !== null
-      ? effect.parameters
+      ? (effect.parameters as Record<string, number | string | boolean>)
       : {},
   position: Math.max(0, Number(effect.position) || 0),
 });
@@ -476,29 +490,32 @@ const validateAndFixEffect = (effect: any): Effect => ({
 /**
  * Validates and fixes audio file data during deserialization
  */
-const validateAndFixAudioFile = (file: any): AudioFile => ({
-  id: file.id || crypto.randomUUID(),
-  name: file.name || 'Unknown Audio File',
-  path: file.path || '',
-  size: Math.max(0, Number(file.size) || 0),
-  duration: Math.max(0, Number(file.duration) || 0),
-  sampleRate: Math.max(
-    8000,
-    Math.min(192000, Number(file.sampleRate) || 44100)
-  ),
-  bitDepth: [16, 24, 32].includes(file.bitDepth) ? file.bitDepth : 24,
-  channels: Math.max(1, Math.min(32, Number(file.channels) || 2)),
-  format: file.format || 'wav',
-  metadata: {
-    artist: file.metadata?.artist,
-    title: file.metadata?.title,
-    album: file.metadata?.album,
-    genre: file.metadata?.genre,
-    year: file.metadata?.year
-      ? Math.max(0, Number(file.metadata.year))
-      : undefined,
-  },
-});
+const validateAndFixAudioFile = (file: Record<string, unknown>): AudioFile => {
+  const metadataData = file.metadata as Record<string, unknown> | undefined;
+  return {
+    id: (file.id as string) || generateUUID(),
+    name: (file.name as string) || 'Unknown Audio File',
+    path: (file.path as string) || '',
+    size: Math.max(0, Number(file.size) || 0),
+    duration: Math.max(0, Number(file.duration) || 0),
+    sampleRate: Math.max(
+      8000,
+      Math.min(192000, Number(file.sampleRate) || 44100)
+    ),
+    bitDepth: [16, 24, 32].includes(file.bitDepth as number) ? (file.bitDepth as number) : 24,
+    channels: Math.max(1, Math.min(32, Number(file.channels) || 2)),
+    format: (file.format as string) || 'wav',
+    metadata: {
+      artist: metadataData?.artist as string | undefined,
+      title: metadataData?.title as string | undefined,
+      album: metadataData?.album as string | undefined,
+      genre: metadataData?.genre as string | undefined,
+      year: metadataData?.year
+        ? Math.max(0, Number(metadataData.year))
+        : undefined,
+    },
+  };
+};
 
 /**
  * Creates a backup of the current project
@@ -564,10 +581,10 @@ export const validateSerializedProject = (jsonString: string): boolean => {
  * @returns Migrated data
  */
 export const migrateProjectData = (
-  data: any,
+  data: unknown,
   fromVersion: string,
   toVersion: string
-): any => {
+): unknown => {
   // This is a placeholder for future migration logic
   // For now, just return the data as-is
   console.log(`Migrating project from version ${fromVersion} to ${toVersion}`);

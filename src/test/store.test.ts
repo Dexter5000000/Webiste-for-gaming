@@ -11,6 +11,7 @@ import {
   ClipType,
   EffectType,
   AudioClip,
+  MidiClip,
 } from '../state/models';
 
 // Mock store instance
@@ -174,7 +175,9 @@ describe('Track CRUD Operations', () => {
       .getState()
       .project.tracks.find((t) => t.type === TrackType.MASTER);
     expect(masterTrack).toBeDefined();
-    expect((masterTrack as any).limiter.enabled).toBe(true);
+    if (masterTrack && masterTrack.type === TrackType.MASTER) {
+      expect(masterTrack.limiter.enabled).toBe(true);
+    }
   });
 
   it('should remove tracks and associated clips', () => {
@@ -227,7 +230,7 @@ describe('Track CRUD Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     // Add an effect
     store.addEffect(originalTrack.id, {
@@ -323,7 +326,7 @@ describe('Clip CRUD Operations', () => {
       fadeIn: 0.5,
       fadeOut: 0.25,
       warping: { enabled: true, algorithm: 'complex' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     const clips = useAppStore.getState().project.clips;
     expect(clips).toHaveLength(1);
@@ -353,12 +356,14 @@ describe('Clip CRUD Operations', () => {
       velocity: 100,
       quantize: 4,
       length: 2,
-    });
+    } as Omit<MidiClip, 'id'>);
 
     const clips = useAppStore.getState().project.clips;
     expect(clips).toHaveLength(1);
     expect(clips[0].type).toBe(ClipType.MIDI);
-    expect((clips[0] as any).notes).toHaveLength(2);
+    if (clips[0].type === ClipType.MIDI) {
+      expect(clips[0].notes).toHaveLength(2);
+    }
   });
 
   it('should remove clips', () => {
@@ -383,7 +388,7 @@ describe('Clip CRUD Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     const clip = useAppStore.getState().project.clips[0];
 
@@ -417,7 +422,7 @@ describe('Clip CRUD Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     const clip = useAppStore.getState().project.clips[0];
 
@@ -450,7 +455,7 @@ describe('Clip CRUD Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     const clip = useAppStore.getState().project.clips[0];
 
@@ -483,7 +488,7 @@ describe('Clip CRUD Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     const clip = useAppStore.getState().project.clips[0];
 
@@ -688,7 +693,7 @@ describe('Selection Operations', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
 
     store.addClip({
       name: 'Clip 2',
@@ -705,7 +710,7 @@ describe('Selection Operations', () => {
       velocity: 100,
       quantize: 4,
       length: 2,
-    });
+    } as Omit<MidiClip, "id">);
 
     store.selectAll();
 
@@ -789,7 +794,7 @@ describe('Derived Selectors', () => {
       fadeIn: 0,
       fadeOut: 0,
       warping: { enabled: false, algorithm: 'beats' },
-    });
+    } as Omit<AudioClip, 'id'>);
   });
 
   it.skip('should get selected tracks', () => {
@@ -979,3 +984,4 @@ describe('Project Operations', () => {
     expect(useAppStore.getState().project.audioFiles).toHaveLength(0);
   });
 });
+

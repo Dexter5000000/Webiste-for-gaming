@@ -2,12 +2,12 @@ import { BaseEffect, EffectParameter } from './BaseEffect';
 import type { AudioContextLike } from '../AudioEngine';
 
 export class FilterEffect extends BaseEffect {
-  private filter: BiquadFilterNode;
-  private resonance: GainNode;
-  private lfo: OscillatorNode;
-  private lfoGain: GainNode;
-  private envelopeFollower: GainNode;
-  private envelopeDetector: AnalyserNode;
+  private readonly filter: BiquadFilterNode;
+  private readonly resonance: GainNode;
+  private readonly lfo: OscillatorNode;
+  private readonly lfoGain: GainNode;
+  private readonly envelopeFollower: GainNode;
+  private readonly envelopeDetector: AnalyserNode;
 
   constructor(audioContext: AudioContextLike, id: string) {
     super(audioContext, id);

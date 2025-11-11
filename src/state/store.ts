@@ -10,6 +10,7 @@ import {
   BusTrack,
   MasterTrack,
   Clip,
+  AudioClip,
   Effect,
   EffectChain,
   AudioFile,
@@ -20,10 +21,11 @@ import {
   TrackType,
   ClipType,
 } from './models';
+import { generateUUID } from '../utils/uuid';
 
 // Initial state helpers
 const createEmptyProject = (): Project => ({
-  id: crypto.randomUUID(),
+  id: generateUUID(),
   name: 'Untitled Project',
   tempo: 120,
   timeSignature: {
@@ -120,7 +122,7 @@ interface AppStore extends AppState {
   setTrackColor: (trackId: string, color: string) => void;
 
   // Clip CRUD actions
-  addClip: (clip: Omit<Clip, 'id'> | any) => void;
+  addClip: (clip: Omit<Clip, 'id'>) => void;
   removeClip: (clipId: string) => void;
   duplicateClip: (clipId: string) => void;
   moveClip: (clipId: string, newTrackId: string, newStartTime: number) => void;
@@ -372,8 +374,8 @@ export const useAppStore = create<AppStore>()(
     // Track CRUD actions
     addTrack: (type: TrackType, position?: number) => {
       set((state) => {
-        const trackId = crypto.randomUUID();
-        const effectChainId = crypto.randomUUID();
+        const trackId = generateUUID();
+        const effectChainId = generateUUID();
 
         let newTrack: Track;
         const baseTrack = {
@@ -497,8 +499,8 @@ export const useAppStore = create<AppStore>()(
       const track = state.project.tracks.find((t) => t.id === trackId);
       if (!track) return;
 
-      const newTrackId = crypto.randomUUID();
-      const newEffectChainId = crypto.randomUUID();
+      const newTrackId = generateUUID();
+      const newEffectChainId = generateUUID();
 
       set((draftState) => {
         const trackIndex = draftState.project.tracks.findIndex(
@@ -525,7 +527,7 @@ export const useAppStore = create<AppStore>()(
             trackId: newTrackId,
             effects: originalEffectChain.effects.map((effect) => ({
               ...effect,
-              id: crypto.randomUUID(),
+              id: generateUUID(),
             })),
           });
         }
@@ -536,7 +538,7 @@ export const useAppStore = create<AppStore>()(
         );
         const newClips = originalClips.map((clip) => ({
           ...clip,
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           trackId: newTrackId,
         }));
         draftState.project.clips.push(...newClips);
@@ -631,16 +633,20 @@ export const useAppStore = create<AppStore>()(
     },
 
     // Clip CRUD actions
-    addClip: (clip: Omit<Clip, 'id'> | any) => {
+    addClip: (clip: Omit<Clip, 'id'>) => {
       set((state) => {
-        const newClip = {
+        const newClip: Clip = {
           ...clip,
-          id: crypto.randomUUID(),
+          id: generateUUID(),
         } as Clip;
         state.project.clips.push(newClip);
       });
       const events = get() as unknown as AudioEngineEvents;
-      events.onClipAdd?.(clip as Clip);
+      // Notify with the fully created clip including generated id
+      const created = get().project.clips[get().project.clips.length - 1];
+      if (created) {
+        events.onClipAdd?.(created);
+      }
     },
 
     removeClip: (clipId: string) => {
@@ -663,7 +669,7 @@ export const useAppStore = create<AppStore>()(
       set((draftState) => {
         const newClip: Clip = {
           ...clip,
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           startTime: clip.startTime + clip.duration, // Place right after original
         };
         draftState.project.clips.push(newClip);
@@ -746,7 +752,7 @@ export const useAppStore = create<AppStore>()(
         if (effectChain) {
           const newEffect: Effect = {
             ...effect,
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             position: effectChain.effects.length,
           };
           effectChain.effects.push(newEffect);
@@ -1049,10 +1055,13 @@ export const useAppStore = create<AppStore>()(
           (f) => f.id !== fileId
         );
         // Remove clips that use this audio file
-        state.project.clips = state.project.clips.filter(
-          (c) =>
-            !(c.type === ClipType.AUDIO && (c as any).audioFileId === fileId)
-        );
+        state.project.clips = state.project.clips.filter((c) => {
+          if (c.type === ClipType.AUDIO) {
+            const ac = c as AudioClip;
+            return ac.audioFileId !== fileId;
+          }
+          return true;
+        });
         state.project.metadata.modifiedAt = new Date();
       });
     },

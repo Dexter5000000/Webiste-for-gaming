@@ -20,13 +20,13 @@ export interface EffectState {
 }
 
 export abstract class BaseEffect {
-  protected audioContext: AudioContextLike;
-  protected inputNode: AudioNodeLike;
-  protected outputNode: AudioNodeLike;
-  protected wetGain: GainNodeLike;
-  protected dryGain: GainNodeLike;
+  protected readonly audioContext: AudioContextLike;
+  protected readonly inputNode: AudioNodeLike;
+  protected readonly outputNode: AudioNodeLike;
+  protected readonly wetGain: GainNodeLike;
+  protected readonly dryGain: GainNodeLike;
   protected enabled: boolean = true;
-  protected parameters: Map<string, EffectParameter>;
+  protected readonly parameters: Map<string, EffectParameter>;
 
   constructor(audioContext: AudioContextLike, public readonly id: string) {
     this.audioContext = audioContext;

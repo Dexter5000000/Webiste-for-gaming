@@ -8,9 +8,9 @@ export interface EffectsManagerState {
 }
 
 export class EffectsManager {
-  private audioContext: AudioContextLike;
+  private readonly audioContext: AudioContextLike;
   private trackChains: Map<string, EffectChain> = new Map();
-  private masterChain: EffectChain;
+  private readonly masterChain: EffectChain;
 
   constructor(audioContext: AudioContextLike) {
     this.audioContext = audioContext;
