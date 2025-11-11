@@ -240,6 +240,16 @@
   font-size: 13px;
   color: #ccc;
   font-weight: 500;
+  flex: 1;
+}
+
+.parameter-unit {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 30px;
+  text-align: right;
 }
 
 .parameter-value-display {
@@ -248,16 +258,10 @@
   background: #222;
   padding: 4px 8px;
   border-radius: 3px;
-  cursor: pointer;
-  min-width: 60px;
-  text-align: right;
+  text-align: center;
   transition: all 150ms ease;
   border: 1px solid #333;
-}
-
-.parameter-value-display:hover {
-  background: #2a2a2a;
-  border-color: #444;
+  min-width: 70px;
 }
 
 .parameter-input-group {
@@ -310,21 +314,29 @@
   box-shadow: 0 0 8px rgba(155, 89, 182, 0.5);
 }
 
-.parameter-numeric-input {
-  width: 70px;
-  padding: 6px;
+.parameter-text-input {
+  width: 80px;
+  padding: 6px 8px;
   background: #222;
   border: 1px solid #9b59b6;
   color: #fff;
   border-radius: 3px;
   font-size: 12px;
   font-family: 'Courier New', monospace;
+  text-align: center;
+  transition: all 150ms ease;
 }
 
-.parameter-numeric-input:focus {
+.parameter-text-input:focus {
   outline: none;
   border-color: #c08ddb;
   box-shadow: 0 0 8px rgba(155, 89, 182, 0.3);
+  background: #2a2a2a;
+}
+
+.parameter-text-input:hover {
+  border-color: #b373c0;
+  background: #2a2a2a;
 }
 
 /* Presets Section */

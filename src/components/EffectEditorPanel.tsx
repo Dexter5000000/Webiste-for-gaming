@@ -431,8 +431,6 @@ interface ParameterEditorProps {
 }
 
 const ParameterEditor: React.FC<ParameterEditorProps> = ({ param, onChange }) => {
-  const [isNumericInput, setIsNumericInput] = useState(false);
-
   const formatValue = (value: number): string => {
     switch (param.unit) {
       case 'dB':
@@ -457,7 +455,8 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({ param, onChange }) =>
   const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
-      onChange(Math.max(param.min, Math.min(param.max, value)));
+      const clampedValue = Math.max(param.min, Math.min(param.max, value));
+      onChange(clampedValue);
     }
   };
 
@@ -465,13 +464,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({ param, onChange }) =>
     <div className="parameter-editor">
       <div className="parameter-header">
         <label className="parameter-name">{param.name}</label>
-        <div
-          className="parameter-value-display"
-          onClick={() => setIsNumericInput(!isNumericInput)}
-          title="Click to edit numerically"
-        >
-          {formatValue(param.value)}
-        </div>
+        <span className="parameter-unit">{param.unit || ''}</span>
       </div>
 
       <div className="parameter-input-group">
@@ -483,10 +476,8 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({ param, onChange }) =>
           value={param.value}
           onChange={(e) => onChange(parseFloat(e.target.value))}
           className="parameter-slider"
+          title={`Range: ${param.min} to ${param.max}`}
         />
-      </div>
-
-      {isNumericInput && (
         <input
           type="number"
           min={param.min}
@@ -494,11 +485,14 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({ param, onChange }) =>
           step={0.01}
           value={param.value}
           onChange={handleNumericChange}
-          onBlur={() => setIsNumericInput(false)}
-          className="parameter-numeric-input"
-          autoFocus
+          className="parameter-text-input"
+          title="Enter value directly"
         />
-      )}
+      </div>
+
+      <div className="parameter-value-display">
+        <span>{formatValue(param.value)}</span>
+      </div>
     </div>
   );
 };
