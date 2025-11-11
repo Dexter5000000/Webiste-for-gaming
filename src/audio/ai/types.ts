@@ -5,7 +5,8 @@ export type AIModelType =
   | 'riffusion'
   | 'audioldm2'
   | 'dance-diffusion'
-  | 'bark';
+  | 'bark'
+  | 'procedural';
 
 export type MusicGenre =
   | 'electronic'

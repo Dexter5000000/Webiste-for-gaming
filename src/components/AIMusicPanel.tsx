@@ -35,6 +35,9 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
   const lastGeneratedBlob = useRef<Blob | null>(null);
 
   const modelConfig = AI_MODELS[selectedModel];
+  const hfToken = import.meta.env?.VITE_HUGGINGFACE_TOKEN as string | undefined;
+  const isHuggingFaceSelected = modelConfig.provider === 'huggingface';
+  const willFallbackProcedural = isHuggingFaceSelected && (!hfToken || hfToken === 'your_huggingface_token_here');
 
   const handleGenreChange = useCallback((genre: MusicGenre) => {
     setSelectedGenre(genre);
@@ -163,6 +166,11 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
             <p className="text-xs text-muted" style={{ marginTop: '8px' }}>
               {modelConfig.description}
             </p>
+            {willFallbackProcedural && (
+              <div className="text-xs" style={{ marginTop: '8px', color: 'var(--color-warning, #b58900)' }}>
+                No HuggingFace token detected. We will automatically use <strong>Procedural (No API Key)</strong> as a fallback.
+              </div>
+            )}
             <div
               className="text-xs"
               style={{
@@ -326,10 +334,10 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               <strong>💡 Tips:</strong>
               <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
                 <li>Be specific with instruments, tempo, and mood</li>
+                <li>HuggingFace models may take 1-2 min to load (cold start)</li>
                 <li>
-                  HuggingFace models may take 1-2 min to load (cold start)
+                  No API key? Select <em>Procedural (No API Key)</em> or just generate — we auto-fallback to it when needed.
                 </li>
-                <li>All models are 100% free with no API keys required</li>
                 <li>Generated audio is stereo at 44.1kHz or higher</li>
               </ul>
             </div>

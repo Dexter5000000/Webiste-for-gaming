@@ -25,12 +25,26 @@ VITE_HUGGINGFACE_TOKEN=hf_abcdefghijklmnopqrstuvwxyz123456
 ```
 
 ✅ **Benefits of using a token:**
-- No "Failed to fetch" errors
-- Faster model loading
-- Higher rate limits
-- More reliable generations
+* No "Failed to fetch" errors
+* Faster model loading
+* Higher rate limits
+* More reliable generations
 
 ⚠️ **Important:** Never commit `.env.local` to Git (it's already in `.gitignore`)
+
+### Tokenless Fallback (Automatic)
+
+If a visitor is using the deployed site and no HuggingFace token is present, the DAW automatically falls back to a fully local model: **Procedural (No API Key)**.
+
+This produces a royalty-free loop by algorithmically layering:
+* Kick + hat rhythm (unless ambient)
+* Bass sequence (minor pentatonic or major implied by prompt)
+* Melody or evolving pad (ambient detection)
+* Light stereo widening
+
+It runs entirely in the browser via `OfflineAudioContext` – no network calls, no keys. Duration max 60s. Ideal for quick inspiration when API access is unavailable.
+
+You can also explicitly choose the model from the dropdown. If a HuggingFace model is selected without a token, we display a notice and auto-fallback.
 
 ## Features
 

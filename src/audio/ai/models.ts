@@ -106,6 +106,21 @@ export const AI_MODELS: Record<AIModelType, AIModelConfig> = {
     free: true,
     requiresApiKey: false,
   },
+  procedural: {
+    id: 'procedural',
+    name: 'Procedural (No API Key)',
+    description:
+      'Local algorithmic generator. Creates layered drum, bass and melody loops fully offline (tokenless fallback).',
+    provider: 'local',
+    modelId: 'procedural/local',
+    maxDuration: 60,
+    sampleRate: 44100,
+    channels: 2,
+    supportedGenres: ['electronic', 'dance', 'ambient', 'experimental', 'hip-hop', 'pop', 'custom'],
+    quality: 'medium',
+    free: true,
+    requiresApiKey: false,
+  },
 };
 
 export const GENRE_ROUTING: Record<MusicGenre, AIModelType[]> = {
@@ -126,5 +141,6 @@ export const GENRE_ROUTING: Record<MusicGenre, AIModelType[]> = {
     'riffusion',
     'dance-diffusion',
     'bark',
+    'procedural',
   ],
 };
