@@ -30,6 +30,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
   const [progress, setProgress] = useState<GenerationProgress | null>(null);
   const [generatedAudioUrl, setGeneratedAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showLocalModelsOnly, setShowLocalModelsOnly] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastGeneratedBuffer = useRef<AudioBuffer | null>(null);
@@ -132,6 +133,21 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
       <div className="panel-body">
         <div className="flex-col flex-gap-md">
           <div className="card">
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setShowLocalModelsOnly(!showLocalModelsOnly)}
+                style={{
+                  flex: 1,
+                  background: showLocalModelsOnly ? 'var(--color-primary)' : 'transparent',
+                  border: showLocalModelsOnly ? 'none' : '1px solid var(--color-border)',
+                  color: showLocalModelsOnly ? 'var(--color-bg)' : 'inherit',
+                }}
+              >
+                {showLocalModelsOnly ? '✅ No API Key' : '🔓 Show Local Models'}
+              </button>
+            </div>
             <label htmlFor="ai-genre-select" className="text-xs text-muted">
               Genre / Style
             </label>
@@ -161,19 +177,23 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               onChange={(e) => setSelectedModel(e.target.value as AIModelType)}
               disabled={isGenerating}
             >
-              {/* Cloud AI Models */}
-              <optgroup label="🌐 Cloud AI Models">
-                {Object.values(AI_MODELS)
-                  .filter((model) => model.provider === 'huggingface')
-                  .map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name} ({model.quality})
-                    </option>
-                  ))}
-              </optgroup>
+              {!showLocalModelsOnly && (
+                <>
+                  {/* Cloud AI Models */}
+                  <optgroup label="🌐 Cloud AI Models">
+                    {Object.values(AI_MODELS)
+                      .filter((model) => model.provider === 'huggingface')
+                      .map((model) => (
+                        <option key={model.id} value={model.id}>
+                          {model.name} ({model.quality})
+                        </option>
+                      ))}
+                  </optgroup>
+                </>
+              )}
 
               {/* Open-Source Procedural Generators */}
-              <optgroup label="⚡ Procedural Generators (Local)">
+              <optgroup label="⚡ Procedural Generators (No API Key)">
                 {Object.values(AI_MODELS)
                   .filter(
                     (model) =>
@@ -194,7 +214,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               </optgroup>
 
               {/* AI/ML Models (Local) */}
-              <optgroup label="🤖 AI/ML Models (Local)">
+              <optgroup label="🤖 AI/ML Models (No API Key)">
                 {Object.values(AI_MODELS)
                   .filter(
                     (model) =>
@@ -211,7 +231,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               </optgroup>
 
               {/* Advanced Algorithmic */}
-              <optgroup label="✨ Advanced Algorithmic">
+              <optgroup label="✨ Advanced Algorithmic (No API Key)">
                 {Object.values(AI_MODELS)
                   .filter(
                     (model) =>
@@ -226,7 +246,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               </optgroup>
 
               {/* Fallback */}
-              <optgroup label="🔧 Fallback">
+              <optgroup label="🔧 Fallback (No API Key)">
                 {Object.values(AI_MODELS)
                   .filter((model) => model.id === 'procedural')
                   .map((model) => (
@@ -239,6 +259,11 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
             <p className="text-xs text-muted" style={{ marginTop: '8px' }}>
               {modelConfig.description}
             </p>
+            {modelConfig.provider === 'local' && (
+              <div className="text-xs" style={{ marginTop: '8px', padding: '8px', background: 'rgba(74, 222, 128, 0.1)', border: '1px solid rgba(74, 222, 128, 0.3)', borderRadius: '4px' }}>
+                ✅ <strong>No API Key Needed!</strong> This model runs entirely in your browser.
+              </div>
+            )}
             {willFallbackProcedural && (
               <div className="text-xs" style={{ marginTop: '8px', padding: '8px', background: 'rgba(181, 137, 0, 0.1)', border: '1px solid rgba(181, 137, 0, 0.3)', borderRadius: '4px' }}>
                 ⚠️ No HuggingFace token detected. We will automatically use <strong>Procedural (No API Key)</strong> as a fallback.
