@@ -19783,7 +19783,7 @@
       },
       "invocations": [
         {
-          "startTimeUtc": "2025-11-12T04:15:16.6448346Z",
+          "startTimeUtc": "2025-11-12T04:38:36.6727919Z",
           "exitCode": 0,
           "executionSuccessful": true
         }
@@ -19792,7 +19792,7 @@
       "versionControlProvenance": [
         {
           "repositoryUri": "https://github.com/Dexter5000000/Webiste-for-gaming.git",
-          "revisionId": "1420cb150c1c38f74d7987e7ac4822aa03962b49",
+          "revisionId": "a8e4a256a567e56dea2463130ad326e5ad9b4ffd",
           "branch": "main",
           "properties": {
             "repoUrl": "https://github.com/Dexter5000000/Webiste-for-gaming.git",
@@ -19851,6 +19851,7 @@
             "equalIndicator/v2": "dfc3e909ff925da5",
             "equalIndicator/v1": "067bdd9e1cd6f812a3d723c18f6fefb090136eb8fef41a04cdf4c8ab20e408ec"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -19908,6 +19909,7 @@
             "equalIndicator/v2": "da57fea89b653363",
             "equalIndicator/v1": "0b57cf9a72559758e470eccb179e6b8a0a66efb4d2382030a0ed467ba5403f0c"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -19965,6 +19967,7 @@
             "equalIndicator/v2": "163ea7317df410e9",
             "equalIndicator/v1": "29c83918e371c122b39d095a3dc6f72ea2ee1b96873442aaebbbe70a46d7584f"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20022,6 +20025,7 @@
             "equalIndicator/v2": "71fea88a113b33c0",
             "equalIndicator/v1": "2c2cbf2d50b5f0b01e08c963493ffe77564464947ad6873a7d8bf064d06391aa"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20079,6 +20083,7 @@
             "equalIndicator/v2": "e034773a55fc5887",
             "equalIndicator/v1": "3341841d0c91568e06ebd2ee03338812ea9e214c4eb9e51cbb6eacbfb4476419"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20136,6 +20141,7 @@
             "equalIndicator/v2": "ed86ba93f121b826",
             "equalIndicator/v1": "3736c6f2c99df5f25009cb2b8b71a8fdd645e13cba2ef49899039f932139ef3b"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20193,6 +20199,7 @@
             "equalIndicator/v2": "61c912f239d1e90f",
             "equalIndicator/v1": "3e520c92c10eca1470389893bc758b7f00a45f74c0299305b187038014857977"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20250,6 +20257,7 @@
             "equalIndicator/v2": "aa33bed6c4761783",
             "equalIndicator/v1": "41ec2034d78dbc11fd1c5f0da0c187e00693e5800ad75c2071d3625cb48304b2"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20307,6 +20315,7 @@
             "equalIndicator/v2": "9beb638f77f569bc",
             "equalIndicator/v1": "49445386877209a645738ba19fdc341381de37da98eefbe4fd45c8dca0b39069"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20364,6 +20373,7 @@
             "equalIndicator/v2": "01087eaa2b729079",
             "equalIndicator/v1": "4c6d2737b57c342a189c798fb437707919dfc92369dd98ad9c13823a32adad03"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20421,6 +20431,7 @@
             "equalIndicator/v2": "ef203795b4757fa9",
             "equalIndicator/v1": "4e441e4e3cb48ebca3180079d29f6068fee691645aebe6b9b3d1814ad755b84a"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20478,6 +20489,7 @@
             "equalIndicator/v2": "95acc5e2ab000d16",
             "equalIndicator/v1": "5427d1d45a2e79b15d59e296898e3cfdc52239be6853efc669a0d30f4d181a08"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20535,6 +20547,7 @@
             "equalIndicator/v2": "d63aa428421b389a",
             "equalIndicator/v1": "5f272740a16465897ff75c71eb5ed02c61af7df00c07cef37d5b50a6957333f2"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20592,6 +20605,7 @@
             "equalIndicator/v2": "6ce08c2e78e5b563",
             "equalIndicator/v1": "661d25e828ec7ba7570106fd36c3531f399b68f4e97d4d261ee40316f4e41fc4"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20649,6 +20663,7 @@
             "equalIndicator/v2": "9cb213b49622ad46",
             "equalIndicator/v1": "7a8138ccf726409778e6f95aea3770ce2ed27d0ea8dc2892318787de96f9ac52"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20706,6 +20721,7 @@
             "equalIndicator/v2": "83edd2f85c2d5b0d",
             "equalIndicator/v1": "9d102e829d23f1c72c676d066574fe310b2644a98d0238553289ab9055374ede"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20763,6 +20779,7 @@
             "equalIndicator/v2": "a942894abec25757",
             "equalIndicator/v1": "9faa35bab316b538b1260a16a56640138805928f3a24ff1746886151f558c541"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20820,6 +20837,7 @@
             "equalIndicator/v2": "5a9c525deae3fe6d",
             "equalIndicator/v1": "add158a32a5bb23b30f7bff1da694f7aeea6433bf5b0769ef472856503a0dfa6"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20877,6 +20895,7 @@
             "equalIndicator/v2": "81e74f788699e4fe",
             "equalIndicator/v1": "ae30d3062d60094b17124a36b09bd84d37f5cf6a495074c41580e062fa7a085d"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20934,6 +20953,7 @@
             "equalIndicator/v2": "38c663370ceabca5",
             "equalIndicator/v1": "d7ff9d4a28f1e550a8cd3fc11245a8d52423307e8f8f25fee885a51d2a92926e"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -20991,6 +21011,7 @@
             "equalIndicator/v2": "f23bd2c4159d01e5",
             "equalIndicator/v1": "e76ef7c45cd64a83694521952e198f8e401f0c71b9cf3ad84df8b15dc0cecf9a"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -21048,6 +21069,7 @@
             "equalIndicator/v2": "4412e369921d0602",
             "equalIndicator/v1": "f7144eb2ca386a0ff1a554d4bd2d8f2c0f525477099a1b2a5e04451b7e5e46d5"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -21105,6 +21127,7 @@
             "equalIndicator/v2": "77bee3284ea3e940",
             "equalIndicator/v1": "fdfaddec168b67ef7c70c5b5ddcea13b49bdf6702e4aec9ffb2e04b6f2b1ae21"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -21162,753 +21185,13 @@
             "equalIndicator/v2": "36b201b7e2d0e038",
             "equalIndicator/v1": "fff363675fe4e0a2f74409daee64d13e7296131e0f2a01b1b0d6237d11a9d993"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
             "problemType": "REGULAR",
             "tags": [
               "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/hooks/useAudioImportExport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 39,
-                  "startColumn": 20,
-                  "charOffset": 1132,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 37,
-                  "startColumn": 1,
-                  "charOffset": 1015,
-                  "charLength": 189,
-                  "snippet": {
-                    "text": "    if (!audioContextRef.current) {\r\n      audioContextRef.current = new (window.AudioContext ||\r\n        (window as any).webkitAudioContext)();\r\n    }\r\n    return audioContextRef.current;\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "e4b4d08d336f9e1c",
-            "equalIndicator/v1": "0f0bd1770662e99e5cb4ca5a9cd54d72e9a88ddf2f9f069cc765695b3be0b9b4"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "ESLint: 'parameters' is defined but never used. Allowed unused args must match /^_/u. (@typescript-eslint/no-unused-vars)",
-            "markdown": "ESLint: 'parameters' is defined but never used. Allowed unused args must match /\\^_/u. (@typescript-eslint/no-unused-vars)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 28,
-                  "charOffset": 172,
-                  "charLength": 10,
-                  "snippet": {
-                    "text": "parameters"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "1bd5b3fe05041ce5",
-            "equalIndicator/v1": "140a47bfd8966bd572b317824f7420409d7471a3cf1362baf5e984c598d59049"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: 'currentTime' is not defined. (no-undef)",
-            "markdown": "ESLint: 'currentTime' is not defined. (no-undef)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 11,
-                  "startColumn": 37,
-                  "charOffset": 291,
-                  "charLength": 11,
-                  "snippet": {
-                    "text": "currentTime"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 9,
-                  "startColumn": 1,
-                  "charOffset": 187,
-                  "charLength": 150,
-                  "snippet": {
-                    "text": "    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r\n      this.port.postMessage({ time: currentTime });\r\n      this.frame = 0;\r\n    }\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "8e4160c974747354",
-            "equalIndicator/v1": "25391a6d0b8574816ae1b53a13fab1693bf4d6d0bb835f6db7f82d12d94bbda7"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/components/EffectSlot.tsx",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 104,
-                  "startColumn": 60,
-                  "charOffset": 3037,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 102,
-                  "startColumn": 1,
-                  "charOffset": 2907,
-                  "charLength": 219,
-                  "snippet": {
-                    "text": "                  className=\"meter-fill\"\r\n                  style={{ \r\n                    width: `${Math.min(Math.abs((effect as any).getGainReduction?.() || 0) * 10, 100)}%` \r\n                  }}\r\n                />\r"
-                  },
-                  "sourceLanguage": "TypeScript JSX"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "125c55c359171639",
-            "equalIndicator/v1": "28cdeaf5df27011002a919b02bac05c16b0b63493cfb1160a8fbdb707eb685b8"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "ESLint: 'outputs' is defined but never used. Allowed unused args must match /^_/u. (@typescript-eslint/no-unused-vars)",
-            "markdown": "ESLint: 'outputs' is defined but never used. Allowed unused args must match /\\^_/u. (@typescript-eslint/no-unused-vars)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 19,
-                  "charOffset": 163,
-                  "charLength": 7,
-                  "snippet": {
-                    "text": "outputs"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "e316d44eb9adf5dd",
-            "equalIndicator/v1": "2ea8ef32449c8c6eb75be9ae7cb2bb37a08a090c668cfd568f66b62438f4b682"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/utils/audioExport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 318,
-                  "startColumn": 39,
-                  "charOffset": 9106,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 316,
-                  "startColumn": 1,
-                  "charOffset": 8999,
-                  "charLength": 185,
-                  "snippet": {
-                    "text": "    try {\r\n      const extension = filename.split('.').pop() || '';\r\n      const handle = await (window as any).showSaveFilePicker({\r\n        suggestedName: filename,\r\n        types: [\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "f0df21aab921deb8",
-            "equalIndicator/v1": "411b8bab54a33ece4f3deb709ed61c6703df77db929cee907fd091f8e12e9ac7"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/utils/audioImport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 155,
-                  "startColumn": 44,
-                  "charOffset": 4217,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 153,
-                  "startColumn": 1,
-                  "charOffset": 4122,
-                  "charLength": 185,
-                  "snippet": {
-                    "text": "  if ('showOpenFilePicker' in window) {\r\n    try {\r\n      const fileHandles = await (window as any).showOpenFilePicker({\r\n        multiple: options.multiple ?? false,\r\n        types: [\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "b4696c3b91da5140",
-            "equalIndicator/v1": "4a8c9994399e4377c3c979893e647a501341800afb81f83ca69ec3cd4195d2cf"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/utils/audioImport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 178,
-                  "startColumn": 21,
-                  "charOffset": 4837,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 176,
-                  "startColumn": 1,
-                  "charOffset": 4773,
-                  "charLength": 123,
-                  "snippet": {
-                    "text": "      return files;\r\n    } catch (error) {\r\n      if ((error as any).name === 'AbortError') {\r\n        return [];\r\n      }\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "4f2c7d34f6405a3b",
-            "equalIndicator/v1": "5bd2626778eb19de0c5ec1ee5833bc464310cee370e1b25d502f8cdbffbc5507"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/hooks/useAudioImportExport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 182,
-                  "startColumn": 16,
-                  "charOffset": 5374,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 180,
-                  "startColumn": 1,
-                  "charOffset": 5308,
-                  "charLength": 151,
-                  "snippet": {
-                    "text": "  const exportProject = useCallback(\r\n    async (\r\n      project: any,\r\n      audioFiles: Map<string, Blob | ArrayBuffer>,\r\n      includeAssets = true\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "551bfa55fd266c38",
-            "equalIndicator/v1": "68a9697af1685dade51d7d2e51704df5761af6983cd4a4a35e858045dbbb9c72"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "ESLint: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)",
-            "markdown": "ESLint: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/components/timeline/TimelineContext.tsx",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 63,
-                  "startColumn": 17,
-                  "charOffset": 2464,
-                  "charLength": 11,
-                  "snippet": {
-                    "text": "useTimeline"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 61,
-                  "startColumn": 1,
-                  "charOffset": 2442,
-                  "charLength": 127,
-                  "snippet": {
-                    "text": "};\r\n\r\nexport function useTimeline(): TimelineContextValue {\r\n  const context = useContext(TimelineContext);\r\n  if (!context) {\r"
-                  },
-                  "sourceLanguage": "TypeScript JSX"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "81f54781bd7edcd6",
-            "equalIndicator/v1": "6f544381efeaf4bcb18551342508ce7e34262a817b2b12101e85b3f6b1a803ed"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "ESLint: 'inputs' is defined but never used. Allowed unused args must match /^_/u. (@typescript-eslint/no-unused-vars)",
-            "markdown": "ESLint: 'inputs' is defined but never used. Allowed unused args must match /\\^_/u. (@typescript-eslint/no-unused-vars)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 11,
-                  "charOffset": 155,
-                  "charLength": 6,
-                  "snippet": {
-                    "text": "inputs"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "0040aeb8b71d681f",
-            "equalIndicator/v1": "803a2ef2cd3b1b9f70efe55f687677f5a4ce2dd57c6f3af3e301b81e5fcdba81"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)",
-            "markdown": "ESLint: Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/utils/audioExport.ts",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 333,
-                  "startColumn": 21,
-                  "charOffset": 9512,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "any"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 331,
-                  "startColumn": 1,
-                  "charOffset": 9454,
-                  "charLength": 114,
-                  "snippet": {
-                    "text": "      return;\r\n    } catch (error) {\r\n      if ((error as any).name === 'AbortError') {\r\n        return;\r\n      }\r"
-                  },
-                  "sourceLanguage": "TypeScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "21ce265dfc11e49e",
-            "equalIndicator/v1": "b1858fa4c87e2cea3bc7eceac4187571686033cf80b736abb7785505bcea3677"
-          },
-          "properties": {
-            "ideaSeverity": "ERROR",
-            "qodanaSeverity": "Critical",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "Eslint",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "ESLint: React Hook useEffect has a missing dependency: 'playheadPosition'. Either include it or remove the dependency array. (react-hooks/exhaustive-deps)",
-            "markdown": "ESLint: React Hook useEffect has a missing dependency: 'playheadPosition'. Either include it or remove the dependency array. (react-hooks/exhaustive-deps)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/components/timeline/TimelineDemo.tsx",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 33,
-                  "startColumn": 6,
-                  "charOffset": 1079,
-                  "charLength": 18,
-                  "snippet": {
-                    "text": "[isPlaying, tempo]"
-                  },
-                  "sourceLanguage": "TypeScript JSX"
-                },
-                "contextRegion": {
-                  "startLine": 31,
-                  "startColumn": 1,
-                  "charOffset": 1028,
-                  "charLength": 109,
-                  "snippet": {
-                    "text": "      requestAnimationFrame(animate);\r\n    }\r\n  }, [isPlaying, tempo]);\r\n\r\n  const handlePlayPause = () => {\r"
-                  },
-                  "sourceLanguage": "TypeScript JSX"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "add6e9477d38c46e",
-            "equalIndicator/v1": "d25bdf22101f834b579c57df40d1e3b7be8f0308cee22307f703985ac9f8ebb8"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "TypeScript JSX"
             ]
           }
         },
@@ -21960,6 +21243,7 @@
             "equalIndicator/v2": "b0d4a87bcd315299",
             "equalIndicator/v1": "33794eb14e55a25975aab83fdc427f2c6a0db0f3f64e62bd18750d3e88774dd7"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22017,6 +21301,7 @@
             "equalIndicator/v2": "dfb00ea70f1ea785",
             "equalIndicator/v1": "54c874bb9839f4bfe2afd5b6acea048c9b43b0fc2e99aac281cfd03ae69838ff"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22074,6 +21359,7 @@
             "equalIndicator/v2": "e66dcc8933dcaaab",
             "equalIndicator/v1": "678113cd9b7f270949d931e84cbecb93387871a2d4ca0d6907e6953a45457f9a"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22131,6 +21417,7 @@
             "equalIndicator/v2": "3e3ae9bf6ca4d90c",
             "equalIndicator/v1": "752618544f4fd24ab3ecb25244a355ec16619f1b0f84c9e650e74a03e394287e"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22188,6 +21475,7 @@
             "equalIndicator/v2": "93bdb333e577637e",
             "equalIndicator/v1": "911dbab7c331e139b962a08f9a9df691f1fa7c0cc851ec1a36ce855e1fadc4d2"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22245,6 +21533,7 @@
             "equalIndicator/v2": "c487e6e8d888e645",
             "equalIndicator/v1": "95b9fcf758d6c756c24250ee6845a1cfc379bc980f2dbeb5db8cf9638dfa3759"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22302,6 +21591,7 @@
             "equalIndicator/v2": "906f7955762e70fd",
             "equalIndicator/v1": "b99163314795956c996a5e197c438021276993a4cd1fae8a8f60cad9641174cc"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22359,6 +21649,7 @@
             "equalIndicator/v2": "f062238f32b0a2fc",
             "equalIndicator/v1": "b9b188e9c22467911ad85f9de95ed93ec4776c8924d99cae558582821e014f18"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -22416,6 +21707,7 @@
             "equalIndicator/v2": "b6f84077974f6f63",
             "equalIndicator/v1": "0e0f39f5fcdaa48eef342e7d7ad9260a6927ff6b99c67b9c2d29fc432b933479"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22473,6 +21765,7 @@
             "equalIndicator/v2": "c882bb3c85fd60ed",
             "equalIndicator/v1": "1fe3c0055061f175cbc39e840c4e4a5152981dad40b216216b2de2836ac3ae21"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22530,6 +21823,7 @@
             "equalIndicator/v2": "12789669a673c533",
             "equalIndicator/v1": "35dd192d73f959bfa06c2984f66bb38deaf2d9d0044d72ebf1a1ef858863c4ba"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22587,6 +21881,7 @@
             "equalIndicator/v2": "b984a21520fe46a1",
             "equalIndicator/v1": "a3154b4d54229f3badf8d06d71b2841b9ec83436fc4ed4d80b9dd57085d97404"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22644,6 +21939,7 @@
             "equalIndicator/v2": "8161aac8c3339323",
             "equalIndicator/v1": "01f38f4db0ac87878d7026755851dba19e97887f7f23dfdb5319c2e662f0e71d"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22701,6 +21997,7 @@
             "equalIndicator/v2": "979c07c474ef29d6",
             "equalIndicator/v1": "5f811f57dcb35a42afcdfdd69da02b0e96556744c7143ff75fef7aa2c939cbae"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22758,6 +22055,7 @@
             "equalIndicator/v2": "eb1753d6bf287033",
             "equalIndicator/v1": "870b1ca9c6a218a5cdc6fa26bfeef2d2d61a58c4a964de0af1b772426d5e74df"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -22815,180 +22113,10 @@
             "equalIndicator/v2": "0c01399c25435054",
             "equalIndicator/v1": "c5d6dd7386b9d4ae9c6802603ce134fde0eb3bb6028f4fd317609f71bccd5d1b"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "JSUnusedLocalSymbols",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Unused parameter inputs",
-            "markdown": "Unused parameter inputs"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 11,
-                  "charOffset": 155,
-                  "charLength": 6,
-                  "snippet": {
-                    "text": "inputs"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "8e01e187a6ce7355",
-            "equalIndicator/v1": "a61da0ded6d21f7c28bf375b726eb7bf6ae53d27188e48b13501ebd872b8b7a1"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "JSUnusedLocalSymbols",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Unused parameter outputs",
-            "markdown": "Unused parameter outputs"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 19,
-                  "charOffset": 163,
-                  "charLength": 7,
-                  "snippet": {
-                    "text": "outputs"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "b7d2c6623ffb7cea",
-            "equalIndicator/v1": "c106c61433245fddac6a41fbed9f3eee71fdc5d7dfcffaa4056f646b9ef39ebe"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
-            "problemType": "REGULAR",
-            "tags": [
-              "JavaScript"
-            ]
-          }
-        },
-        {
-          "ruleId": "JSUnusedLocalSymbols",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Unused parameter parameters",
-            "markdown": "Unused parameter parameters"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/audio/worklet/clock.worklet.js",
-                  "uriBaseId": "SRCROOT"
-                },
-                "region": {
-                  "startLine": 8,
-                  "startColumn": 28,
-                  "charOffset": 172,
-                  "charLength": 10,
-                  "snippet": {
-                    "text": "parameters"
-                  },
-                  "sourceLanguage": "JavaScript"
-                },
-                "contextRegion": {
-                  "startLine": 6,
-                  "startColumn": 1,
-                  "charOffset": 138,
-                  "charLength": 116,
-                  "snippet": {
-                    "text": "  }\r\n\r\n  process(inputs, outputs, parameters) {\r\n    this.frame += 128;\r\n    if (this.frame >= this.tickInterval) {\r"
-                  },
-                  "sourceLanguage": "JavaScript"
-                }
-              },
-              "logicalLocations": [
-                {
-                  "fullyQualifiedName": "Webiste-for-gaming",
-                  "kind": "module"
-                }
-              ]
-            }
-          ],
-          "partialFingerprints": {
-            "equalIndicator/v2": "1ec370f9392ec7c0",
-            "equalIndicator/v1": "e499c06408f34efffcf175ef1f4d8a25dc32787b5003b8f9bed1e46bef39fca7"
-          },
-          "properties": {
-            "ideaSeverity": "WARNING",
-            "qodanaSeverity": "High",
             "problemType": "REGULAR",
             "tags": [
               "JavaScript"
@@ -23043,6 +22171,7 @@
             "equalIndicator/v2": "ebb81cddd35a7a8b",
             "equalIndicator/v1": "3234b5b5fb79aecebb5a63ca698d8addcece024d3b5e01fa9fb3b6d7b899d56b"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -23100,6 +22229,7 @@
             "equalIndicator/v2": "1dd800f7b96acfa6",
             "equalIndicator/v1": "c589265772e85fce770263ce3def223c5b2d37d6f270b4a0c57c2a66a708e2c4"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -23157,6 +22287,7 @@
             "equalIndicator/v2": "ea652d1523d8a55a",
             "equalIndicator/v1": "fd6220561c48ff292acd9921ec03f20f6709f18bbbe25a683d184a769eba79fc"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WARNING",
             "qodanaSeverity": "High",
@@ -23214,6 +22345,7 @@
             "equalIndicator/v2": "089dcc35c5b583e8",
             "equalIndicator/v1": "72e7d082f85c405f3de2b6fa7db5651a3b34b45ba91e0efeaa2882c4003be748"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -23271,6 +22403,7 @@
             "equalIndicator/v2": "6f7120c59f0589ae",
             "equalIndicator/v1": "927e05bdfc225e83b86a598ff0552c462c9f5ad4001b6444a5196181c1e5fa2f"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -23328,6 +22461,7 @@
             "equalIndicator/v2": "a7ee901884930f05",
             "equalIndicator/v1": "7bf0448522109d60648b20cf362feb98c84b5105ef5608714d9be79f896a5f22"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -23385,6 +22519,7 @@
             "equalIndicator/v2": "dc8bf625de9e337a",
             "equalIndicator/v1": "c27e04d72e0221a20b8ec13a3e370998d550dc407bb71a5b4baad14670b4f3eb"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -23442,6 +22577,7 @@
             "equalIndicator/v2": "5b6bd68f097a2272",
             "equalIndicator/v1": "e9a61d775ab392ae4e14d1205f2b6e7c0bb24dd5b04f546386ce2d6af795aca6"
           },
+          "baselineState": "unchanged",
           "properties": {
             "ideaSeverity": "WEAK WARNING",
             "qodanaSeverity": "Moderate",
@@ -23450,11 +22586,69 @@
               "TypeScript JSX"
             ]
           }
+        },
+        {
+          "ruleId": "ES6PreferShortImport",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Import can be shortened",
+            "markdown": "Import can be shortened"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/hooks/useAudioImportExport.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 25,
+                  "charOffset": 379,
+                  "charLength": 17,
+                  "snippet": {
+                    "text": "'../state/models'"
+                  },
+                  "sourceLanguage": "JavaScript"
+                },
+                "contextRegion": {
+                  "startLine": 13,
+                  "startColumn": 1,
+                  "charOffset": 295,
+                  "charLength": 143,
+                  "snippet": {
+                    "text": "  importProjectArchive,\r\n} from '../utils/projectArchive';\r\nimport { Project } from '../state/models';\r\n\r\nexport interface AudioImportResult {\r"
+                  },
+                  "sourceLanguage": "TypeScript"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Webiste-for-gaming",
+                  "kind": "module"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "equalIndicator/v2": "7fcc66f3a00efb26",
+            "equalIndicator/v1": "78e9f854ca80de253885f9df032c2ca462f43cdb2382e7ccf8b70dbb4dccffed"
+          },
+          "baselineState": "new",
+          "properties": {
+            "ideaSeverity": "WARNING",
+            "qodanaSeverity": "High",
+            "problemType": "REGULAR",
+            "tags": [
+              "JavaScript"
+            ]
+          }
         }
       ],
       "automationDetails": {
         "id": "Webiste-for-gaming/qodana/2025-11-11",
-        "guid": "8d63e2eb-e9ba-40e5-a22d-2e95f8cfaf68",
+        "guid": "e10e6d3d-bec2-486a-82e0-af370799efec",
         "properties": {
           "jobUrl": "",
           "analysisKind": "ide"
@@ -23469,15 +22663,13 @@
         "configProfile": "starter",
         "deviceId": "1011251d4595056-a9d3-4204-b4c2-42c343d6b6eb",
         "qodanaNewResultSummary": {
-          "high": 43,
-          "critical": 8,
-          "moderate": 13,
-          "total": 64
+          "high": 1,
+          "total": 1
         }
       }
     }
   ],
   "properties": {
-    "runTimestamp": "1762920922327"
+    "runTimestamp": "1762922324347"
   }
 }
