@@ -136,16 +136,18 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
               <button
                 type="button"
-                className="btn"
+                className="button"
                 onClick={() => setShowLocalModelsOnly(!showLocalModelsOnly)}
                 style={{
                   flex: 1,
-                  background: showLocalModelsOnly ? 'var(--color-primary)' : 'transparent',
-                  border: showLocalModelsOnly ? 'none' : '1px solid var(--color-border)',
-                  color: showLocalModelsOnly ? 'var(--color-bg)' : 'inherit',
+                  background: showLocalModelsOnly ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                  border: showLocalModelsOnly ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  color: showLocalModelsOnly ? 'white' : 'var(--text-primary)',
+                  fontWeight: 'bold',
+                  padding: '10px 12px',
                 }}
               >
-                {showLocalModelsOnly ? '✅ No API Key' : '🔓 Show Local Models'}
+                {showLocalModelsOnly ? '✅ No API Key Required' : '🔓 Show Local Models Only'}
               </button>
             </div>
             <label htmlFor="ai-genre-select" className="text-xs text-muted">
@@ -338,7 +340,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
 
           <button
             type="button"
-            className="btn btn-primary"
+            className="button button-primary"
             onClick={handleGenerate}
             disabled={isGenerating || !prompt.trim()}
             style={{ width: '100%' }}
@@ -407,7 +409,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               >
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="button button-primary"
                   onClick={handleAddToTimeline}
                   style={{ flex: 1 }}
                 >
@@ -415,7 +417,7 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="button"
                   onClick={handleDownload}
                   style={{ flex: 1 }}
                 >
