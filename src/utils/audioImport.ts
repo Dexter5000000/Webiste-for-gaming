@@ -152,7 +152,7 @@ export async function openFileWithSystemAccess(
 ): Promise<File[]> {
   if ('showOpenFilePicker' in window) {
     try {
-      const fileHandles = await (window as any).showOpenFilePicker({
+      const fileHandles = await (window as unknown as { showOpenFilePicker: (options: object) => Promise<FileSystemFileHandle[]> }).showOpenFilePicker({
         multiple: options.multiple ?? false,
         types: [
           {
@@ -175,7 +175,7 @@ export async function openFileWithSystemAccess(
 
       return files;
     } catch (error) {
-      if ((error as any).name === 'AbortError') {
+      if ((error as unknown as { name: string }).name === 'AbortError') {
         return [];
       }
       throw error;

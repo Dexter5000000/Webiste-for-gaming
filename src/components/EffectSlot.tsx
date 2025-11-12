@@ -101,7 +101,7 @@ const EffectSlot: React.FC<EffectSlotProps> = ({
                 <div 
                   className="meter-fill"
                   style={{ 
-                    width: `${Math.min(Math.abs((effect as any).getGainReduction?.() || 0) * 10, 100)}%` 
+                    width: `${Math.min(Math.abs((effect as unknown as { getGainReduction?: () => number }).getGainReduction?.() || 0) * 10, 100)}%` 
                   }}
                 />
               </div>

@@ -12,6 +12,7 @@ import {
   exportProjectArchive,
   importProjectArchive,
 } from '../utils/projectArchive';
+import { Project } from '../state/models';
 
 export interface AudioImportResult {
   success: boolean;
@@ -36,7 +37,7 @@ export function useAudioImportExport() {
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     }
     return audioContextRef.current;
   }, []);
@@ -179,7 +180,7 @@ export function useAudioImportExport() {
 
   const exportProject = useCallback(
     async (
-      project: any,
+      project: Partial<Project>,
       audioFiles: Map<string, Blob | ArrayBuffer>,
       includeAssets = true
     ): Promise<AudioExportResult> => {
@@ -194,7 +195,7 @@ export function useAudioImportExport() {
           onError: (error) => console.error('Export error:', error),
         });
 
-        const filename = `${project.name.replace(/[^a-z0-9]/gi, '_')}.zdaw`;
+        const filename = `${(project.name ?? 'project').replace(/[^a-z0-9]/gi, '_')}.zdaw`;
         await saveFileWithSystemAccess(
           archiveBlob,
           filename,

@@ -315,7 +315,7 @@ export async function saveFileWithSystemAccess(
   if ('showSaveFilePicker' in window) {
     try {
       const extension = filename.split('.').pop() || '';
-      const handle = await (window as any).showSaveFilePicker({
+      const handle = await (window as unknown as { showSaveFilePicker: (options: object) => Promise<FileSystemFileHandle> }).showSaveFilePicker({
         suggestedName: filename,
         types: [
           {
@@ -330,7 +330,7 @@ export async function saveFileWithSystemAccess(
       await writable.close();
       return;
     } catch (error) {
-      if ((error as any).name === 'AbortError') {
+      if ((error as unknown as { name: string }).name === 'AbortError') {
         return;
       }
       console.error('Failed to save with File System Access API:', error);
