@@ -27,7 +27,7 @@ const MixerDock = memo(function MixerDock({
       style={mixerStyle}
     >
       <header className="mixer-header">
-        <h3>Mixer</h3>
+        <h2>Mixer</h2>
         <button
           type="button"
           className="button button-ghost"

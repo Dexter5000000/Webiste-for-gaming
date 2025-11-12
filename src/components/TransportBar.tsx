@@ -64,13 +64,15 @@ const TransportBar = memo(function TransportBar({
       role="banner"
       aria-label="Transport controls"
     >
-      <div className="transport-brand" aria-hidden="true">
-        <span className="brand-mark" />
-        <div>
-          <p className="transport-label">Zenith Studio</p>
-          <strong className="transport-title">Untitled Session</strong>
+      <nav className="transport-nav" aria-label="Main navigation">
+        <div className="transport-brand" aria-hidden="true">
+          <span className="brand-mark" />
+          <div>
+            <p className="transport-label">Zenith Studio</p>
+            <strong className="transport-title">Untitled Session</strong>
+          </div>
         </div>
-      </div>
+      </nav>
 
       <div
         className="transport-controls"

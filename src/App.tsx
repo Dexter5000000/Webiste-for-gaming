@@ -861,7 +861,7 @@ function App() {
                   style={trackListStyle}
                 >
                   <header className="track-list-header">
-                    <h2 className="text-sm text-muted">Tracks</h2>
+                    <h3 className="text-sm text-muted">Tracks</h3>
                   </header>
                   <div className="track-list-body">
                     {project.tracks.map((track) => {
@@ -964,6 +964,10 @@ function App() {
         height={mixerHeight}
         onToggleCollapse={toggleMixerPanel}
       />
+
+      <footer role="contentinfo" className="daw-footer">
+        <p>Zenith DAW - Digital Audio Workstation</p>
+      </footer>
 
       <SettingsPanel
         isOpen={settingsOpen}

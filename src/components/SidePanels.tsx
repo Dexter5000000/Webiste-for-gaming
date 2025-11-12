@@ -86,6 +86,9 @@ const SidePanels = memo(function SidePanels({
     >
       {!collapsed && (
         <>
+          <header className="side-panel-header">
+            <h2>Properties</h2>
+          </header>
           <nav
             className="side-panel-tabs"
             role="tablist"
