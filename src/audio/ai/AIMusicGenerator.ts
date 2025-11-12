@@ -7,12 +7,19 @@ import type {
 } from './types';
 import { AI_MODELS } from './models';
 import { getHuggingFaceToken } from '../../utils/storage';
+import OpenSourceMusicGenerator from './OpenSourceGenerators';
 
 export class AIMusicGenerator {
   private progressCallback?: (progress: GenerationProgress) => void;
+  private openSourceGenerator: OpenSourceMusicGenerator;
+
+  constructor() {
+    this.openSourceGenerator = new OpenSourceMusicGenerator();
+  }
 
   setProgressCallback(callback: (progress: GenerationProgress) => void): void {
     this.progressCallback = callback;
+    this.openSourceGenerator.setProgressCallback(callback);
   }
 
   private updateProgress(
@@ -40,8 +47,22 @@ export class AIMusicGenerator {
     try {
       this.updateProgress('initializing', 0, `Initializing ${modelConfig.name}...`);
 
+      // Open-source generators (local provider with specific model IDs)
       if (request.model === 'procedural') {
         return await this.generateProcedural(request, modelConfig);
+      }
+
+      if (request.model === 'tonejs-procedural' ||
+          request.model === 'tonejs-synth' ||
+          request.model === 'scribbletune' ||
+          request.model === 'abundant-music' ||
+          request.model === 'procjam' ||
+          request.model === 'magenta-melody' ||
+          request.model === 'magenta-music' ||
+          request.model === 'magenta-music-rnn' ||
+          request.model === 'markov-chains' ||
+          request.model === 'algorithmic-composition') {
+        return await this.openSourceGenerator.generate(request.model, request);
       }
 
       if (modelConfig.provider === 'huggingface') {

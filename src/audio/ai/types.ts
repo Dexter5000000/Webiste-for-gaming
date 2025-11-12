@@ -6,7 +6,17 @@ export type AIModelType =
   | 'audioldm2'
   | 'dance-diffusion'
   | 'bark'
-  | 'procedural';
+  | 'procedural'
+  | 'tonejs-procedural'
+  | 'tonejs-synth'
+  | 'scribbletune'
+  | 'abundant-music'
+  | 'procjam'
+  | 'magenta-melody'
+  | 'magenta-music'
+  | 'magenta-music-rnn'
+  | 'markov-chains'
+  | 'algorithmic-composition';
 
 export type MusicGenre =
   | 'electronic'
