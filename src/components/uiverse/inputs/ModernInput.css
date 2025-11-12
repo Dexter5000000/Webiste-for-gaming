@@ -1,0 +1,207 @@
+/* Modern Input - UIverse Integration */
+
+.modern-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.modern-input-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: block;
+}
+
+.modern-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.modern-input {
+  width: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all var(--transition-fast, 150ms) ease-in-out;
+  background-color: #f1f5f9;
+  color: #1e293b;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+}
+
+/* Variant: Default */
+.modern-input--default {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+
+  &:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background-color: #ffffff;
+  }
+
+  &:hover:not(:focus) {
+    border-color: #cbd5e1;
+  }
+}
+
+/* Variant: Filled */
+.modern-input--filled {
+  background-color: #f1f5f9;
+  border: none;
+  padding: 0.75rem 1rem;
+
+  &:focus {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px #6366f1;
+  }
+}
+
+/* Variant: Outlined */
+.modern-input--outlined {
+  background-color: transparent;
+  border: 2px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+
+  &:focus {
+    border-color: #6366f1;
+  }
+}
+
+/* Error state */
+.modern-input--error {
+  border-color: #ef4444 !important;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  }
+}
+
+/* Icon */
+.modern-input-icon {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  pointer-events: none;
+  font-size: 1.125rem;
+}
+
+.modern-input-wrapper:has(.modern-input-icon) .modern-input {
+  padding-left: 2.5rem;
+}
+
+/* Error message */
+.modern-input-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Size: Small */
+.modern-input-wrapper--sm .modern-input {
+  font-size: 0.875rem;
+
+  &.modern-input--default,
+  &.modern-input--filled,
+  &.modern-input--outlined {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+.modern-input-wrapper--sm .modern-input-label {
+  font-size: 0.75rem;
+}
+
+/* Size: Medium (default) */
+.modern-input-wrapper--md .modern-input {
+  font-size: 1rem;
+
+  &.modern-input--default,
+  &.modern-input--filled,
+  &.modern-input--outlined {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Size: Large */
+.modern-input-wrapper--lg .modern-input {
+  font-size: 1.125rem;
+
+  &.modern-input--default,
+  &.modern-input--filled,
+  &.modern-input--outlined {
+    padding: 1rem 1.25rem;
+  }
+}
+
+.modern-input-wrapper--lg .modern-input-label {
+  font-size: 0.95rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .modern-input-label {
+    color: #f1f5f9;
+  }
+
+  .modern-input {
+    color: #f1f5f9;
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+
+  .modern-input--default {
+    background-color: #334155;
+    border-color: #475569;
+
+    &:focus {
+      background-color: #1e293b;
+      border-color: #6366f1;
+    }
+
+    &:hover:not(:focus) {
+      border-color: #64748b;
+    }
+  }
+
+  .modern-input--filled {
+    background-color: #334155;
+
+    &:focus {
+      background-color: #1e293b;
+    }
+  }
+
+  .modern-input--outlined {
+    background-color: transparent;
+    border-color: #475569;
+  }
+
+  .modern-input-icon {
+    color: #94a3b8;
+  }
+}
+
+/* Disabled state */
+.modern-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #e2e8f0;
+}

@@ -1,0 +1,138 @@
+/* Animated Switch Toggle - UIverse Integration */
+
+.switch-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.switch-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: none;
+}
+
+.switch-label {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Slider track */
+.switch-slider {
+  position: relative;
+  display: inline-block;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  transition: all var(--transition-fast, 150ms) ease-in-out;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  /* Slider thumb */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    background-color: white;
+    border-radius: 50%;
+    transform: translateY(-50%) scaleX(0.5);
+    transition: all var(--transition-fast, 150ms) ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.switch-input:checked + .switch-label .switch-slider {
+  background-color: #6366f1;
+  box-shadow: inset 0 2px 4px rgba(99, 102, 241, 0.3);
+
+  &::before {
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+/* Success variant */
+.switch-input--success:checked + .switch-label .switch-slider {
+  background-color: #10b981;
+}
+
+/* Warning variant */
+.switch-input--warning:checked + .switch-label .switch-slider {
+  background-color: #f59e0b;
+}
+
+/* Danger variant */
+.switch-input--danger:checked + .switch-label .switch-slider {
+  background-color: #ef4444;
+}
+
+/* Focus state */
+.switch-input:focus-visible + .switch-label .switch-slider {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Label text */
+.switch-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: #64748b;
+  transition: color var(--transition-fast, 150ms) ease-in-out;
+}
+
+.switch-input:checked ~ .switch-text {
+  color: #1e293b;
+}
+
+/* Size: Small */
+.switch-wrapper--sm .switch-slider {
+  width: 32px;
+  height: 18px;
+}
+
+/* Size: Medium (default) */
+.switch-wrapper--md .switch-slider {
+  width: 44px;
+  height: 24px;
+}
+
+/* Size: Large */
+.switch-wrapper--lg .switch-slider {
+  width: 56px;
+  height: 32px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .switch-slider {
+    background-color: #475569;
+  }
+
+  .switch-slider::before {
+    background-color: #f1f5f9;
+  }
+
+  .switch-text {
+    color: #cbd5e1;
+  }
+
+  .switch-input:checked ~ .switch-text {
+    color: #f1f5f9;
+  }
+}
+
+/* Disabled state */
+.switch-input:disabled + .switch-label,
+.switch-input:disabled ~ .switch-text {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hover effect */
+.switch-input:not(:disabled) + .switch-label:hover .switch-slider {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+}

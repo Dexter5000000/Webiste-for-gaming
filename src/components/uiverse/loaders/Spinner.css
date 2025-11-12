@@ -1,0 +1,128 @@
+/* Animated Spinner - UIverse Integration */
+
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.spinner {
+  position: relative;
+  display: inline-block;
+}
+
+.spinner__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: spinner-rotate 2s linear infinite;
+
+  &:nth-child(1) {
+    border-top-color: currentColor;
+    border-right-color: currentColor;
+    animation-delay: 0s;
+  }
+
+  &:nth-child(2) {
+    border-top-color: currentColor;
+    opacity: 0.7;
+    animation-delay: -0.66s;
+  }
+
+  &:nth-child(3) {
+    border-top-color: currentColor;
+    opacity: 0.4;
+    animation-delay: -1.32s;
+  }
+}
+
+@keyframes spinner-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Size: Small */
+.spinner-wrapper--sm .spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-wrapper--sm .spinner__ring {
+  border-width: 2px;
+}
+
+/* Size: Medium (default) */
+.spinner-wrapper--md .spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.spinner-wrapper--md .spinner__ring {
+  border-width: 3px;
+}
+
+/* Size: Large */
+.spinner-wrapper--lg .spinner {
+  width: 56px;
+  height: 56px;
+}
+
+.spinner-wrapper--lg .spinner__ring {
+  border-width: 4px;
+}
+
+/* Color: Primary */
+.spinner--primary {
+  color: #6366f1;
+}
+
+/* Color: Secondary */
+.spinner--secondary {
+  color: #ec4899;
+}
+
+/* Color: Accent */
+.spinner--accent {
+  color: #14b8a6;
+}
+
+/* Color: White */
+.spinner--white {
+  color: #ffffff;
+}
+
+/* Label text */
+.spinner-label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  animation: spinner-label-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spinner-label-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .spinner-label {
+    color: #cbd5e1;
+  }
+}
