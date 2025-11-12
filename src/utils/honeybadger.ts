@@ -37,6 +37,16 @@ honeybadger.setContext({
 
 // Helper function to track audio-specific errors
 export const trackAudioError = (error: Error, context?: Record<string, unknown>) => {
+  console.error(
+    '%c🔊 Audio Error',
+    'color: #ff6b6b; font-weight: bold; font-size: 12px;',
+    {
+      message: error.message,
+      context,
+      timestamp: new Date().toISOString(),
+    }
+  );
+  
   honeybadger.notify(error, {
     context: {
       ...context,
@@ -53,6 +63,20 @@ export const trackAIMusicError = (
   context?: Record<string, unknown>
 ) => {
   const errorObj = typeof error === 'string' ? new Error(error) : error;
+  const errorLog = {
+    stage,
+    message: errorObj.message,
+    context,
+    timestamp: new Date().toISOString(),
+  };
+  
+  // Console output with styling
+  console.error(
+    `%c🚨 AI Music Error [${stage}]`,
+    'color: #ff6b6b; font-weight: bold; font-size: 14px;',
+    errorLog
+  );
+  
   honeybadger.notify(errorObj, {
     context: {
       ...context,
@@ -71,6 +95,19 @@ export const trackBufferError = (
   bufferInfo?: Record<string, unknown>
 ) => {
   const errorObj = typeof error === 'string' ? new Error(error) : error;
+  const errorLog = {
+    operation,
+    message: errorObj.message,
+    bufferInfo,
+    timestamp: new Date().toISOString(),
+  };
+  
+  console.error(
+    `%c⚠️ Buffer Error [${operation}]`,
+    'color: #ffa500; font-weight: bold; font-size: 12px;',
+    errorLog
+  );
+  
   honeybadger.notify(errorObj, {
     context: {
       category: 'buffer-operation',
@@ -90,6 +127,20 @@ export const trackSynthesisError = (
   details?: Record<string, unknown>
 ) => {
   const errorObj = typeof error === 'string' ? new Error(error) : error;
+  const errorLog = {
+    generatorType,
+    operation,
+    message: errorObj.message,
+    details,
+    timestamp: new Date().toISOString(),
+  };
+  
+  console.error(
+    `%c🎵 Synthesis Error [${generatorType}/${operation}]`,
+    'color: #ff9999; font-weight: bold; font-size: 12px;',
+    errorLog
+  );
+  
   honeybadger.notify(errorObj, {
     context: {
       category: 'synthesis',
@@ -131,6 +182,12 @@ export const addAIMusicBreadcrumb = (
   action: string,
   details?: Record<string, unknown>
 ) => {
+  console.log(
+    `%c🎼 [AI Music] ${stage}: ${action}`,
+    'color: #4ecdc4; font-weight: bold; font-size: 11px;',
+    details || ''
+  );
+  
   honeybadger.addBreadcrumb(`[AI Music] ${stage}: ${action}`, {
     metadata: {
       ...details,
