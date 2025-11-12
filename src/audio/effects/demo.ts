@@ -113,14 +113,14 @@ export function demoEffects() {
     }
     
     // Test gain reduction
-    const gainReduction = (compressor as any).getGainReduction?.();
+    const gainReduction = (compressor as unknown as { getGainReduction?: () => number }).getGainReduction?.();
     if (typeof gainReduction === 'number') {
       console.log(`✅ Current gain reduction: ${gainReduction.toFixed(2)}dB`);
     }
     
     // Test filter response
-    const filterResponse = (filter as any).getFilterResponse?.();
-    if (filterResponse) {
+    const filterResponse = (filter as unknown as { getFilterResponse?: () => number[] }).getFilterResponse?.();
+    if (filterResponse && Array.isArray(filterResponse)) {
       console.log(`✅ Got filter response with ${filterResponse.length} points`);
     }
     
@@ -151,7 +151,7 @@ export function demoEffects() {
 // Auto-run demo if this file is executed directly
 if (typeof window !== 'undefined') {
   // Add to global scope for easy testing in browser console
-  (window as any).demoEffects = demoEffects;
+  (window as unknown as { demoEffects: typeof demoEffects }).demoEffects = demoEffects;
   console.log('💡 Run demoEffects() in the console to test the effects system!');
 }
 
