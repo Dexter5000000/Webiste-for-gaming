@@ -750,6 +750,7 @@ function App() {
 
   return (
     <div className="daw-shell">
+      <h1 className="sr-only">Zenith DAW</h1>
       <TransportBar
         isPlaying={transport.isPlaying}
         isRecording={transport.isRecording}
