@@ -1,0 +1,66 @@
+{
+  "mcpServers": {
+    "icons8mcp": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.icons8.com/mcp/"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--no-warnings"
+      }
+    }
+  },
+  "description": "Model Context Protocol (MCP) server configuration for Zenith DAW",
+  "documentation": {
+    "icons8mcp": {
+      "name": "Icons8 MCP Server",
+      "description": "Access Icons8's icon library (50,000+ icons) directly in your IDE",
+      "supportedEditors": [
+        "Claude Desktop",
+        "Cursor",
+        "Windsurf",
+        "VS Code (with MCP Client extension)"
+      ],
+      "usage": {
+        "example1": "Ask: 'Create button icons for play, pause, stop in ios glyph style'",
+        "example2": "Ask: 'Generate transport control icons for a DAW'",
+        "example3": "Ask: 'Create effect icons (EQ, reverb, delay) in color style'"
+      },
+      "licensing": {
+        "plan": "GitHub License",
+        "features": "PNG icons with attribution required",
+        "upgrade": "SVG icons available on paid plans",
+        "attribution": "Icons by Icons8 (https://icons8.com)"
+      },
+      "iconLibraryUrl": "https://icons8.com",
+      "cdnUrl": "https://img.icons8.com",
+      "styles": ["color", "outline", "filled", "ios-glyph"],
+      "usefulIconsForDAW": [
+        "play-button",
+        "pause-button",
+        "stop-button",
+        "record",
+        "mute",
+        "hearing",
+        "microphone",
+        "cut",
+        "copy",
+        "paste",
+        "undo",
+        "redo",
+        "zoom-in",
+        "zoom-out",
+        "save",
+        "export",
+        "import",
+        "settings",
+        "artificial-intelligence",
+        "music-selection",
+        "sound-mixer",
+        "equalizer",
+        "echo"
+      ]
+    }
+  }
+}
