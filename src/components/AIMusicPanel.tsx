@@ -161,11 +161,80 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
               onChange={(e) => setSelectedModel(e.target.value as AIModelType)}
               disabled={isGenerating}
             >
-              {Object.values(AI_MODELS).map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name} ({model.quality})
-                </option>
-              ))}
+              {/* Cloud AI Models */}
+              <optgroup label="🌐 Cloud AI Models">
+                {Object.values(AI_MODELS)
+                  .filter((model) => model.provider === 'huggingface')
+                  .map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.quality})
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* Open-Source Procedural Generators */}
+              <optgroup label="⚡ Procedural Generators (Local)">
+                {Object.values(AI_MODELS)
+                  .filter(
+                    (model) =>
+                      model.provider === 'local' &&
+                      [
+                        'tonejs-procedural',
+                        'tonejs-synth',
+                        'scribbletune',
+                        'abundant-music',
+                        'procjam',
+                      ].includes(model.id)
+                  )
+                  .map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.quality})
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* AI/ML Models (Local) */}
+              <optgroup label="🤖 AI/ML Models (Local)">
+                {Object.values(AI_MODELS)
+                  .filter(
+                    (model) =>
+                      model.provider === 'local' &&
+                      ['magenta-melody', 'magenta-music', 'magenta-music-rnn'].includes(
+                        model.id
+                      )
+                  )
+                  .map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.quality})
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* Advanced Algorithmic */}
+              <optgroup label="✨ Advanced Algorithmic">
+                {Object.values(AI_MODELS)
+                  .filter(
+                    (model) =>
+                      model.provider === 'local' &&
+                      ['markov-chains', 'algorithmic-composition'].includes(model.id)
+                  )
+                  .map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.quality})
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* Fallback */}
+              <optgroup label="🔧 Fallback">
+                {Object.values(AI_MODELS)
+                  .filter((model) => model.id === 'procedural')
+                  .map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.quality})
+                    </option>
+                  ))}
+              </optgroup>
             </select>
             <p className="text-xs text-muted" style={{ marginTop: '8px' }}>
               {modelConfig.description}
