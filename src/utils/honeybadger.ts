@@ -46,6 +46,62 @@ export const trackAudioError = (error: Error, context?: Record<string, unknown>)
   });
 };
 
+// Helper function to track AI music generation errors
+export const trackAIMusicError = (
+  error: Error | string,
+  stage: 'initialization' | 'generation' | 'synthesis' | 'mixing' | 'encoding' | 'unknown',
+  context?: Record<string, unknown>
+) => {
+  const errorObj = typeof error === 'string' ? new Error(error) : error;
+  honeybadger.notify(errorObj, {
+    context: {
+      ...context,
+      category: 'ai-music',
+      stage,
+      timestamp: new Date().toISOString(),
+    },
+    fingerprint: `ai-music-${stage}-${errorObj.message}`,
+  });
+};
+
+// Helper function to track audio buffer issues
+export const trackBufferError = (
+  error: Error | string,
+  operation: 'create' | 'access' | 'synthesize' | 'mix' | 'encode',
+  bufferInfo?: Record<string, unknown>
+) => {
+  const errorObj = typeof error === 'string' ? new Error(error) : error;
+  honeybadger.notify(errorObj, {
+    context: {
+      category: 'buffer-operation',
+      operation,
+      bufferInfo,
+      timestamp: new Date().toISOString(),
+    },
+    fingerprint: `buffer-${operation}-${errorObj.message}`,
+  });
+};
+
+// Helper function to track synthesis issues
+export const trackSynthesisError = (
+  generatorType: string,
+  operation: string,
+  error: Error | string,
+  details?: Record<string, unknown>
+) => {
+  const errorObj = typeof error === 'string' ? new Error(error) : error;
+  honeybadger.notify(errorObj, {
+    context: {
+      category: 'synthesis',
+      generatorType,
+      operation,
+      details,
+      timestamp: new Date().toISOString(),
+    },
+    fingerprint: `synthesis-${generatorType}-${operation}`,
+  });
+};
+
 // Helper function to track component errors
 export const trackComponentError = (
   error: Error,
@@ -66,6 +122,21 @@ export const addBreadcrumb = (message: string, metadata?: Record<string, unknown
   honeybadger.addBreadcrumb(message, {
     metadata,
     category: 'custom',
+  });
+};
+
+// Helper function to add AI music breadcrumbs
+export const addAIMusicBreadcrumb = (
+  stage: string,
+  action: string,
+  details?: Record<string, unknown>
+) => {
+  honeybadger.addBreadcrumb(`[AI Music] ${stage}: ${action}`, {
+    metadata: {
+      ...details,
+      timestamp: new Date().toISOString(),
+    },
+    category: 'ai-music',
   });
 };
 

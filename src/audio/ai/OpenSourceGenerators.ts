@@ -12,6 +12,7 @@
  */
 
 import type { GenerationRequest, GenerationResult, GenerationProgress } from './types';
+import { trackAIMusicError, trackSynthesisError, addAIMusicBreadcrumb } from '../../utils/honeybadger';
 
 export type OpenSourceGeneratorType = 
   | 'tonejs-procedural'
@@ -181,40 +182,67 @@ export class OpenSourceMusicGenerator {
     request: GenerationRequest
   ): Promise<GenerationResult> {
     this.updateProgress('initializing', 0, `Initializing ${generatorType}...`);
+    addAIMusicBreadcrumb('generate', `Starting ${generatorType}`, { prompt: request.prompt, duration: request.duration });
 
     try {
       switch (generatorType) {
-        case 'tonejs-procedural':
+        case 'tonejs-procedural': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithToneJsProcedural');
           return await this.generateWithToneJsProcedural(request);
-        case 'tonejs-synth':
+        }
+        case 'tonejs-synth': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithToneJsSynth');
           return await this.generateWithToneJsSynth(request);
-        case 'scribbletune':
+        }
+        case 'scribbletune': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithScribbleTune');
           return await this.generateWithScribbleTune(request);
-        case 'abundant-music':
+        }
+        case 'abundant-music': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithAbundantMusic');
           return await this.generateWithAbundantMusic(request);
-        case 'procjam':
+        }
+        case 'procjam': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithProcJam');
           return await this.generateWithProcJam(request);
-        case 'magenta-melody':
+        }
+        case 'magenta-melody': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithMagentaMelody');
           return await this.generateWithMagentaMelody(request);
-        case 'magenta-music':
+        }
+        case 'magenta-music': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithMagentaMusic');
           return await this.generateWithMagentaMusic(request);
-        case 'magenta-music-rnn':
+        }
+        case 'magenta-music-rnn': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithMagentaMusicRNN');
           return await this.generateWithMagentaMusicRNN(request);
-        case 'markov-chains':
+        }
+        case 'markov-chains': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithMarkovChains');
           return await this.generateWithMarkovChains(request);
-        case 'algorithmic-composition':
+        }
+        case 'algorithmic-composition': {
+          addAIMusicBreadcrumb('generate', 'Calling generateWithAlgorithmicComposition');
           return await this.generateWithAlgorithmicComposition(request);
-        default:
+        }
+        default: {
+          const unknownError = `Unknown generator: ${generatorType}`;
+          trackAIMusicError(unknownError, 'initialization');
           return {
             success: false,
-            error: `Unknown generator: ${generatorType}`,
+            error: unknownError,
           };
+        }
       }
     } catch (error) {
-      this.updateProgress('error', 0, `Generation failed: ${(error as Error).message}`);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      addAIMusicBreadcrumb('generate', `Error in ${generatorType}`, { error: errorMsg });
+      trackAIMusicError(error instanceof Error ? error : new Error(errorMsg), 'generation', { generatorType });
+      this.updateProgress('error', 0, `Generation failed: ${errorMsg}`);
       return {
         success: false,
-        error: (error as Error).message,
+        error: errorMsg,
       };
     }
   }
@@ -495,40 +523,64 @@ export class OpenSourceMusicGenerator {
    * Create a procedural loop with kicks, hats, bass, and melody
    */
   private async createProceduralLoop(duration: number, request: GenerationRequest): Promise<AudioBuffer> {
-    const sampleRate = 44100;
-    const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
-    const left = buffer.getChannelData(0);
-    const right = buffer.getChannelData(1);
+    try {
+      const sampleRate = 44100;
+      addAIMusicBreadcrumb('createProceduralLoop', 'Creating buffer', { duration, sampleRate });
+      
+      const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
 
-    const seed = this.hashString(request.prompt);
-    const rng = this.seededRandom(seed);
+      const seed = this.hashString(request.prompt);
+      const rng = this.seededRandom(seed);
 
-    // Generate drum pattern
-    const kickPattern = this.generateDrumPattern(duration, rng);
-    const hatPattern = this.generateHiHatPattern(duration, rng);
+      addAIMusicBreadcrumb('createProceduralLoop', 'Generating drum pattern');
+      // Generate drum pattern
+      const kickPattern = this.generateDrumPattern(duration, rng);
+      const hatPattern = this.generateHiHatPattern(duration, rng);
 
-    // Generate bass
-    const bassNotes = this.generateBassLine(duration, request.prompt, rng);
-    const bassBuffer = this.synthesizeBass(bassNotes, duration, sampleRate);
+      addAIMusicBreadcrumb('createProceduralLoop', 'Generating bass line');
+      // Generate bass
+      const bassNotes = this.generateBassLine(duration, request.prompt, rng);
+      const bassBuffer = this.synthesizeBass(bassNotes, duration, sampleRate);
 
-    // Generate melody
-    const melodyNotes = this.generateMelodyLine(duration, request.prompt, rng);
-    const melodyBuffer = this.synthesizeMelody(melodyNotes, duration, sampleRate);
+      addAIMusicBreadcrumb('createProceduralLoop', 'Generating melody line');
+      // Generate melody
+      const melodyNotes = this.generateMelodyLine(duration, request.prompt, rng);
+      const melodyBuffer = this.synthesizeMelody(melodyNotes, duration, sampleRate);
 
-    // Mix drums
-    const dramsBuffer = this.synthesizeDrums(kickPattern, hatPattern, duration, sampleRate);
+      addAIMusicBreadcrumb('createProceduralLoop', 'Synthesizing drums');
+      // Mix drums
+      const drumsBuffer = this.synthesizeDrums(kickPattern, hatPattern, duration, sampleRate);
 
-    // Combine all layers
-    for (let i = 0; i < buffer.length; i++) {
-      const drumSample = dramsBuffer.getChannelData(0)[i] * 0.3;
-      const bassSample = bassBuffer.getChannelData(0)[i] * 0.25;
-      const melodySample = melodyBuffer.getChannelData(0)[i] * 0.2;
+      addAIMusicBreadcrumb('createProceduralLoop', 'Mixing all layers');
+      // Combine all layers - with error checking
+      const maxSamples = Math.min(buffer.length, drumsBuffer.length, bassBuffer.length, melodyBuffer.length);
+      for (let i = 0; i < maxSamples; i++) {
+        try {
+          const drumSample = (drumsBuffer.getChannelData(0)[i] ?? 0) * 0.3;
+          const bassSample = (bassBuffer.getChannelData(0)[i] ?? 0) * 0.25;
+          const melodySample = (melodyBuffer.getChannelData(0)[i] ?? 0) * 0.2;
 
-      left[i] = drumSample + bassSample + melodySample;
-      right[i] = drumSample + bassSample + melodySample + (rng() - 0.5) * 0.05; // Stereo width
+          const mixed = drumSample + bassSample + melodySample;
+          left[i] = Math.max(-1, Math.min(1, mixed)); // Clamp to prevent clipping
+          right[i] = Math.max(-1, Math.min(1, mixed + (rng() - 0.5) * 0.05)); // Stereo width
+        } catch (sampleError) {
+          console.warn(`Error mixing sample ${i}:`, sampleError);
+          trackSynthesisError('procedural-loop', 'mixing', sampleError as Error, { sampleIndex: i });
+          left[i] = 0;
+          right[i] = 0;
+        }
+      }
+
+      addAIMusicBreadcrumb('createProceduralLoop', 'Mixing complete');
+      return buffer;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      addAIMusicBreadcrumb('createProceduralLoop', 'Error during creation', { error: errorMsg });
+      trackAIMusicError(error instanceof Error ? error : new Error(errorMsg), 'mixing', { duration });
+      throw error;
     }
-
-    return buffer;
   }
 
   /**
@@ -989,35 +1041,111 @@ export class OpenSourceMusicGenerator {
   }
 
   private async bufferToWavBlob(buffer: AudioBuffer): Promise<Blob> {
-    const numCh = buffer.numberOfChannels;
-    const length = buffer.length * numCh * 2;
-    const header = 44;
-    const ab = new ArrayBuffer(header + length);
-    const view = new DataView(ab);
-    const writeStr = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
-    writeStr(0, 'RIFF');
-    view.setUint32(4, 36 + length, true);
-    writeStr(8, 'WAVE');
-    writeStr(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, numCh, true);
-    view.setUint32(24, buffer.sampleRate, true);
-    view.setUint32(28, buffer.sampleRate * numCh * 2, true);
-    view.setUint16(32, numCh * 2, true);
-    view.setUint16(34, 16, true);
-    writeStr(36, 'data');
-    view.setUint32(40, length, true);
-    let offset = header;
-    for (let i = 0; i < buffer.length; i++) {
-      for (let ch = 0; ch < numCh; ch++) {
-        const sample = buffer.getChannelData(ch)[i];
-        const s = Math.max(-1, Math.min(1, sample));
-        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-        offset += 2;
+    try {
+      const numCh = Math.max(1, buffer.numberOfChannels);
+      const sampleRate = Math.max(8000, buffer.sampleRate);
+      const numSamples = buffer.length;
+      const bytesPerSample = 2; // 16-bit
+      const dataLength = numSamples * numCh * bytesPerSample;
+      const headerLength = 44;
+      const totalLength = headerLength + dataLength;
+
+      const ab = new ArrayBuffer(totalLength);
+      const view = new DataView(ab);
+
+      // Helper to write string
+      const writeStr = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      };
+
+      // WAV Header
+      writeStr(0, 'RIFF');
+      view.setUint32(4, totalLength - 8, true); // File size - 8
+      writeStr(8, 'WAVE');
+
+      // Format chunk
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+      view.setUint16(20, 1, true); // AudioFormat (1 = PCM)
+      view.setUint16(22, numCh, true); // NumChannels
+      view.setUint32(24, sampleRate, true); // SampleRate
+      view.setUint32(28, sampleRate * numCh * bytesPerSample, true); // ByteRate
+      view.setUint16(32, numCh * bytesPerSample, true); // BlockAlign
+      view.setUint16(34, 16, true); // BitsPerSample (16-bit)
+
+      // Data chunk
+      writeStr(36, 'data');
+      view.setUint32(40, dataLength, true); // Subchunk2Size
+
+      // Write audio data
+      let dataOffset = headerLength;
+      for (let i = 0; i < numSamples; i++) {
+        for (let ch = 0; ch < numCh; ch++) {
+          let sample = 0;
+          try {
+            const channelData = buffer.getChannelData(ch);
+            sample = channelData[i] || 0;
+          } catch (e) {
+            sample = 0;
+          }
+
+          // Clamp sample to [-1, 1]
+          sample = Math.max(-1, Math.min(1, sample));
+
+          // Convert to 16-bit PCM
+          const pcmValue = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+
+          view.setInt16(dataOffset, pcmValue, true);
+          dataOffset += 2;
+
+          // Safety check to prevent buffer overrun
+          if (dataOffset > totalLength) {
+            console.warn('WAV encoding: buffer overrun prevented');
+            break;
+          }
+        }
       }
+
+      return new Blob([ab], { type: 'audio/wav' });
+    } catch (error) {
+      console.error('bufferToWavBlob error:', error);
+      // Fallback: create silent WAV
+      const sampleRate = 44100;
+      const duration = 1;
+      const numSamples = sampleRate * duration;
+      const numCh = 2;
+      const bytesPerSample = 2;
+      const dataLength = numSamples * numCh * bytesPerSample;
+      const headerLength = 44;
+      const totalLength = headerLength + dataLength;
+
+      const ab = new ArrayBuffer(totalLength);
+      const view = new DataView(ab);
+
+      const writeStr = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      };
+
+      writeStr(0, 'RIFF');
+      view.setUint32(4, totalLength - 8, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numCh, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * numCh * bytesPerSample, true);
+      view.setUint16(32, numCh * bytesPerSample, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, dataLength, true);
+
+      return new Blob([ab], { type: 'audio/wav' });
     }
-    return new Blob([ab], { type: 'audio/wav' });
   }
 }
 
