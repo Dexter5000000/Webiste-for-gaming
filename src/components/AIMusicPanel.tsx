@@ -83,16 +83,34 @@ const AIMusicPanel = memo(function AIMusicPanel({ onAudioGenerated }: AIMusicPan
         guidanceScale: 7.5,
       });
 
-      if (result.success && result.audioBuffer && result.audioUrl) {
-        setGeneratedAudioUrl(result.audioUrl);
-        lastGeneratedBuffer.current = result.audioBuffer;
-        lastGeneratedBlob.current = result.audioBlob ?? null;
-        setError(null);
+      if (!result) {
+        setError('Generation returned null result');
+        setIsGenerating(false);
+        return;
+      }
+
+      if (result.success && result.audioBuffer) {
+        // Ensure audioUrl exists, create if necessary
+        let audioUrl = result.audioUrl;
+        if (!audioUrl && result.audioBlob) {
+          audioUrl = URL.createObjectURL(result.audioBlob);
+        }
+
+        if (audioUrl) {
+          setGeneratedAudioUrl(audioUrl);
+          lastGeneratedBuffer.current = result.audioBuffer;
+          lastGeneratedBlob.current = result.audioBlob ?? null;
+          setError(null);
+        } else {
+          setError('Failed to generate audio URL from result');
+        }
       } else {
-        setError(result.error ?? 'Generation failed');
+        setError(result.error ?? 'Generation failed for unknown reason');
       }
     } catch (err) {
-      setError((err as Error).message);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('AI Music generation error:', errorMessage, err);
+      setError(`Generation error: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
     }

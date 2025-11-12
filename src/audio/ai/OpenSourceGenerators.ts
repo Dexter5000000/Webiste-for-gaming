@@ -228,9 +228,13 @@ export class OpenSourceMusicGenerator {
 
     const buffer = await this.createProceduralLoop(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
+    
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -252,9 +256,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.synthesizePolyphonic(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -276,9 +283,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createScribbletuneSequence(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -300,9 +310,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createAbundantMusicLoop(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -324,9 +337,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createProcJamPhrase(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -348,9 +364,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createMagentaMelody(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -372,9 +391,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createMagentaMusic(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -396,9 +418,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createMagentaContinuous(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -420,9 +445,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createMarkovChainSequence(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -444,9 +472,12 @@ export class OpenSourceMusicGenerator {
     const buffer = await this.createAlgorithmicComposition(duration, request);
     this.updateProgress('processing', 90, 'Processing audio...');
 
+    const blob = await this.bufferToWavBlob(buffer);
     return {
       success: true,
       audioBuffer: buffer,
+      audioBlob: blob,
+      audioUrl: URL.createObjectURL(blob),
       duration,
       sampleRate: this.audioContext.sampleRate,
       metadata: {
@@ -955,6 +986,38 @@ export class OpenSourceMusicGenerator {
       seed = (seed * 9301 + 49297) % 233280;
       return seed / 233280;
     };
+  }
+
+  private async bufferToWavBlob(buffer: AudioBuffer): Promise<Blob> {
+    const numCh = buffer.numberOfChannels;
+    const length = buffer.length * numCh * 2;
+    const header = 44;
+    const ab = new ArrayBuffer(header + length);
+    const view = new DataView(ab);
+    const writeStr = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + length, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numCh, true);
+    view.setUint32(24, buffer.sampleRate, true);
+    view.setUint32(28, buffer.sampleRate * numCh * 2, true);
+    view.setUint16(32, numCh * 2, true);
+    view.setUint16(34, 16, true);
+    writeStr(36, 'data');
+    view.setUint32(40, length, true);
+    let offset = header;
+    for (let i = 0; i < buffer.length; i++) {
+      for (let ch = 0; ch < numCh; ch++) {
+        const sample = buffer.getChannelData(ch)[i];
+        const s = Math.max(-1, Math.min(1, sample));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+        offset += 2;
+      }
+    }
+    return new Blob([ab], { type: 'audio/wav' });
   }
 }
 
