@@ -838,74 +838,106 @@ export class OpenSourceMusicGenerator {
   }
 
   private synthesizeBass(notes: Array<{ freq: number; time: number }>, duration: number, sampleRate: number): AudioBuffer {
-    const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
-    const channel = buffer.getChannelData(0);
+    try {
+      const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
 
-    for (const note of notes) {
-      const startSample = Math.floor(note.time * sampleRate);
-      const endSample = Math.min(startSample + Math.ceil(0.5 * sampleRate), buffer.length);
+      for (const note of notes) {
+        const startSample = Math.floor(note.time * sampleRate);
+        const noteDuration = 0.5;
+        const endSample = Math.min(startSample + Math.ceil(noteDuration * sampleRate), buffer.length);
 
-      for (let i = startSample; i < endSample; i++) {
-        const time = i / sampleRate;
-        const phase = (time * note.freq) % 1;
-        channel[i] += Math.sin(2 * Math.PI * phase) * 0.3;
+        for (let i = startSample; i < endSample && i < buffer.length; i++) {
+          const sampleTime = i / sampleRate;
+          const phase = (sampleTime * note.freq) % 1;
+          const sample = Math.sin(2 * Math.PI * phase) * 0.3;
+          left[i] = (left[i] || 0) + sample;
+          right[i] = (right[i] || 0) + sample;
+        }
       }
-    }
 
-    return buffer;
+      return buffer;
+    } catch (error) {
+      console.error('synthesizeBass error:', error);
+      trackSynthesisError('bass', 'synthesize', error as Error);
+      throw error;
+    }
   }
 
   private synthesizeMelody(notes: Array<{ freq: number; time: number }>, duration: number, sampleRate: number): AudioBuffer {
-    const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
-    const channel = buffer.getChannelData(0);
+    try {
+      const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
 
-    for (const note of notes) {
-      const startSample = Math.floor(note.time * sampleRate);
-      const endSample = Math.min(startSample + Math.ceil(0.5 * sampleRate), buffer.length);
+      for (const note of notes) {
+        const startSample = Math.floor(note.time * sampleRate);
+        const noteDuration = 0.5;
+        const endSample = Math.min(startSample + Math.ceil(noteDuration * sampleRate), buffer.length);
 
-      for (let i = startSample; i < endSample; i++) {
-        const time = i / sampleRate;
-        const phase = (time * note.freq) % 1;
-        channel[i] += Math.sin(2 * Math.PI * phase) * 0.2;
+        for (let i = startSample; i < endSample && i < buffer.length; i++) {
+          const sampleTime = i / sampleRate;
+          const phase = (sampleTime * note.freq) % 1;
+          const sample = Math.sin(2 * Math.PI * phase) * 0.2;
+          left[i] = (left[i] || 0) + sample;
+          right[i] = (right[i] || 0) + sample;
+        }
       }
-    }
 
-    return buffer;
+      return buffer;
+    } catch (error) {
+      console.error('synthesizeMelody error:', error);
+      trackSynthesisError('melody', 'synthesize', error as Error);
+      throw error;
+    }
   }
 
   private synthesizeDrums(kicks: number[], hats: number[], duration: number, sampleRate: number): AudioBuffer {
-    const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
-    const channel = buffer.getChannelData(0);
+    try {
+      const buffer = this.audioContext.createBuffer(2, Math.ceil(duration * sampleRate), sampleRate);
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
 
-    const bpm = 120;
-    const beatDuration = (60 / bpm) / 4;
+      const bpm = 120;
+      const beatDuration = (60 / bpm) / 4;
 
-    let time = 0;
-    for (let beatIdx = 0; beatIdx < kicks.length; beatIdx++) {
-      const startSample = Math.floor(time * sampleRate);
-      const endSample = Math.min(startSample + Math.ceil(beatDuration * sampleRate), buffer.length);
+      let time = 0;
+      for (let beatIdx = 0; beatIdx < kicks.length && time < duration; beatIdx++) {
+        const startSample = Math.floor(time * sampleRate);
+        const endSample = Math.min(startSample + Math.ceil(beatDuration * sampleRate), buffer.length);
 
-      if (kicks[beatIdx]) {
-        // Kick drum (sine sweep)
-        for (let i = startSample; i < endSample; i++) {
-          const t = (i - startSample) / (endSample - startSample);
-          const freq = 150 * Math.exp(-5 * t);
-          const phase = (i / sampleRate) * freq;
-          channel[i] += Math.sin(2 * Math.PI * phase) * Math.exp(-5 * t) * 0.4;
+        if (kicks[beatIdx]) {
+          // Kick drum (sine sweep)
+          for (let i = startSample; i < endSample && i < buffer.length; i++) {
+            const t = (i - startSample) / Math.max(1, endSample - startSample);
+            const freq = 150 * Math.exp(-5 * t);
+            const phase = (i / sampleRate) * freq;
+            const sample = Math.sin(2 * Math.PI * phase) * Math.exp(-5 * t) * 0.4;
+            left[i] = (left[i] || 0) + sample;
+            right[i] = (right[i] || 0) + sample;
+          }
         }
+
+        if (hats[beatIdx]) {
+          // Hi-hat (noise)
+          for (let i = startSample; i < endSample && i < buffer.length; i++) {
+            const progress = (i - startSample) / Math.max(1, endSample - startSample);
+            const sample = (Math.random() - 0.5) * Math.exp(-10 * progress) * 0.2;
+            left[i] = (left[i] || 0) + sample;
+            right[i] = (right[i] || 0) + sample;
+          }
+        }
+
+        time += beatDuration;
       }
 
-      if (hats[beatIdx]) {
-        // Hi-hat (noise)
-        for (let i = startSample; i < endSample; i++) {
-          channel[i] += (Math.random() - 0.5) * Math.exp(-10 * (i - startSample) / (endSample - startSample)) * 0.2;
-        }
-      }
-
-      time += beatDuration;
+      return buffer;
+    } catch (error) {
+      console.error('synthesizeDrums error:', error);
+      trackSynthesisError('drums', 'synthesize', error as Error);
+      throw error;
     }
-
-    return buffer;
   }
 
   private createTransitionMatrix(scale: number[]): Map<number, Map<number, number>> {
