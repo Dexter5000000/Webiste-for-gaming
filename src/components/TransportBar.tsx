@@ -8,16 +8,12 @@ interface TransportBarProps {
   timeSignature: string;
   playheadPosition: string;
   metronomeEnabled: boolean;
-  zoomLevel: number;
   onTogglePlay: () => void;
   onStop: () => void;
   onToggleRecord: () => void;
   onToggleLoop: () => void;
   onTempoChange: (tempo: number) => void;
   onMetronomeToggle: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onZoomReset: () => void;
   onToggleTracks: () => void;
   onToggleInspector: () => void;
   onToggleMixer: () => void;
@@ -31,16 +27,12 @@ const TransportBar = memo(function TransportBar({
   timeSignature,
   playheadPosition,
   metronomeEnabled,
-  zoomLevel,
   onTogglePlay,
   onStop,
   onToggleRecord,
   onToggleLoop,
   onTempoChange,
   onMetronomeToggle,
-  onZoomIn,
-  onZoomOut,
-  onZoomReset,
   onToggleTracks,
   onToggleInspector,
   onToggleMixer,
@@ -211,39 +203,6 @@ const TransportBar = memo(function TransportBar({
         </button>
       </div>
 
-      <div
-        className="transport-controls"
-        role="group"
-        aria-label="Timeline zoom controls"
-      >
-        <button
-          type="button"
-          className="transport-button zoom-out"
-          onClick={onZoomOut}
-          aria-label="Zoom out"
-        >
-          −
-        </button>
-        <span className="zoom-indicator" aria-live="polite">
-          {Math.round(zoomLevel * 100)}%
-        </span>
-        <button
-          type="button"
-          className="transport-button zoom-in"
-          onClick={onZoomIn}
-          aria-label="Zoom in"
-        >
-          ＋
-        </button>
-        <button
-          type="button"
-          className="transport-button zoom-reset"
-          onClick={onZoomReset}
-          aria-label="Reset zoom"
-        >
-          Reset
-        </button>
-      </div>
     </header>
   );
 });

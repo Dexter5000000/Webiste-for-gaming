@@ -759,16 +759,12 @@ function App() {
         timeSignature={timeSignature}
         playheadPosition={formatPlayhead(transport.currentTime)}
         metronomeEnabled={transport.isMetronomeEnabled}
-        zoomLevel={grid.zoomHorizontal / 20} // Convert to percentage
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
         onToggleRecord={toggleRecording}
         onToggleLoop={toggleLoop}
         onTempoChange={handleTempoChange}
         onMetronomeToggle={toggleMetronome}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onZoomReset={handleZoomReset}
         onToggleTracks={toggleTracksPanel}
         onToggleInspector={toggleInspectorPanel}
         onToggleMixer={toggleMixerPanel}
@@ -848,6 +844,14 @@ function App() {
                 aria-label="Zoom in"
               >
                 ＋
+              </button>
+              <button
+                type="button"
+                className="button button-ghost button-icon-sm"
+                onClick={handleZoomReset}
+                aria-label="Reset zoom"
+              >
+                Reset
               </button>
             </div>
           </header>
