@@ -11,6 +11,8 @@ import {
 } from '../state';
 import { TrackType, ClipType, EffectType, AppState } from '../state/models';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('Serialization', () => {
   let testProject: any;
 

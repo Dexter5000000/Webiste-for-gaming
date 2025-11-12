@@ -30,7 +30,7 @@ export const TimelineDemo: React.FC = () => {
 
       requestAnimationFrame(animate);
     }
-  }, [isPlaying, tempo]);
+  }, [isPlaying, tempo, playheadPosition]);
 
   const handlePlayPause = () => {
     if (isPlaying) {

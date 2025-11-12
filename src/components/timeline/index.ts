@@ -1,6 +1,7 @@
 export { Timeline } from './Timeline';
 export { TimelineDemo } from './TimelineDemo';
-export { TimelineProvider, useTimeline } from './TimelineContext';
+export { TimelineProvider } from './TimelineContext';
+export { useTimeline } from './useTimeline';
 export { TimelineCanvas } from './TimelineCanvas';
 export { TrackList } from './TrackList';
 export { TrackHeader } from './TrackHeader';

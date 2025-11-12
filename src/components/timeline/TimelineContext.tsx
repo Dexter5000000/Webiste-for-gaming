@@ -1,32 +1,11 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSyncExternalStore } from 'react';
-import {
-  TimelineStateStore,
-  TimelineState,
-  TimelineViewport,
-  AudioClip,
-  TrackConfig,
-  ClipSelection,
-} from '../../audio/clips';
-
-interface TimelineContextValue {
-  state: TimelineState;
-  store: TimelineStateStore;
-  addTrack: (track: TrackConfig) => void;
-  updateTrack: (trackId: string, updates: Partial<TrackConfig>) => void;
-  removeTrack: (trackId: string) => void;
-  reorderTracks: (sourceId: string, targetId: string) => void;
-  addClip: (clip: AudioClip) => void;
-  updateClip: (clipId: string, updates: Partial<AudioClip>) => void;
-  removeClip: (clipId: string) => void;
-  selectClips: (clipIds: string[], append?: boolean) => void;
-  clearSelection: () => void;
-  updateViewport: (updates: Partial<TimelineViewport>) => void;
-  setSelectionState: (selection: ClipSelection) => void;
-  setSelection: (selection: ClipSelection) => void;
-}
-
-const TimelineContext = createContext<TimelineContextValue | null>(null);
+import { TimelineStateStore } from '../../audio/clips';
+import { TimelineContext, TimelineContextValue } from './timelineContextTypes';
+// Re-export for backward compatibility with files that import from TimelineContext
+import { useTimeline as _useTimeline } from './useTimeline';
+// eslint-disable-next-line react-refresh/only-export-components
+export const useTimeline = _useTimeline;
 
 export const TimelineProvider: React.FC<{ store: TimelineStateStore; children: React.ReactNode }>
   = ({ store, children }) => {
@@ -59,11 +38,3 @@ export const TimelineProvider: React.FC<{ store: TimelineStateStore; children: R
 
   return <TimelineContext.Provider value={value}>{children}</TimelineContext.Provider>;
 };
-
-export function useTimeline(): TimelineContextValue {
-  const context = useContext(TimelineContext);
-  if (!context) {
-    throw new Error('useTimeline must be used within a TimelineProvider');
-  }
-  return context;
-}
