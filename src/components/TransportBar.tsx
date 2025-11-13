@@ -53,10 +53,9 @@ const TransportBar = memo(function TransportBar({
   return (
     <header
       className="transport-bar"
-      role="banner"
       aria-label="Transport controls"
     >
-      <nav className="transport-nav" aria-label="Main navigation">
+      <nav className="transport-nav">
         <div className="transport-brand" aria-hidden="true">
           <span className="brand-mark" />
           <div>
