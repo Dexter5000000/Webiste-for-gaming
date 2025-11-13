@@ -2,10 +2,10 @@ try {
   self["workbox:core:7.2.0"] && _();
 } catch {
 }
-const O = (a, ...e) => {
+const E = (a, ...e) => {
   let t = a;
   return e.length > 0 && (t += ` :: ${JSON.stringify(e)}`), t;
-}, E = O;
+}, O = E;
 class l extends Error {
   /**
    *
@@ -16,7 +16,7 @@ class l extends Error {
    * be added as a key on the context object.
    */
   constructor(e, t) {
-    const s = E(e, t);
+    const s = O(e, t);
     super(s), this.name = e, this.details = t;
   }
 }
@@ -97,19 +97,19 @@ class D {
     }, this._precacheController = e;
   }
 }
-let p;
+let g;
 function S() {
-  if (p === void 0) {
+  if (g === void 0) {
     const a = new Response("");
     if ("body" in a)
       try {
-        new Response(a.body), p = !0;
+        new Response(a.body), g = !0;
       } catch {
-        p = !1;
+        g = !1;
       }
-    p = !1;
+    g = !1;
   }
-  return p;
+  return g;
 }
 async function q(a, e) {
   let t = null;
@@ -123,19 +123,19 @@ async function q(a, e) {
   return new Response(c, r);
 }
 const j = (a) => new URL(String(a), location.href).href.replace(new RegExp(`^${location.origin}`), "");
-function K(a, e) {
+function v(a, e) {
   const t = new URL(a);
   for (const s of e)
     t.searchParams.delete(s);
   return t.href;
 }
 async function F(a, e, t, s) {
-  const n = K(e.url, t);
+  const n = v(e.url, t);
   if (e.url === n)
     return a.match(e, s);
   const r = Object.assign(Object.assign({}, s), { ignoreSearch: !0 }), c = await a.keys(e, r);
   for (const i of c) {
-    const o = K(i.url, t);
+    const o = v(i.url, t);
     if (n === o)
       return a.match(i, s);
   }
@@ -306,7 +306,7 @@ class V {
     const r = await this._ensureResponseSafeToCache(t);
     if (!r)
       return !1;
-    const { cacheName: c, matchOptions: i } = this._strategy, o = await self.caches.open(c), h = this.hasCallback("cacheDidUpdate"), g = h ? await F(
+    const { cacheName: c, matchOptions: i } = this._strategy, o = await self.caches.open(c), h = this.hasCallback("cacheDidUpdate"), p = h ? await F(
       // TODO(philipwalton): the `__WB_REVISION__` param is a precaching
       // feature. Consider into ways to only add this behavior if using
       // precaching.
@@ -324,7 +324,7 @@ class V {
     for (const u of this.iterateCallbacks("cacheDidUpdate"))
       await u({
         cacheName: c,
-        oldResponse: g,
+        oldResponse: p,
         newResponse: r.clone(),
         request: n,
         event: this.event
@@ -471,7 +471,7 @@ class V {
     return s || t && t.status !== 200 && (t = void 0), t;
   }
 }
-class v {
+class K {
   /**
    * Creates a new instance of the strategy and sets all documented option
    * properties as public instance properties.
@@ -593,7 +593,7 @@ class v {
       throw c;
   }
 }
-class d extends v {
+class d extends K {
   /**
    *
    * @param {Object} [options]
@@ -1036,11 +1036,11 @@ class J {
     } catch (u) {
       h = Promise.reject(u);
     }
-    const g = c && c.catchHandler;
-    return h instanceof Promise && (this._catchHandler || g) && (h = h.catch(async (u) => {
-      if (g)
+    const p = c && c.catchHandler;
+    return h instanceof Promise && (this._catchHandler || p) && (h = h.catch(async (u) => {
+      if (p)
         try {
-          return await g.handle({ url: s, request: e, event: t, params: r });
+          return await p.handle({ url: s, request: e, event: t, params: r });
         } catch (k) {
           k instanceof Error && (u = k);
         }
@@ -1236,7 +1236,7 @@ const ie = {
    */
   cacheWillUpdate: async ({ response: a }) => a.status === 200 || a.status === 0 ? a : null
 };
-class x extends v {
+class x extends K {
   /**
    * @param {Object} [options]
    * @param {string} [options.cacheName] Cache name to store and retrieve
@@ -1276,7 +1276,19 @@ class x extends v {
   }
 }
 ne();
-ce([{"revision":null,"url":"assets/index-D50KkxHF.css"},{"revision":null,"url":"assets/index-uN8q1JNX.js"},{"revision":"7e03c1d3775a1b9713b04293cc526911","url":"favicon.svg"},{"revision":"0db2a6286cf15a2ffae0e58aebd8bded","url":"index.html"},{"revision":"0ed9bb5f99ac55eb49fad94fe73945ba","url":"pwa-192x192.svg"},{"revision":"e3306abec97f935cba52aaf1a611e010","url":"pwa-512x512.svg"},{"revision":"1872c500de691dce40960bb85481de07","url":"registerSW.js"},{"revision":"0ed9bb5f99ac55eb49fad94fe73945ba","url":"pwa-192x192.svg"},{"revision":"e3306abec97f935cba52aaf1a611e010","url":"pwa-512x512.svg"},{"revision":"559e3f201b0a16dd66742b2c015f6a11","url":"manifest.webmanifest"}]);
+ce([{"revision":null,"url":"assets/index-CO6hVygb.js"},{"revision":null,"url":"assets/index-D50KkxHF.css"},{"revision":"7e03c1d3775a1b9713b04293cc526911","url":"favicon.svg"},{"revision":"d2f204c1050cbc70585bdce44a44cff6","url":"index.html"},{"revision":"0ed9bb5f99ac55eb49fad94fe73945ba","url":"pwa-192x192.svg"},{"revision":"e3306abec97f935cba52aaf1a611e010","url":"pwa-512x512.svg"},{"revision":"1872c500de691dce40960bb85481de07","url":"registerSW.js"},{"revision":"0ed9bb5f99ac55eb49fad94fe73945ba","url":"pwa-192x192.svg"},{"revision":"e3306abec97f935cba52aaf1a611e010","url":"pwa-512x512.svg"},{"revision":"559e3f201b0a16dd66742b2c015f6a11","url":"manifest.webmanifest"}]);
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+self.addEventListener("activate", (a) => {
+  a.waitUntil(
+    caches.keys().then((e) => Promise.all(
+      e.map((t) => caches.delete(t))
+    )).then(() => {
+      self.clients.claim();
+    })
+  );
+});
 b(
   ({ request: a }) => a.destination === "script" || a.destination === "style" || a.destination === "image",
   new x({
