@@ -53,7 +53,21 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Initialize AudioEngine
-  const [audioEngine] = useState(() => new AudioEngine());
+  const [audioEngine] = useState(() => {
+    try {
+      console.log('[AUDIO ENGINE] Initializing AudioEngine...');
+      const engine = new AudioEngine();
+      console.log('[AUDIO ENGINE] AudioEngine initialized successfully');
+      console.log('[AUDIO ENGINE] Sample rate:', engine.audioContext.sampleRate);
+      if ('state' in engine.audioContext) {
+        console.log('[AUDIO ENGINE] Context state:', (engine.audioContext as { state: string }).state);
+      }
+      return engine;
+    } catch (error) {
+      console.error('[AUDIO ENGINE] Failed to initialize AudioEngine:', error);
+      throw error;
+    }
+  });
   const [audioContextResumed, setAudioContextResumed] = useState(false);
 
   // Resume audio context on user interaction
