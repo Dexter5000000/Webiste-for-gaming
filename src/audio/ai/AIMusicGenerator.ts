@@ -123,9 +123,9 @@ export class AIMusicGenerator {
     const isMinimal = /minimal|simple|sparse|empty|quiet/.test(prompt);
     const isComplex = /complex|intricate|complicated|layered|rich|dense/.test(prompt);
     
-    // Use prompt hash for deterministic but unique randomness per prompt
-    const promptHash = this.hashString(request.prompt);
-    const seededRandom = this.seededRandom(promptHash);
+    // Use random seed for unique variations every generation (NOT prompt-based, which repeats)
+    const randomSeed = Math.floor(Math.random() * 2147483647);
+    const seededRandom = this.seededRandom(randomSeed);
 
     // Tempo heuristic from prompt
     let tempo = isAmbient ? 60 + seededRandom() * 20 : isDance ? 120 + seededRandom() * 30 : 90 + seededRandom() * 20;
@@ -525,17 +525,6 @@ export class AIMusicGenerator {
     };
 
     return genreModels[genre.toLowerCase()] ?? 'stable-audio-open';
-  }
-
-  // Helper: Hash string to seed random generator
-  private hashString(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash);
   }
 
   // Helper: Seeded random number generator (0-1)
