@@ -958,14 +958,6 @@ function App() {
         />
       </main>
 
-      <div
-        role="separator"
-        aria-orientation="horizontal"
-        aria-label="Resize mixer"
-        className="resizer resizer-horizontal mixer-resizer"
-        onPointerDown={handleMixerResizeStart}
-      />
-
       <MixerDock
         channels={mixerChannels}
         collapsed={mixerCollapsed}
@@ -974,6 +966,13 @@ function App() {
       />
 
       <footer role="contentinfo" className="daw-footer">
+        <div
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize mixer"
+          className="resizer resizer-horizontal mixer-resizer"
+          onPointerDown={handleMixerResizeStart}
+        />
         <p>Zenith DAW - Digital Audio Workstation</p>
       </footer>
 

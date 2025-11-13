@@ -242,7 +242,36 @@ const TimelineViewport = memo(function TimelineViewport({
   }, [clips, pixelsPerBeat]);
 
   return (
-    <section className="timeline-viewport" aria-label="Timeline viewport">
+    <section 
+      className="timeline-viewport" 
+      aria-label="Timeline viewport"
+      tabIndex={0}
+      role="region"
+      onKeyDown={(e) => {
+        const scrollContainer = e.currentTarget;
+        const scrollAmount = 50;
+        switch(e.key) {
+          case 'ArrowRight':
+            e.preventDefault();
+            scrollContainer.scrollLeft += scrollAmount;
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            scrollContainer.scrollLeft -= scrollAmount;
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            scrollContainer.scrollTop += scrollAmount;
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            scrollContainer.scrollTop -= scrollAmount;
+            break;
+          default:
+            break;
+        }
+      }}
+    >
       <div
         className="timeline-canvas"
         style={{
