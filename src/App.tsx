@@ -834,9 +834,13 @@ function App() {
               >
                 −
               </button>
-              <span className="text-xs text-muted">
-                               {Math.round((grid.zoomHorizontal / 20) * 100)}%
-                             </span>
+              <span 
+                className="text-xs text-muted"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {Math.round((grid.zoomHorizontal / 20) * 100)}%
+              </span>
               <button
                 type="button"
                 className="button button-ghost button-icon-sm"
