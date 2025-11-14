@@ -32,27 +32,36 @@ class PersonalityTraitsSpider(scrapy.Spider):
     def parse(self, response):
         """Parse personality types from 16personalities"""
         
-        # Extract personality type cards
-        for card in response.css('div.type-card, div.personality-type'):
-            type_code = card.css('::attr(data-type)').get()
+        # Extract personality type cards - try multiple selectors
+        for card in response.css('div.type-card, div.personality-type, div[data-type], div.card, article'):
+            type_code = (card.css('::attr(data-type)').get() or
+                        card.css('[data-code]::text').get() or '')
+            
+            name = (card.css('h3::text').get() or
+                   card.css('h4::text').get() or
+                   card.css('span.title::text').get() or '')
+            
+            if not name:
+                continue
             
             yield {
-                'id': type_code or '',
-                'name': card.css('h3::text').get('').strip(),
+                'id': type_code or name[:4],
+                'name': name.strip() if name else '',
                 'code': type_code or '',
-                'description': card.css('p::text').get('').strip(),
-                'traits': ','.join(card.css('span.trait::text').getall()),
-                'strengths': ','.join(card.css('ul.strengths li::text').getall()),
-                'weaknesses': ','.join(card.css('ul.weaknesses li::text').getall()),
-                'url': response.urljoin(card.css('a::attr(href)').get('') or ''),
+                'description': ((card.css('p::text').get() or
+                                card.css('div.description::text').get()) or '').strip(),
+                'traits': ','.join(card.css('span.trait, span[data-trait]::text').getall()),
+                'strengths': ','.join(card.css('ul.strengths li::text, [data-strengths] li::text').getall()),
+                'weaknesses': ','.join(card.css('ul.weaknesses li::text, [data-weaknesses] li::text').getall()),
+                'url': response.urljoin(card.css('a::attr(href)').get() or ''),
                 'category': 'mbti',
                 'source': '16personalities.com',
                 'page': self.current_page,
             }
-
+        
         # Follow personality detail pages
         if self.current_page < self.pages:
-            for detail_link in response.css('a.type-link::attr(href)').getall()[:3]:  # Limit to 3
+            for detail_link in response.css('a.type-link::attr(href), a[data-type]::attr(href)').getall()[:3]:
                 yield scrapy.Request(
                     response.urljoin(detail_link),
                     callback=self.parse_personality_detail,

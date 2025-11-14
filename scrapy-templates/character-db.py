@@ -32,25 +32,32 @@ class CharacterPersonalityDatabaseSpider(scrapy.Spider):
     def parse(self, response):
         """Parse character database"""
         
-        # Extract character entries
-        for char in response.css('div.character-entry, tr.character-row'):
-            char_id = char.css('::attr(data-id)').get() or char.css('td:first-child::text').get('').strip()
-            char_name = char.css('span.name, td.name::text').get('').strip()
+        # Extract character entries - try multiple selectors
+        for char in response.css('div.character-entry, tr.character-row, div.character-card, article, li'):
+            char_id = (char.css('::attr(data-id)').get() or
+                      char.css('td:first-child::text').get() or '')
+            char_name = ((char.css('span.name, td.name::text').get() or
+                         char.css('h3::text').get() or
+                         char.css('h4::text').get()) or '').strip()
             
             if not char_name:
                 continue
             
             yield {
-                'id': char_id or '',
+                'id': char_id.strip() if char_id else '',
                 'name': char_name,
-                'description': char.css('p.description, td.description::text').get('').strip(),
-                'personality': char.css('span.personality, td.personality::text').get('').strip(),
-                'traits': ','.join(char.css('span.trait, td.traits::text').getall()),
+                'description': ((char.css('p.description, td.description::text').get() or
+                                char.css('div.bio::text').get()) or '').strip(),
+                'personality': ((char.css('span.personality, td.personality::text').get() or
+                               char.css('[data-personality]::text').get()) or '').strip(),
+                'traits': ','.join(char.css('span.trait, td.traits::text, [data-traits]::text').getall()),
                 'category': self.category,
-                'origin': char.css('span.origin, td.origin::text').get('').strip(),
-                'role': char.css('span.role, td.role::text').get('').strip(),
+                'origin': ((char.css('span.origin, td.origin::text').get() or
+                           char.css('[data-origin]::text').get()) or '').strip(),
+                'role': ((char.css('span.role, td.role::text').get() or
+                         char.css('[data-role]::text').get()) or '').strip(),
                 'source': 'character-db',
-                'url': response.urljoin(char.css('a::attr(href)').get('') or ''),
+                'url': response.urljoin(char.css('a::attr(href)').get() or ''),
                 'page': self.current_page,
             }
 

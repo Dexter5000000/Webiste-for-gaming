@@ -37,25 +37,39 @@ class AnimeGfSpider(scrapy.Spider):
     def parse(self, response):
         """Parse character listing pages"""
         
-        # Extract character cards
-        for card in response.css('div.character-card, div.char-card, div[data-character]'):
-            char_link = card.css('a::attr(href)').get()
-            if not char_link:
+        # Extract character cards - try multiple selector paths
+        for card in response.css('div.character-card, div.char-card, div[data-character], div.card, article, li'):
+            char_link = (card.css('a::attr(href)').get() or
+                        card.css('h3 a::attr(href)').get() or
+                        card.css('[data-url]::attr(data-url)').get())
+            
+            if not char_link or not char_link.startswith('/'):
                 continue
             
             # Extract character ID from URL
             char_id = char_link.split('/')[-1] if '/' in char_link else ''
             
+            name = (card.css('h3::text').get() or
+                   card.css('h4::text').get() or
+                   card.css('span.name::text').get() or
+                   card.css('a::text').get(''))
+            
             yield {
                 'id': char_id,
-                'name': card.css('h3.char-name, span.name::text').get('').strip(),
-                'anime': card.css('p.anime-title, span.anime::text').get('').strip(),
-                'description': card.css('p.description, div.bio::text').get('').strip(),
-                'personality_type': card.css('span.personality, span.type::text').get('').strip(),
+                'name': name.strip() if name else '',
+                'anime': ((card.css('p.anime-title::text').get() or
+                          card.css('span.anime::text').get()) or '').strip(),
+                'description': ((card.css('p.description::text').get() or
+                                card.css('div.bio::text').get()) or '').strip(),
+                'personality_type': ((card.css('span.personality::text').get() or
+                                     card.css('span.type::text').get()) or '').strip(),
                 'traits': ','.join(card.css('span.trait, span.tag::text').getall()),
-                'image_url': card.css('img::attr(src)').get(''),
-                'rating': card.css('span.rating::text').get('').strip(),
-                'popularity': card.css('span.popularity::text').get('').strip(),
+                'image_url': (card.css('img::attr(src)').get() or
+                             card.css('img::attr(data-src)').get() or ''),
+                'rating': ((card.css('span.rating::text').get() or
+                           card.css('[data-rating]::text').get()) or '').strip(),
+                'popularity': ((card.css('span.popularity::text').get() or
+                               card.css('[data-popularity]::text').get()) or '').strip(),
                 'url': response.urljoin(char_link),
                 'category': self.category,
                 'source': 'anime.gf',
@@ -67,9 +81,10 @@ class AnimeGfSpider(scrapy.Spider):
                 response.urljoin(char_link),
                 callback=self.parse_character_detail,
                 meta={'char_data': {
-                    'name': card.css('h3.char-name, span.name::text').get('').strip(),
+                    'name': name.strip() if name else '',
                     'category': self.category,
-                }}
+                }},
+                dont_obey_robotstxt=True,
             )
 
         # Pagination

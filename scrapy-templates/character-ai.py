@@ -34,24 +34,36 @@ class CharacterAiSpider(scrapy.Spider):
     def parse(self, response):
         """Parse character search results"""
         
-        # Extract character cards
-        for card in response.css('div[data-character-id]'):
-            char_id = card.css('::attr(data-character-id)').get()
-            char_link = card.css('a::attr(href)').get()
+        # Extract character cards - try multiple selectors
+        for card in response.css('div[data-character-id], div.character-card, div.card, article, li'):
+            char_id = (card.css('::attr(data-character-id)').get() or
+                      card.css('::attr(data-id)').get() or '')
+            char_link = (card.css('a::attr(href)').get() or
+                        card.css('h3 a::attr(href)').get())
             
             if not char_link:
                 continue
             
+            name = (card.css('h3::text').get() or
+                   card.css('h4::text').get() or
+                   card.css('span.name::text').get() or
+                   card.css('a::text').get(''))
+            
             yield {
                 'id': char_id or '',
-                'name': card.css('h3::text').get('').strip(),
-                'description': card.css('p.description::text').get('').strip(),
+                'name': name.strip() if name else '',
+                'description': ((card.css('p.description::text').get() or
+                                card.css('div.bio::text').get()) or '').strip(),
                 'category': self.category,
-                'author': card.css('span.author::text').get('').strip(),
-                'rating': card.css('span.rating::text').get('').strip(),
-                'chat_count': card.css('span.chats::text').get('').strip(),
+                'author': ((card.css('span.author::text').get() or
+                           card.css('[data-author]::text').get()) or '').strip(),
+                'rating': ((card.css('span.rating::text').get() or
+                           card.css('[data-rating]::text').get()) or '').strip(),
+                'chat_count': ((card.css('span.chats::text').get() or
+                               card.css('[data-chats]::text').get()) or '').strip(),
                 'url': response.urljoin(char_link),
-                'avatar': card.css('img::attr(src)').get(''),
+                'avatar': (card.css('img::attr(src)').get() or
+                          card.css('img::attr(data-src)').get() or ''),
                 'tags': ','.join(card.css('span.tag::text').getall()),
                 'source': 'character.ai',
                 'page': self.current_page,
