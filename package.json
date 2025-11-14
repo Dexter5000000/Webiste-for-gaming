@@ -15,7 +15,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "scrapy:convert": "ts-node scripts/convert-scrapy-formats.ts",
+    "scrapy:process": "ts-node scripts/process-scrapy-data.ts"
   },
   "keywords": [
     "daw",
